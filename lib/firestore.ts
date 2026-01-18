@@ -1,5 +1,5 @@
 import { adminDb } from './firebase-admin';
-import { db } from './firebase';
+import { getDbInstance } from './firebase';
 import { 
   doc, 
   setDoc, 
@@ -31,6 +31,7 @@ export async function createUserProfile(
   name: string,
   role: UserRole = 'student'
 ): Promise<UserProfile> {
+  const db = getDbInstance();
   const userRef = doc(db, 'users', userId);
   const userSnap = await getDoc(userRef);
 
@@ -82,6 +83,7 @@ export async function createUserProfile(
 
 // Get user profile (client-side)
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
+  const db = getDbInstance();
   const userRef = doc(db, 'users', userId);
   const userSnap = await getDoc(userRef);
 
@@ -109,6 +111,7 @@ export async function updateUserProfile(
   userId: string,
   updates: Partial<Omit<UserProfile, 'id' | 'email' | 'createdAt'>>
 ): Promise<void> {
+  const db = getDbInstance();
   const userRef = doc(db, 'users', userId);
   
   const updateData: any = {};

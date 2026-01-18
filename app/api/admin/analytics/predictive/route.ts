@@ -51,8 +51,8 @@ export async function GET(req: NextRequest) {
       adminDb.collection('testAttempts').get(),
     ]);
     
-    const results = resultsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    const attempts = attemptsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const results = resultsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+    const attempts = attemptsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
     
     const now = new Date();
     const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);

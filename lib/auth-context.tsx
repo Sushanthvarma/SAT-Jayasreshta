@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, onAuthStateChanged, getIdToken } from 'firebase/auth';
-import { auth } from './firebase';
+import { getAuthInstance } from './firebase';
 import { UserProfile, getUserProfile, createUserProfile } from './firestore';
 
 interface AuthContextType {
@@ -49,19 +49,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
-      
-      if (firebaseUser) {
-        await refreshProfile();
-      } else {
-        setUserProfile(null);
-      }
-      
-      setLoading(false);
-    });
+    if (typeof window === 'undefined') return;
+    
+    try {
+      const auth = getAuthInstance();
+      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        setUser(firebaseUser);
+        
+        if (firebaseUser) {
+          await refreshProfile();
+        } else {
+          setUserProfile(null);
+        }
+        
+        setLoading(false);
+      });
 
-    return () => unsubscribe();
+      return () => unsubscribe();
+    } catch (error) {
+      console.error('Error initializing auth:', error);
+      setLoading(false);
+    }
   }, []);
 
   return (

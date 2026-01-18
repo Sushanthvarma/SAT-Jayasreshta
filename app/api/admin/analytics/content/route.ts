@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     
     // Get all tests
     const testsSnapshot = await adminDb.collection('tests').get();
-    const tests = testsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const tests = testsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
     
     // Get all test results
     const resultsSnapshot = await adminDb.collection('testResults').get();
@@ -50,10 +50,10 @@ export async function GET(req: NextRequest) {
     
     // Get all questions
     const questionsSnapshot = await adminDb.collection('questions').get();
-    const questions = questionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const questions = questionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
     
     // Analyze test difficulty
-    const testAnalytics = tests.map(test => {
+    const testAnalytics = tests.map((test: any) => {
       const testResults = results.filter((r: any) => r.testId === test.id);
       if (testResults.length === 0) {
         return {
@@ -129,9 +129,9 @@ export async function GET(req: NextRequest) {
       
       questionAnalytics.push({
         questionId: question.id,
-        questionText: (question.questionText || '').substring(0, 100) + '...',
-        subject: question.subject || 'Unknown',
-        difficulty: question.difficulty || 'Unknown',
+        questionText: ((question as any).questionText || '').substring(0, 100) + '...',
+        subject: (question as any).subject || 'Unknown',
+        difficulty: (question as any).difficulty || 'Unknown',
         accuracy: Math.round(accuracy * 10) / 10,
         timesAsked: questionResults.length,
         timesCorrect: correctCount,

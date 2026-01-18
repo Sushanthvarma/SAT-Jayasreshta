@@ -72,8 +72,15 @@ export async function POST(req: NextRequest) {
     
     const user = userDoc.data();
     
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'User data not found' },
+        { status: 404 }
+      );
+    }
+    
     // Check email preferences
-    const emailPrefs = user?.emailPreferences || {};
+    const emailPrefs = user.emailPreferences || {};
     if (emailPrefs.achievementEmails === false) {
       return NextResponse.json({
         success: false,

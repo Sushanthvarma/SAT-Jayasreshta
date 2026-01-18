@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { signInWithPopup, signOut } from 'firebase/auth';
-import { auth, googleProvider } from '@/lib/firebase';
+import { getAuthInstance, getGoogleProviderInstance } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
@@ -12,6 +12,8 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
   const handleGoogleSignIn = async () => {
     try {
       setError(null);
+      const auth = getAuthInstance();
+      const googleProvider = getGoogleProviderInstance();
       await signInWithPopup(auth, googleProvider);
     } catch (err: any) {
       setError(err.message || 'Sign in failed. Please try again.');
@@ -88,7 +90,10 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
               </div>
             </div>
             <button 
-              onClick={() => signOut(auth)} 
+              onClick={() => {
+                const auth = getAuthInstance();
+                signOut(auth);
+              }} 
               className="rounded-lg bg-gray-100 px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-200 transition-colors min-h-[44px]"
             >
               Sign Out
