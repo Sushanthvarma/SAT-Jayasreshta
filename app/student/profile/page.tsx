@@ -3,9 +3,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { getAuthInstance } from '@/lib/firebase';
+import { getAuthInstance, getStorageInstance } from '@/lib/firebase';
 import { getIdToken } from 'firebase/auth';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import toast from 'react-hot-toast';
 import Header from '@/components/layout/Header';
 import { StudentProfile } from '@/lib/types/profile';
@@ -92,7 +92,7 @@ export default function ProfilePage() {
     try {
       setUploadingPhoto(true);
       const auth = getAuthInstance();
-      const storage = getStorage();
+      const storage = getStorageInstance();
       const storageRef = ref(storage, `profile-photos/${user!.uid}/${Date.now()}_${file.name}`);
       
       await uploadBytes(storageRef, file);
