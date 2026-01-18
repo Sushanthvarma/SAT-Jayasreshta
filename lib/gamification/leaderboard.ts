@@ -18,7 +18,7 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
 
   usersSnapshot.forEach((doc) => {
     const data = doc.data();
-    const isCurrentUser = userId && doc.id === userId;
+    const isCurrentUser = !!(userId && doc.id === userId);
     
     if (isCurrentUser) {
       currentUserRank = rank;

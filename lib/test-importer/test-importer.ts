@@ -62,8 +62,8 @@ export function convertTestFileToFirestore(
         skillTags: q.skillTags || [],
         points: q.points || 1,
         estimatedTime: q.estimatedTime || 60,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now(),
+        createdAt: FieldValue.serverTimestamp() as any,
+        updatedAt: FieldValue.serverTimestamp() as any,
       };
       
       // Only add optional fields if they have actual values (not undefined/null)
@@ -108,8 +108,8 @@ export function convertTestFileToFirestore(
     instructions: `Complete all sections within the time limits.`,
     allowedBreaks: 0,
     breakDuration: 0,
-    createdAt: Timestamp.now(),
-    updatedAt: Timestamp.now(),
+    createdAt: FieldValue.serverTimestamp() as any,
+    updatedAt: FieldValue.serverTimestamp() as any,
     createdBy,
     totalAttempts: 0,
   };
@@ -165,7 +165,7 @@ export async function importTestFile(
   // Update status based on options
   if (options.publish) {
     test.status = 'published';
-    test.publishedAt = Timestamp.now();
+    test.publishedAt = FieldValue.serverTimestamp() as any;
     console.log(`   ✅ Will publish test`);
   }
   if (options.activate) {

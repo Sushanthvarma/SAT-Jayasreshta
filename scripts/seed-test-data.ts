@@ -216,14 +216,14 @@ const sampleQuestions = [
 
 // Generate more questions to reach 30 total
 function generateMoreQuestions() {
-  const questions = [...sampleQuestions];
+  const questions: any[] = [...sampleQuestions];
   
   // Add more reading questions (8 more to reach 10)
   for (let i = 3; i <= 10; i++) {
     questions.push({
       type: 'multiple-choice' as const,
       subject: 'reading' as const,
-      difficulty: i % 3 === 0 ? 'hard' : i % 2 === 0 ? 'medium' : 'easy' as const,
+      difficulty: (i % 3 === 0 ? 'hard' : i % 2 === 0 ? 'medium' : 'easy') as 'easy' | 'medium' | 'hard',
       questionNumber: i,
       sectionNumber: 1,
       questionText: `Reading question ${i}: What can be inferred from the passage?`,
@@ -248,7 +248,7 @@ function generateMoreQuestions() {
     questions.push({
       type: 'multiple-choice' as const,
       subject: 'writing' as const,
-      difficulty: i % 3 === 0 ? 'hard' : i % 2 === 0 ? 'medium' : 'easy' as const,
+      difficulty: (i % 3 === 0 ? 'hard' : i % 2 === 0 ? 'medium' : 'easy') as 'easy' | 'medium' | 'hard',
       questionNumber: i,
       sectionNumber: 2,
       questionText: `Writing question ${i}: Choose the best option.`,
@@ -273,7 +273,7 @@ function generateMoreQuestions() {
     questions.push({
       type: isGridIn ? 'grid-in' : 'multiple-choice' as const,
       subject: 'math-no-calculator' as const,
-      difficulty: i % 3 === 0 ? 'hard' : i % 2 === 0 ? 'medium' : 'easy' as const,
+      difficulty: (i % 3 === 0 ? 'hard' : i % 2 === 0 ? 'medium' : 'easy') as 'easy' | 'medium' | 'hard',
       questionNumber: i,
       sectionNumber: 3,
       questionText: `Math question ${i}: Solve for the answer.`,

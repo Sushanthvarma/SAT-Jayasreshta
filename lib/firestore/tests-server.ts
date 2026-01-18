@@ -52,7 +52,7 @@ export async function updateTestAdmin(
   if (updates.status === 'published' && updates.publishedAt === undefined) {
     // Check if test was already published
     const testSnap = await testRef.get();
-    if (!testSnap.exists()) {
+    if (!testSnap.exists) {
       throw new Error('Test not found');
     }
     const existingTest = testSnap.data();
@@ -71,7 +71,7 @@ export async function getTestByIdAdmin(testId: string): Promise<Test | null> {
   const testRef = adminDb.collection('tests').doc(testId);
   const testSnap = await testRef.get();
   
-  if (!testSnap.exists()) {
+    if (!testSnap.exists) {
     return null;
   }
   
@@ -95,10 +95,10 @@ export async function saveTestResult(result: Omit<TestResult, 'id' | 'createdAt'
     ...result,
     createdAt: Timestamp.now(),
     completedAt: Timestamp.fromDate(
-      result.completedAt instanceof Date ? result.completedAt : new Date(result.completedAt)
+      result.completedAt instanceof Date ? result.completedAt : ((result.completedAt as any)?.toDate?.() || new Date(result.completedAt as any))
     ),
     submittedAt: Timestamp.fromDate(
-      result.submittedAt instanceof Date ? result.submittedAt : new Date(result.submittedAt)
+      result.submittedAt instanceof Date ? result.submittedAt : ((result.submittedAt as any)?.toDate?.() || new Date(result.submittedAt as any))
     ),
   });
   

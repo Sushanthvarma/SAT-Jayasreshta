@@ -171,7 +171,7 @@ export function triggerHapticFeedback(
     return; // Not supported
   }
 
-  const patterns: number[] = {
+  const patterns: Record<string, number> = {
     success: 50, // Quick tap
     error: 100, // Single buzz
     milestone: 200, // Celebration pattern
