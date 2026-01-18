@@ -119,14 +119,14 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
             setCurrentSection(validSection);
             
             // Find the first question in the current section
-            const sectionQuestions = loadedQuestions.filter(q => q.sectionNumber === validSection);
+            const sectionQuestions = loadedQuestions.filter((q: any) => q.sectionNumber === validSection);
             if (sectionQuestions.length > 0) {
               setCurrentQuestionIndex(0);
               console.log(`✅ Set to section ${validSection}, question 0`);
             } else {
               // If no questions in current section, go to first section with questions
               const firstSectionWithQuestions = testSections.find((s: any) => 
-                loadedQuestions.some(q => q.sectionNumber === s.sectionNumber)
+                loadedQuestions.some((q: any) => q.sectionNumber === s.sectionNumber)
               );
               if (firstSectionWithQuestions) {
                 const firstSectionNum = firstSectionWithQuestions.sectionNumber || 1;
@@ -151,9 +151,10 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
             setAnswers(answersMap);
             
             if (existingAttempt.expiresAt) {
-              const expiresAt = existingAttempt.expiresAt instanceof Date 
-                ? existingAttempt.expiresAt 
-                : new Date(existingAttempt.expiresAt);
+            const expiresAtRaw = existingAttempt.expiresAt;
+            const expiresAt = expiresAtRaw instanceof Date
+                ? expiresAtRaw 
+                : (expiresAtRaw as any)?.toDate?.() || new Date(expiresAtRaw as any);
               const remaining = Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 1000));
               setTimeRemaining(remaining);
             } else {
@@ -305,7 +306,7 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
       setCurrentQuestionIndex(prev => prev - 1);
     } else if (currentSection > 1) {
       setCurrentSection(prev => prev - 1);
-      const prevSectionQuestions = questions.filter(q => q.sectionNumber === currentSection - 1);
+      const prevSectionQuestions = questions.filter((q: any) => q.sectionNumber === currentSection - 1);
       setCurrentQuestionIndex(prevSectionQuestions.length - 1);
     }
   };
@@ -327,7 +328,7 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
       if (sectionIndex !== -1 && test) {
         setCurrentSection(sectionIndex + 1);
         // Find question index within that section
-        const sectionQuestions = questions.filter(q => q.sectionNumber === sectionIndex + 1);
+        const sectionQuestions = questions.filter((q: any) => q.sectionNumber === sectionIndex + 1);
         const questionIndexInSection = sectionQuestions.findIndex(q => q.id === questionId);
         if (questionIndexInSection !== -1) {
           setCurrentQuestionIndex(questionIndexInSection);

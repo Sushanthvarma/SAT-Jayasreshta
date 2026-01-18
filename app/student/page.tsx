@@ -76,7 +76,7 @@ export default function StudentDashboard() {
             
             if (publishedTests.length === 0) {
               console.warn('⚠️ No tests found. Checking if tests are published and active...');
-              toast.info('No tests available. Check if tests are published and active.');
+              toast('No tests available. Check if tests are published and active.');
             }
           } else {
             console.error('❌ API returned success=false:', data.error);
@@ -444,10 +444,10 @@ export default function StudentDashboard() {
             
             {/* Quick Stats - Compact */}
             <div className="flex items-center gap-4">
-              {userData?.streak > 0 && (
+              {(userData?.streak || 0) > 0 && (
                 <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
                   <span className="text-xl">🔥</span>
-                  <span className="font-bold text-orange-700 text-sm">{userData.streak} day streak</span>
+                  <span className="font-bold text-orange-700 text-sm">{userData?.streak || 0} day streak</span>
                 </div>
               )}
               {userStats?.stats && (
@@ -700,11 +700,12 @@ export default function StudentDashboard() {
                 <div className="space-y-3">
                   {attempts.slice(0, 5).map((attempt) => {
                     const test = allTests.find(t => t.id === attempt.testId);
-                    const statusConfig = {
+                    const statusConfig: Record<string, { color: string; label: string }> = {
                       'submitted': { color: 'bg-green-100 text-green-800', label: 'Completed' },
                       'in-progress': { color: 'bg-yellow-100 text-yellow-800', label: 'In Progress' },
                       'paused': { color: 'bg-orange-100 text-orange-800', label: 'Paused' },
                       'not-started': { color: 'bg-gray-100 text-gray-800', label: 'Not Started' },
+                      'expired': { color: 'bg-red-100 text-red-800', label: 'Expired' },
                     };
                     const status = statusConfig[attempt.status] || statusConfig['not-started'];
                     
@@ -713,7 +714,7 @@ export default function StudentDashboard() {
                         <div className="flex-1">
                           <p className="font-semibold text-gray-900">{test?.title || 'Test'}</p>
                           <p className="text-sm text-gray-600">
-                            {new Date(attempt.startedAt).toLocaleDateString('en-US', { 
+                            {new Date(attempt.startedAt instanceof Date ? attempt.startedAt : (attempt.startedAt as any)?.toDate?.() || attempt.startedAt).toLocaleDateString('en-US', { 
                               month: 'short', 
                               day: 'numeric', 
                               year: 'numeric' 

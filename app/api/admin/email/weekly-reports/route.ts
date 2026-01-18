@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
         }
       }
       
-      const weeklyResults = resultsSnapshot.docs.map(doc => {
+      const weeklyResults = resultsSnapshot.docs.map((doc: any) => {
         const data = doc.data();
         return {
           date: data.completedAt ? (data.completedAt as any).toDate().toISOString().split('T')[0] : '',
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
       // Calculate stats
       const testsCompleted = weeklyResults.length;
       const avgScore = weeklyResults.length > 0
-        ? weeklyResults.reduce((sum, r) => sum + r.score, 0) / weeklyResults.length
+        ? weeklyResults.reduce((sum: number, r: any) => sum + r.score, 0) / weeklyResults.length
         : 0;
       
       // Get badges earned this week (simplified - would need badge tracking)

@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
       } as any;
     }
     
-    const results: TestResult[] = snapshot.docs.map((doc) => {
+    const results: TestResult[] = snapshot.docs.map((doc: any) => {
       const data = doc.data();
       return {
         id: doc.id,

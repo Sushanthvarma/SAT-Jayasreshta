@@ -191,7 +191,8 @@ export default function ProgressPage() {
           ) : (
             <div className="space-y-4">
               {results.map((result, idx) => {
-                const date = new Date(result.completedAt);
+                const completedAt = result.completedAt instanceof Date ? result.completedAt : (result.completedAt as any)?.toDate?.() || result.completedAt;
+                const date = new Date(completedAt);
                 return (
                   <div key={result.id} className="flex items-center gap-4 p-5 bg-gradient-to-r from-gray-50 to-indigo-50 rounded-xl hover:shadow-md transition-all">
                     <div className="flex-1">

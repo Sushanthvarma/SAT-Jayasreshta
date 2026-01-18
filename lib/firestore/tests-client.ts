@@ -42,8 +42,8 @@ export async function getPublishedTests(): Promise<Test[]> {
       createdAt: doc.data().createdAt?.toDate() || new Date(),
       updatedAt: doc.data().updatedAt?.toDate() || new Date(),
       publishedAt: doc.data().publishedAt?.toDate(),
-    }))
-    .filter((test) => test.status === 'published' && test.isActive === true)
+    } as any))
+    .filter((test: any) => test.status === 'published' && test.isActive === true)
     .sort((a, b) => {
       // Sort by createdAt descending
       const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
@@ -162,7 +162,7 @@ export async function startTestAttempt(
   const attemptRef = doc(attemptsRef);
   await setDoc(attemptRef, {
     ...attempt,
-    startedAt: Timestamp.fromDate(attempt.startedAt),
+    startedAt: Timestamp.fromDate(attempt.startedAt as Date),
     expiresAt: Timestamp.fromDate(expiresAt),
   });
   
@@ -186,15 +186,19 @@ export async function updateTestAttempt(
   
   // Convert Date objects to Timestamps
   if (updates.submittedAt) {
-    updateData.submittedAt = Timestamp.fromDate(
-      updates.submittedAt instanceof Date ? updates.submittedAt : new Date(updates.submittedAt)
-    );
+    const submittedAtRaw = updates.submittedAt;
+    const submittedAtDate = submittedAtRaw instanceof Date 
+      ? submittedAtRaw 
+      : (submittedAtRaw as any)?.toDate?.() || new Date(submittedAtRaw as any);
+    updateData.submittedAt = Timestamp.fromDate(submittedAtDate);
   }
   
   if (updates.expiresAt) {
-    updateData.expiresAt = Timestamp.fromDate(
-      updates.expiresAt instanceof Date ? updates.expiresAt : new Date(updates.expiresAt)
-    );
+    const expiresAtRaw = updates.expiresAt;
+    const expiresAtDate = expiresAtRaw instanceof Date 
+      ? expiresAtRaw 
+      : (expiresAtRaw as any)?.toDate?.() || new Date(expiresAtRaw as any);
+    updateData.expiresAt = Timestamp.fromDate(expiresAtDate);
   }
   
   // Convert section dates
@@ -202,15 +206,15 @@ export async function updateTestAttempt(
     updateData.sections = updates.sections.map((section) => ({
       ...section,
       startedAt: section.startedAt 
-        ? Timestamp.fromDate(section.startedAt instanceof Date ? section.startedAt : new Date(section.startedAt))
+        ? Timestamp.fromDate(section.startedAt instanceof Date ? section.startedAt : ((section.startedAt as any)?.toDate?.() || new Date(section.startedAt as any)))
         : undefined,
       completedAt: section.completedAt
-        ? Timestamp.fromDate(section.completedAt instanceof Date ? section.completedAt : new Date(section.completedAt))
+        ? Timestamp.fromDate(section.completedAt instanceof Date ? section.completedAt : ((section.completedAt as any)?.toDate?.() || new Date(section.completedAt as any)))
         : undefined,
       answers: section.answers.map((answer) => ({
         ...answer,
         answeredAt: answer.answeredAt
-          ? Timestamp.fromDate(answer.answeredAt instanceof Date ? answer.answeredAt : new Date(answer.answeredAt))
+          ? Timestamp.fromDate(answer.answeredAt instanceof Date ? answer.answeredAt : ((answer.answeredAt as any)?.toDate?.() || new Date(answer.answeredAt as any)))
           : undefined,
       })),
     }));

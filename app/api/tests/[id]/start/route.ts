@@ -90,7 +90,7 @@ export async function POST(
     const existingAttemptsRef = adminDb.collection('testAttempts');
     
     // Try query with status filter first
-    let existingSnap;
+    let existingSnap: any;
     try {
       const existingQuery = existingAttemptsRef
         .where('testId', '==', testId)
@@ -192,7 +192,7 @@ export async function POST(
     console.log(`💾 Saving attempt to Firestore...`);
     await attemptRef.set({
       ...attempt,
-      startedAt: Timestamp.fromDate(attempt.startedAt),
+      startedAt: Timestamp.fromDate(attempt.startedAt as Date),
       expiresAt: Timestamp.fromDate(expiresAt),
     });
     

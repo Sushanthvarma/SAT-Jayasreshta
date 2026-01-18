@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { getAuthInstance } from '@/lib/firebase';
 import { getIdToken } from 'firebase/auth';
@@ -8,7 +8,8 @@ import toast from 'react-hot-toast';
 import Header from '@/components/layout/Header';
 import Link from 'next/link';
 
-export default function UnsubscribePage() {
+function UnsubscribeContent() {
+  const [mounted, setMounted] = useState(false);
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [unsubscribed, setUnsubscribed] = useState(false);
@@ -22,6 +23,12 @@ export default function UnsubscribePage() {
   });
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    
     const token = searchParams.get('token');
     if (!token) {
       setLoading(false);
@@ -34,6 +41,7 @@ export default function UnsubscribePage() {
 
     const loadPreferences = async () => {
       try {
+        if (typeof window === 'undefined') return;
         const auth = getAuthInstance();
         if (auth.currentUser) {
           const idToken = await getIdToken(auth.currentUser);
@@ -59,6 +67,7 @@ export default function UnsubscribePage() {
 
   const handleUnsubscribe = async () => {
     try {
+      if (typeof window === 'undefined') return;
       const auth = getAuthInstance();
       if (!auth.currentUser) {
         toast.error('Please log in to manage preferences');
@@ -179,5 +188,20 @@ export default function UnsubscribePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function UnsubscribePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="text-center">
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
+          <p className="text-lg font-semibold text-gray-700">Loading...</p>
+        </div>
+      </div>
+    }>
+      <UnsubscribeContent />
+    </Suspense>
   );
 }
