@@ -10,11 +10,21 @@ import toast from 'react-hot-toast';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 
-export default function ResultsPage({ params }: { params: { attemptId: string } }) {
+export default function ResultsPage({ params }: { params: Promise<{ attemptId: string }> | { attemptId: string } }) {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [result, setResult] = useState<TestResult | null>(null);
   const [loading, setLoading] = useState(true);
+  const [attemptId, setAttemptId] = useState<string | null>(null);
+
+  // Handle both Promise and direct params (Next.js 15 compatibility)
+  useEffect(() => {
+    if (params instanceof Promise) {
+      params.then(resolved => setAttemptId(resolved.attemptId));
+    } else {
+      setAttemptId(params.attemptId);
+    }
+  }, [params]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -23,7 +33,7 @@ export default function ResultsPage({ params }: { params: { attemptId: string } 
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !attemptId) return;
 
     const fetchResult = async () => {
       try {
@@ -31,30 +41,43 @@ export default function ResultsPage({ params }: { params: { attemptId: string } 
         const auth = getAuthInstance();
         const idToken = await getIdToken(auth.currentUser!);
         
-        const response = await fetch(`/api/tests/results/${params.attemptId}`, {
+        console.log(`📊 Fetching result for attempt: ${attemptId}`);
+        const response = await fetch(`/api/tests/results/${encodeURIComponent(attemptId)}`, {
           headers: {
             'Authorization': `Bearer ${idToken}`,
           },
         });
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+          console.error('❌ API error:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData.error,
+          });
+          toast.error(errorData.error || 'Failed to load results');
+          return;
+        }
+        
         const data = await response.json();
+        console.log('📊 Result data:', data);
         
         if (data.success) {
           setResult(data.result);
         } else {
-          toast.error('Failed to load results');
-          router.push('/student');
+          console.error('❌ API returned success=false:', data.error);
+          toast.error(data.error || 'Failed to load results');
         }
-      } catch (error) {
-        console.error('Error fetching results:', error);
-        toast.error('Failed to load results');
-        router.push('/student');
+      } catch (error: any) {
+        console.error('❌ Error fetching results:', error);
+        toast.error(error.message || 'Failed to load results');
       } finally {
         setLoading(false);
       }
     };
 
     fetchResult();
-  }, [user, params.attemptId, router]);
+  }, [user, attemptId, router]);
 
   if (authLoading || loading) {
     return (

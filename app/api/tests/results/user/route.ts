@@ -33,13 +33,31 @@ export async function GET(req: NextRequest) {
     const userId = decodedToken.uid;
     
     // Get user's test results
+    // Fetch all and sort in memory to avoid index requirement
     const resultsRef = adminDb.collection('testResults');
-    const resultsQuery = resultsRef
-      .where('userId', '==', userId)
-      .orderBy('completedAt', 'desc')
-      .limit(50);
+    let snapshot;
     
-    const snapshot = await resultsQuery.get();
+    try {
+      // Try with orderBy first (if index exists)
+      const resultsQuery = resultsRef
+        .where('userId', '==', userId)
+        .orderBy('completedAt', 'desc')
+        .limit(50);
+      snapshot = await resultsQuery.get();
+    } catch (error: any) {
+      // If index doesn't exist, fetch all and sort in memory
+      console.warn('⚠️ Firestore index not found, fetching all and sorting in memory:', error.message);
+      const allResults = await resultsRef.where('userId', '==', userId).get();
+      const sortedDocs = allResults.docs.sort((a, b) => {
+        const aTime = (a.data().completedAt as any)?.toDate()?.getTime() || 0;
+        const bTime = (b.data().completedAt as any)?.toDate()?.getTime() || 0;
+        return bTime - aTime; // Descending
+      });
+      snapshot = {
+        docs: sortedDocs.slice(0, 50),
+        empty: sortedDocs.length === 0,
+      } as any;
+    }
     
     const results: TestResult[] = snapshot.docs.map((doc) => {
       const data = doc.data();

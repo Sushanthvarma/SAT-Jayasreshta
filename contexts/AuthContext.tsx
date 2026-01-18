@@ -12,6 +12,7 @@ interface UserData {
   photoURL: string | null;
   streak: number;
   badges: string[];
+  grade?: string;
 }
 
 interface AuthContextType {
@@ -108,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             photoURL: firebaseUser.photoURL || null,
             streak: 0,
             badges: [],
+            grade: undefined,
           });
           return; // Don't throw error, just use fallback
         }
@@ -149,6 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           photoURL: photoURL,
           streak: result.user.currentStreak || 0,
           badges: result.user.badges || [],
+          grade: result.user.grade,
         });
       } else if (firebaseUser) {
         // Fallback: use Firebase user data if API fails
@@ -258,9 +261,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               photoURL: result.user.photoURL || user.photoURL || null,
               streak: result.user.currentStreak || 0,
               badges: result.user.badges || [],
-              xp: result.user.xp || 0,
-              level: result.user.level || 1,
-              totalTestsCompleted: result.user.totalTestsCompleted || 0,
+              grade: result.user.grade,
             });
             console.log('✅ Profile refreshed. New role:', result.user.role);
             return; // Success

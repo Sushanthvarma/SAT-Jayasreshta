@@ -135,6 +135,7 @@ export async function POST(req: NextRequest) {
           longestStreak: freshUserData.longestStreak || 0,
           totalTestsCompleted: freshUserData.totalTestsCompleted || 0,
           badges: freshUserData.badges || [],
+          grade: freshUserData.grade,
         },
       });
     } else {
@@ -177,6 +178,7 @@ export async function POST(req: NextRequest) {
           longestStreak: 0,
           totalTestsCompleted: 0,
           badges: [],
+          grade: undefined,
         },
       });
     }

@@ -11,10 +11,17 @@ import { TestAttempt } from '@/lib/types/test';
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const testId = params.id;
+    // Handle both Promise and direct params (Next.js 15 compatibility)
+    const resolvedParams = params instanceof Promise ? await params : params;
+    let testId = resolvedParams.id;
+    
+    // Decode URL-encoded test ID
+    testId = decodeURIComponent(testId);
+    
+    console.log(`🚀 Starting test attempt for test: ${testId}`);
     
     if (!testId) {
       return NextResponse.json(
@@ -46,14 +53,28 @@ export async function POST(
     
     const userId = decodedToken.uid;
     
-    // Get test
-    const test = await getTestByIdAdmin(testId);
-    if (!test) {
+    // Get test directly from Firestore (more reliable)
+    const testRef = adminDb.collection('tests').doc(testId);
+    const testSnap = await testRef.get();
+    
+    if (!testSnap.exists) {
+      console.error(`❌ Test not found: ${testId}`);
       return NextResponse.json(
         { success: false, error: 'Test not found' },
         { status: 404 }
       );
     }
+    
+    const testData = testSnap.data()!;
+    const test = {
+      id: testSnap.id,
+      ...testData,
+      createdAt: (testData.createdAt as any)?.toDate() || new Date(),
+      updatedAt: (testData.updatedAt as any)?.toDate() || new Date(),
+      publishedAt: (testData.publishedAt as any)?.toDate(),
+    } as any;
+    
+    console.log(`✅ Test found: ${test.title}, Status: ${test.status}, Active: ${test.isActive}`);
     
     // Check if test is available
     if (test.status !== 'published' || !test.isActive) {
@@ -64,17 +85,48 @@ export async function POST(
     }
     
     // Check for existing in-progress attempts
+    // Note: Using separate queries to avoid index requirement
+    console.log(`🔍 Checking for existing attempts...`);
     const existingAttemptsRef = adminDb.collection('testAttempts');
-    const existingQuery = existingAttemptsRef
-      .where('testId', '==', testId)
-      .where('userId', '==', userId)
-      .where('status', 'in', ['not-started', 'in-progress', 'paused']);
     
-    const existingSnap = await existingQuery.get();
+    // Try query with status filter first
+    let existingSnap;
+    try {
+      const existingQuery = existingAttemptsRef
+        .where('testId', '==', testId)
+        .where('userId', '==', userId)
+        .where('status', 'in', ['not-started', 'in-progress', 'paused']);
+      existingSnap = await existingQuery.get();
+    } catch (indexError: any) {
+      // If index error, fetch all attempts and filter in memory
+      console.log(`⚠️  Index not available, fetching all attempts and filtering...`);
+      const allAttempts = await existingAttemptsRef
+        .where('testId', '==', testId)
+        .where('userId', '==', userId)
+        .get();
+      
+      existingSnap = {
+        empty: true,
+        docs: [],
+      } as any;
+      
+      // Filter in memory
+      allAttempts.docs.forEach(doc => {
+        const data = doc.data();
+        if (['not-started', 'in-progress', 'paused'].includes(data.status)) {
+          if (!existingSnap.docs) {
+            existingSnap.docs = [];
+          }
+          existingSnap.docs.push(doc);
+          existingSnap.empty = false;
+        }
+      });
+    }
     
-    if (!existingSnap.empty) {
+    if (!existingSnap.empty && existingSnap.docs && existingSnap.docs.length > 0) {
       // Return existing attempt
       const existingDoc = existingSnap.docs[0];
+      console.log(`✅ Found existing attempt: ${existingDoc.id}`);
       const existingData = existingDoc.data();
       
       const attempt: TestAttempt = {
@@ -106,21 +158,23 @@ export async function POST(
     }
     
     // Create new attempt
+    console.log(`📝 Creating new test attempt...`);
     const attemptsRef = adminDb.collection('testAttempts');
     const attemptRef = attemptsRef.doc();
     
     // Create initial section attempts
-    const sections: TestAttempt['sections'] = test.sections.map((section) => ({
+    const sections: TestAttempt['sections'] = (test.sections || []).map((section: any) => ({
       sectionId: section.id,
-      sectionNumber: section.sectionNumber,
+      sectionNumber: section.sectionNumber || 1,
       status: 'not-started' as const,
       timeSpent: 0,
       answers: [],
     }));
     
     // Calculate expiration time (test time limit + 5 minutes buffer)
+    const totalTimeLimit = test.totalTimeLimit || 3600; // Default 1 hour if not set
     const expiresAt = new Date();
-    expiresAt.setSeconds(expiresAt.getSeconds() + test.totalTimeLimit + 300);
+    expiresAt.setSeconds(expiresAt.getSeconds() + totalTimeLimit + 300);
     
     const attempt: Omit<TestAttempt, 'id'> = {
       testId,
@@ -131,15 +185,18 @@ export async function POST(
       currentSection: 1,
       sections,
       totalTimeSpent: 0,
-      timeRemaining: test.totalTimeLimit,
+      timeRemaining: totalTimeLimit,
       answers: [],
     };
     
+    console.log(`💾 Saving attempt to Firestore...`);
     await attemptRef.set({
       ...attempt,
       startedAt: Timestamp.fromDate(attempt.startedAt),
       expiresAt: Timestamp.fromDate(expiresAt),
     });
+    
+    console.log(`✅ Test attempt created: ${attemptRef.id}`);
     
     return NextResponse.json({
       success: true,
@@ -150,11 +207,17 @@ export async function POST(
       message: 'Test attempt started',
     });
   } catch (error: any) {
-    console.error('Error starting test attempt:', error);
+    console.error('❌ Error starting test attempt:', error);
+    console.error('   Error details:', {
+      message: error.message,
+      code: error.code,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    });
     return NextResponse.json(
       {
         success: false,
         error: error.message || 'Failed to start test attempt',
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       },
       { status: 500 }
     );

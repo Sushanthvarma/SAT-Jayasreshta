@@ -9,10 +9,17 @@ import { TestResult } from '@/lib/types/test';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { attemptId: string } }
+  { params }: { params: Promise<{ attemptId: string }> | { attemptId: string } }
 ) {
   try {
-    const attemptId = params.attemptId;
+    // Handle both Promise and direct params (Next.js 15 compatibility)
+    const resolvedParams = params instanceof Promise ? await params : params;
+    let attemptId = resolvedParams.attemptId;
+    
+    // Decode URL-encoded attempt ID
+    attemptId = decodeURIComponent(attemptId);
+    
+    console.log(`📊 Fetching result for attempt: ${attemptId}`);
     
     if (!attemptId) {
       return NextResponse.json(
@@ -32,7 +39,7 @@ export async function GET(
     const attemptRef = adminDb.collection('testAttempts').doc(attemptId);
     const attemptSnap = await attemptRef.get();
     
-    if (!attemptSnap.exists()) {
+    if (!attemptSnap.exists) {
       return NextResponse.json(
         { success: false, error: 'Test attempt not found' },
         { status: 404 }
@@ -60,14 +67,46 @@ export async function GET(
       }
     }
     
-    // Get result
+    // Get result - try by attemptId first, then by result ID if attemptId is actually a result ID
     const resultsRef = adminDb.collection('testResults');
-    const resultsQuery = resultsRef.where('attemptId', '==', attemptId).limit(1);
-    const resultsSnapshot = await resultsQuery.get();
+    let resultsSnapshot;
+    
+    // First try: search by attemptId
+    try {
+      const resultsQuery = resultsRef.where('attemptId', '==', attemptId).limit(1);
+      resultsSnapshot = await resultsQuery.get();
+    } catch (error: any) {
+      // If index doesn't exist, try fetching by document ID
+      console.warn('⚠️ Firestore index not found for attemptId query, trying by document ID:', error.message);
+      try {
+        const resultDoc = await resultsRef.doc(attemptId).get();
+        if (resultDoc.exists) {
+          resultsSnapshot = {
+            docs: [resultDoc],
+            empty: false,
+          } as any;
+        } else {
+          resultsSnapshot = { docs: [], empty: true } as any;
+        }
+      } catch (docError) {
+        resultsSnapshot = { docs: [], empty: true } as any;
+      }
+    }
     
     if (resultsSnapshot.empty) {
+      console.error(`❌ Test result not found for attemptId: ${attemptId}`);
+      // Try to find any results for this user to help debug
+      const userResults = await resultsRef.where('userId', '==', attemptData.userId).limit(5).get();
+      console.log(`   Found ${userResults.size} results for this user`);
+      if (userResults.size > 0) {
+        userResults.docs.forEach(doc => {
+          const data = doc.data();
+          console.log(`   Result ID: ${doc.id}, attemptId: ${data.attemptId}, testId: ${data.testId}`);
+        });
+      }
+      
       return NextResponse.json(
-        { success: false, error: 'Test result not found' },
+        { success: false, error: `Test result not found for attempt ${attemptId}. The result may not have been saved correctly.` },
         { status: 404 }
       );
     }

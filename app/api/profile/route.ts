@@ -57,6 +57,14 @@ export async function GET(req: NextRequest) {
       careerInterests: userData.careerInterests || [],
       academicGoals: userData.academicGoals,
       notificationPreferences: userData.notificationPreferences || {},
+      emailPreferences: userData.emailPreferences || {
+        weeklyReport: true,
+        encouragementEmails: true,
+        achievementEmails: true,
+        reminderEmails: true,
+        newsletter: true,
+        parentMonthlyReport: true,
+      },
     };
 
     return NextResponse.json({
@@ -98,13 +106,13 @@ export async function PUT(req: NextRequest) {
 
     // Prepare update data
     const updateData: any = {
-      displayName: profileData.displayName,
-      photoURL: profileData.photoURL,
       updatedAt: FieldValue.serverTimestamp(),
       lastProfileUpdate: FieldValue.serverTimestamp(),
     };
 
     // Add optional fields if provided
+    if (profileData.displayName !== undefined) updateData.displayName = profileData.displayName;
+    if (profileData.photoURL !== undefined) updateData.photoURL = profileData.photoURL;
     if (profileData.firstName !== undefined) updateData.firstName = profileData.firstName;
     if (profileData.lastName !== undefined) updateData.lastName = profileData.lastName;
     if (profileData.dateOfBirth !== undefined) updateData.dateOfBirth = profileData.dateOfBirth;
@@ -130,6 +138,7 @@ export async function PUT(req: NextRequest) {
     if (profileData.careerInterests !== undefined) updateData.careerInterests = profileData.careerInterests;
     if (profileData.academicGoals !== undefined) updateData.academicGoals = profileData.academicGoals;
     if (profileData.notificationPreferences !== undefined) updateData.notificationPreferences = profileData.notificationPreferences;
+    if (profileData.emailPreferences !== undefined) updateData.emailPreferences = profileData.emailPreferences;
 
     await userRef.update(updateData);
 

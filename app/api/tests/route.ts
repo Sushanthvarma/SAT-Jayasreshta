@@ -22,13 +22,20 @@ export async function GET(req: NextRequest) {
     const tests: Test[] = snapshot.docs
       .map((doc) => {
         const data = doc.data();
-        return {
+        const test = {
           id: doc.id,
           ...data,
           createdAt: (data.createdAt as any)?.toDate() || new Date(),
           updatedAt: (data.updatedAt as any)?.toDate() || new Date(),
           publishedAt: (data.publishedAt as any)?.toDate(),
         } as Test;
+        
+        // Log test ID for debugging
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`   Test ID: ${test.id}, Title: ${test.title}, Status: ${test.status}, Active: ${test.isActive}`);
+        }
+        
+        return test;
       })
       .filter((test) => test.status === 'published' && test.isActive === true)
       .sort((a, b) => {
@@ -37,6 +44,8 @@ export async function GET(req: NextRequest) {
         const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
         return bTime - aTime;
       });
+    
+    console.log(`✅ Found ${tests.length} published and active tests`);
     
     return NextResponse.json({
       success: true,

@@ -47,6 +47,14 @@ export interface StudentProfile {
     progressUpdates?: boolean;
     badgeNotifications?: boolean;
   };
+  emailPreferences?: {
+    weeklyReport?: boolean;
+    encouragementEmails?: boolean;
+    achievementEmails?: boolean;
+    reminderEmails?: boolean;
+    newsletter?: boolean;
+    parentMonthlyReport?: boolean;
+  };
   
   // Metadata
   createdAt?: Date | string;

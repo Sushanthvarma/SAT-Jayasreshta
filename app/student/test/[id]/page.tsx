@@ -10,12 +10,24 @@ import { getAuthInstance } from '@/lib/firebase';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
+import ReviewModal from '@/components/test/ReviewModal';
 
-export default function TestTakingPage({ params }: { params: { id: string } }) {
+export default function TestTakingPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const attemptIdParam = searchParams.get('attempt');
+  
+  // Handle both Promise and direct params (Next.js 15 compatibility)
+  const [testId, setTestId] = useState<string | null>(null);
+  
+  useEffect(() => {
+    if (params instanceof Promise) {
+      params.then(resolved => setTestId(resolved.id));
+    } else {
+      setTestId(params.id);
+    }
+  }, [params]);
   
   const [test, setTest] = useState<Test | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -26,40 +38,116 @@ export default function TestTakingPage({ params }: { params: { id: string } }) {
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showReviewModal, setShowReviewModal] = useState(false);
   
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Browser back button warning
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (attempt && attempt.status === 'in-progress') {
+        e.preventDefault();
+        e.returnValue = 'You have a test in progress. Are you sure you want to leave?';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [attempt]);
+
   // Load test and questions
   useEffect(() => {
-    if (!user) return;
+    if (!user || !testId) return;
 
     const loadTest = async () => {
       try {
         setLoading(true);
         
-        const response = await fetch(`/api/tests/${params.id}?includeQuestions=true`);
-        const data = await response.json();
+        console.log(`🔍 Loading test: ${testId}`);
+        console.log(`   Test ID type: ${typeof testId}, value: "${testId}"`);
+        const response = await fetch(`/api/tests/${testId}?includeQuestions=true`);
         
-        if (!data.success) {
-          toast.error('Failed to load test');
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('❌ API Error:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData.error,
+            details: errorData.details,
+          });
+          toast.error(errorData.error || `Failed to load test (${response.status})`);
           router.push('/student');
           return;
         }
         
+        const data = await response.json();
+        
+        if (!data.success) {
+          console.error('❌ API returned success=false:', data.error);
+          toast.error(data.error || 'Failed to load test');
+          router.push('/student');
+          return;
+        }
+        
+        console.log(`✅ Test loaded:`, {
+          testId: data.test?.id,
+          title: data.test?.title,
+          questionsCount: data.questions?.length || 0,
+        });
+        
         setTest(data.test);
-        setQuestions(data.questions || []);
+        const loadedQuestions = data.questions || [];
+        setQuestions(loadedQuestions);
         
         if (attemptIdParam) {
+          console.log(`📂 Resuming existing attempt: ${attemptIdParam}`);
           const existingAttempt = await getTestAttempt(attemptIdParam);
           if (existingAttempt) {
+            console.log(`✅ Attempt found:`, {
+              id: existingAttempt.id,
+              status: existingAttempt.status,
+              currentSection: existingAttempt.currentSection,
+              answersCount: existingAttempt.answers?.length || 0,
+            });
             setAttempt(existingAttempt);
-            setCurrentSection(existingAttempt.currentSection);
+            
+            // Set current section, but validate it exists
+            const testSections = data.test?.sections || [];
+            const validSection = Math.max(1, Math.min(existingAttempt.currentSection || 1, testSections.length || 1));
+            setCurrentSection(validSection);
+            
+            // Find the first question in the current section
+            const sectionQuestions = loadedQuestions.filter(q => q.sectionNumber === validSection);
+            if (sectionQuestions.length > 0) {
+              setCurrentQuestionIndex(0);
+              console.log(`✅ Set to section ${validSection}, question 0`);
+            } else {
+              // If no questions in current section, go to first section with questions
+              const firstSectionWithQuestions = testSections.find((s: any) => 
+                loadedQuestions.some(q => q.sectionNumber === s.sectionNumber)
+              );
+              if (firstSectionWithQuestions) {
+                const firstSectionNum = firstSectionWithQuestions.sectionNumber || 1;
+                setCurrentSection(firstSectionNum);
+                setCurrentQuestionIndex(0);
+                console.log(`✅ Adjusted to first section with questions: ${firstSectionNum}`);
+              } else if (loadedQuestions.length > 0) {
+                // Fallback: use first question's section
+                const firstQuestion = loadedQuestions[0];
+                setCurrentSection(firstQuestion.sectionNumber);
+                setCurrentQuestionIndex(0);
+                console.log(`✅ Fallback to first question's section: ${firstQuestion.sectionNumber}`);
+              }
+            }
             
             const answersMap = new Map<string, StudentAnswer>();
-            existingAttempt.answers.forEach(answer => {
-              answersMap.set(answer.questionId, answer);
-            });
+            if (existingAttempt.answers) {
+              existingAttempt.answers.forEach(answer => {
+                answersMap.set(answer.questionId, answer);
+              });
+            }
             setAnswers(answersMap);
             
             if (existingAttempt.expiresAt) {
@@ -71,12 +159,16 @@ export default function TestTakingPage({ params }: { params: { id: string } }) {
             } else {
               setTimeRemaining(existingAttempt.timeRemaining || 0);
             }
+          } else {
+            console.error(`❌ Attempt not found: ${attemptIdParam}`);
+            toast.error('Test attempt not found. Starting a new attempt...');
+            // Will fall through to start new attempt
           }
         } else {
           const auth = getAuthInstance();
           const idToken = await getIdToken(auth.currentUser!);
           
-          const startResponse = await fetch(`/api/tests/${params.id}/start`, {
+          const startResponse = await fetch(`/api/tests/${testId}/start`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${idToken}`,
@@ -84,13 +176,28 @@ export default function TestTakingPage({ params }: { params: { id: string } }) {
             },
           });
           
+          if (!startResponse.ok) {
+            const errorData = await startResponse.json();
+            console.error('❌ Start test API error:', {
+              status: startResponse.status,
+              statusText: startResponse.statusText,
+              error: errorData.error,
+              details: errorData.details,
+            });
+            toast.error(errorData.error || `Failed to start test (${startResponse.status})`);
+            router.push('/student');
+            return;
+          }
+          
           const startData = await startResponse.json();
           if (startData.success) {
+            console.log(`✅ Test attempt started: ${startData.attempt.id}`);
             setAttempt(startData.attempt);
             setTimeRemaining(startData.attempt.timeRemaining);
-            router.replace(`/student/test/${params.id}?attempt=${startData.attempt.id}`);
+            router.replace(`/student/test/${testId}?attempt=${startData.attempt.id}`);
           } else {
-            toast.error('Failed to start test');
+            console.error('❌ Start test returned success=false:', startData.error);
+            toast.error(startData.error || 'Failed to start test');
             router.push('/student');
           }
         }
@@ -104,7 +211,7 @@ export default function TestTakingPage({ params }: { params: { id: string } }) {
     };
 
     loadTest();
-  }, [user, params.id, attemptIdParam, router]);
+  }, [user, testId, attemptIdParam, router]);
 
   // Timer countdown
   useEffect(() => {
@@ -127,15 +234,20 @@ export default function TestTakingPage({ params }: { params: { id: string } }) {
     };
   }, [timeRemaining, attempt]);
 
-  // Auto-save answers
+  // Auto-save answers and time spent
   useEffect(() => {
-    if (!attempt || answers.size === 0) return;
+    if (!attempt || !test) return;
 
     autoSaveIntervalRef.current = setInterval(async () => {
       try {
+        // Calculate totalTimeSpent: initial time limit - remaining time
+        const initialTimeLimit = test.totalTimeLimit || 0;
+        const totalTimeSpent = Math.max(0, initialTimeLimit - timeRemaining);
+        
         await updateTestAttempt(attempt.id, {
           answers: Array.from(answers.values()),
           timeRemaining,
+          totalTimeSpent,
           status: 'in-progress',
         });
       } catch (error) {
@@ -148,13 +260,19 @@ export default function TestTakingPage({ params }: { params: { id: string } }) {
         clearInterval(autoSaveIntervalRef.current);
       }
     };
-  }, [attempt, answers, timeRemaining]);
+  }, [attempt, test, answers, timeRemaining]);
 
   const currentSectionQuestions = questions.filter(
     q => q.sectionNumber === currentSection
   );
 
-  const currentQuestion = currentSectionQuestions[currentQuestionIndex];
+  // Ensure currentQuestionIndex is valid
+  const validQuestionIndex = Math.max(0, Math.min(currentQuestionIndex, currentSectionQuestions.length - 1));
+  if (validQuestionIndex !== currentQuestionIndex && currentSectionQuestions.length > 0) {
+    setCurrentQuestionIndex(validQuestionIndex);
+  }
+
+  const currentQuestion = currentSectionQuestions[validQuestionIndex];
 
   const handleAnswerChange = useCallback((questionId: string, answer: string | number | null) => {
     setAnswers(prev => {
@@ -192,6 +310,32 @@ export default function TestTakingPage({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleReviewClick = () => {
+    setShowReviewModal(true);
+  };
+
+  const handleEditQuestion = (questionId: string) => {
+    // Find question index and navigate to it
+    const questionIndex = questions.findIndex(q => q.id === questionId);
+    if (questionIndex !== -1) {
+      const question = questions[questionIndex];
+      // Find which section this question belongs to
+      const sectionIndex = test?.sections.findIndex(s => 
+        questions.filter(q => q.sectionNumber === s.sectionNumber).some(q => q.id === questionId)
+      ) ?? -1;
+      
+      if (sectionIndex !== -1 && test) {
+        setCurrentSection(sectionIndex + 1);
+        // Find question index within that section
+        const sectionQuestions = questions.filter(q => q.sectionNumber === sectionIndex + 1);
+        const questionIndexInSection = sectionQuestions.findIndex(q => q.id === questionId);
+        if (questionIndexInSection !== -1) {
+          setCurrentQuestionIndex(questionIndexInSection);
+        }
+      }
+    }
+  };
+
   const handleSubmit = async () => {
     if (!attempt || !test) return;
     
@@ -199,32 +343,63 @@ export default function TestTakingPage({ params }: { params: { id: string } }) {
     setIsSubmitting(true);
 
     try {
+      // Calculate totalTimeSpent: initial time limit - remaining time
+      const initialTimeLimit = test.totalTimeLimit || 0;
+      const totalTimeSpent = Math.max(0, initialTimeLimit - timeRemaining);
+      
+      // Update answers and totalTimeSpent but NOT status - let the API handle status update
       await updateTestAttempt(attempt.id, {
         answers: Array.from(answers.values()),
-        status: 'submitted',
-        submittedAt: new Date(),
-        timeRemaining: 0,
+        timeRemaining: timeRemaining,
+        totalTimeSpent: totalTimeSpent,
       });
 
       const auth = getAuthInstance();
       const idToken = await getIdToken(auth.currentUser!);
       
+      console.log(`📤 Submitting test attempt: ${attempt.id}`);
+      console.log(`   Total time spent: ${totalTimeSpent} seconds (${Math.round(totalTimeSpent / 60)} minutes)`);
       const response = await fetch(`/api/tests/${test.id}/submit`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${idToken}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ attemptId: attempt.id }),
+        body: JSON.stringify({ 
+          attemptId: attempt.id,
+          answers: Array.from(answers.values()),
+          totalTimeSpent: totalTimeSpent,
+        }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ Submit test API error:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData.error,
+          details: errorData.details,
+        });
+        toast.error(errorData.error || `Failed to submit test (${response.status})`);
+        return;
+      }
 
       const data = await response.json();
       
       if (data.success) {
-        toast.success('Test submitted successfully!');
-        router.push(`/student/results/${attempt.id}`);
+        console.log(`✅ Test submitted successfully! Result ID: ${data.result?.id}`);
+        console.log(`   Attempt ID: ${attempt.id}`);
+        console.log(`   Result attemptId: ${data.result?.attemptId}`);
+        
+        // Use attemptId from result, or fall back to result ID, or attempt ID
+        const resultAttemptId = data.result?.attemptId || data.result?.id || attempt.id;
+        console.log(`   Redirecting to results with: ${resultAttemptId}`);
+        
+        toast.success(data.message || 'Test submitted successfully!');
+        router.push(`/student/results/${resultAttemptId}`);
       } else {
-        toast.error('Failed to submit test');
+        console.error('❌ Submit returned success=false:', data.error);
+        toast.error(data.error || 'Failed to submit test');
       }
     } catch (error) {
       console.error('Error submitting test:', error);
@@ -256,8 +431,92 @@ export default function TestTakingPage({ params }: { params: { id: string } }) {
     );
   }
 
-  if (!user || !test || !attempt || !currentQuestion) {
-    return null;
+  if (!user) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="text-center">
+          <p className="text-lg font-semibold text-gray-700">Please sign in to continue</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!test) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="text-center">
+          <p className="text-lg font-semibold text-gray-700 mb-2">Test not found</p>
+          <p className="text-gray-600 mb-4">The test you're looking for doesn't exist or is no longer available.</p>
+          <Link href="/student" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            ← Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!attempt) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="text-center">
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
+          <p className="text-lg font-semibold text-gray-700">Loading test attempt...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="text-center">
+          <p className="text-lg font-semibold text-gray-700 mb-2">No questions found</p>
+          <p className="text-gray-600 mb-4">This test doesn't have any questions yet.</p>
+          <Link href="/student" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            ← Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentQuestion) {
+    console.error('❌ Current question not found:', {
+      currentSection,
+      currentQuestionIndex,
+      currentSectionQuestions: currentSectionQuestions.length,
+      totalQuestions: questions.length,
+      sections: test.sections.length,
+    });
+    
+    // Try to find the first available question
+    const firstQuestion = questions[0];
+    if (firstQuestion) {
+      console.log('🔄 Falling back to first question');
+      setCurrentSection(firstQuestion.sectionNumber);
+      setCurrentQuestionIndex(0);
+      // Return loading state while state updates
+      return (
+        <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+          <div className="text-center">
+            <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
+            <p className="text-lg font-semibold text-gray-700">Loading question...</p>
+          </div>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="text-center">
+          <p className="text-lg font-semibold text-gray-700 mb-2">Unable to load question</p>
+          <p className="text-gray-600 mb-4">There was an issue loading the test question.</p>
+          <Link href="/student" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            ← Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const currentAnswer = answers.get(currentQuestion.id);
@@ -422,13 +681,21 @@ export default function TestTakingPage({ params }: { params: { id: string } }) {
                 </button>
 
                 {currentQuestionIndex === currentSectionQuestions.length - 1 && currentSection === test.sections.length ? (
-                  <button
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 shadow-lg hover:shadow-xl transition-all min-h-[44px]"
-                  >
-                    {isSubmitting ? 'Submitting...' : 'Submit Test ✓'}
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleReviewClick}
+                      className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all min-h-[44px]"
+                    >
+                      Review Answers
+                    </button>
+                    <button
+                      onClick={handleSubmit}
+                      disabled={isSubmitting}
+                      className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 shadow-lg hover:shadow-xl transition-all min-h-[44px]"
+                    >
+                      {isSubmitting ? 'Submitting...' : 'Submit Test ✓'}
+                    </button>
+                  </div>
                 ) : (
                   <button
                     onClick={handleNext}
@@ -442,6 +709,22 @@ export default function TestTakingPage({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
+
+      {/* Review Modal */}
+      {test && (
+        <ReviewModal
+          questions={questions}
+          answers={answers}
+          isOpen={showReviewModal}
+          onClose={() => setShowReviewModal(false)}
+          onEdit={handleEditQuestion}
+          onSubmit={() => {
+            setShowReviewModal(false);
+            handleSubmit();
+          }}
+          isSubmitting={isSubmitting}
+        />
+      )}
     </div>
   );
 }

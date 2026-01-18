@@ -256,40 +256,87 @@ export async function getTestAttempt(attemptId: string): Promise<TestAttempt | n
 
 /**
  * Get user's test attempts (client-side)
+ * Fetches all attempts and sorts in memory to avoid index requirement
  */
 export async function getUserTestAttempts(userId: string, limitCount: number = 10): Promise<TestAttempt[]> {
   const db = getDbInstance();
   const attemptsRef = collection(db, 'testAttempts');
   
-  const q = query(
-    attemptsRef,
-    where('userId', '==', userId),
-    orderBy('startedAt', 'desc'),
-    limit(limitCount)
-  );
-  
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      ...data,
-      startedAt: data.startedAt?.toDate() || new Date(),
-      submittedAt: data.submittedAt?.toDate(),
-      expiresAt: data.expiresAt?.toDate(),
-      sections: data.sections?.map((section: any) => ({
-        ...section,
-        startedAt: section.startedAt?.toDate(),
-        completedAt: section.completedAt?.toDate(),
-        answers: section.answers?.map((answer: any) => ({
+  try {
+    // Try with orderBy first (if index exists)
+    const q = query(
+      attemptsRef,
+      where('userId', '==', userId),
+      orderBy('startedAt', 'desc'),
+      limit(limitCount)
+    );
+    
+    const snapshot = await getDocs(q);
+    
+    return snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        startedAt: data.startedAt?.toDate() || new Date(),
+        submittedAt: data.submittedAt?.toDate(),
+        expiresAt: data.expiresAt?.toDate(),
+        sections: data.sections?.map((section: any) => ({
+          ...section,
+          startedAt: section.startedAt?.toDate(),
+          completedAt: section.completedAt?.toDate(),
+          answers: section.answers?.map((answer: any) => ({
+            ...answer,
+            answeredAt: answer.answeredAt?.toDate(),
+          })) || [],
+        })) || [],
+        answers: data.answers?.map((answer: any) => ({
           ...answer,
           answeredAt: answer.answeredAt?.toDate(),
         })) || [],
-      })) || [],
-      answers: data.answers?.map((answer: any) => ({
-        ...answer,
-        answeredAt: answer.answeredAt?.toDate(),
-      })) || [],
-    } as TestAttempt;
-  });
+      } as TestAttempt;
+    });
+  } catch (error: any) {
+    // If index doesn't exist, fetch all and sort in memory
+    // This is a graceful fallback - no warning needed as it works correctly
+    const allAttemptsQuery = query(
+      attemptsRef,
+      where('userId', '==', userId)
+    );
+    
+    const allSnapshot = await getDocs(allAttemptsQuery);
+    
+    const attempts = allSnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        startedAt: data.startedAt?.toDate() || new Date(),
+        submittedAt: data.submittedAt?.toDate(),
+        expiresAt: data.expiresAt?.toDate(),
+        sections: data.sections?.map((section: any) => ({
+          ...section,
+          startedAt: section.startedAt?.toDate(),
+          completedAt: section.completedAt?.toDate(),
+          answers: section.answers?.map((answer: any) => ({
+            ...answer,
+            answeredAt: answer.answeredAt?.toDate(),
+          })) || [],
+        })) || [],
+        answers: data.answers?.map((answer: any) => ({
+          ...answer,
+          answeredAt: answer.answeredAt?.toDate(),
+        })) || [],
+      } as TestAttempt;
+    });
+    
+    // Sort by startedAt descending and limit
+    attempts.sort((a, b) => {
+      const aTime = a.startedAt instanceof Date ? a.startedAt.getTime() : 0;
+      const bTime = b.startedAt instanceof Date ? b.startedAt.getTime() : 0;
+      return bTime - aTime;
+    });
+    
+    return attempts.slice(0, limitCount);
+  }
 }
