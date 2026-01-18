@@ -8,6 +8,7 @@ import { getAuthInstance } from '@/lib/firebase';
 import { getIdToken } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
+import Header from '@/components/layout/Header';
 
 export default function AdminDashboard() {
   const { user, userData, loading: authLoading } = useAuth();
@@ -62,10 +63,10 @@ export default function AdminDashboard() {
 
   if (authLoading || loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
         <div className="text-center">
-          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-          <p className="text-xl font-semibold text-gray-700">Loading...</p>
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
+          <p className="text-lg font-semibold text-gray-700">Loading...</p>
         </div>
       </div>
     );
@@ -76,101 +77,93 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      {/* Header */}
-      <nav className="border-b-2 bg-white shadow-md">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="text-4xl">⚙️</div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                <p className="text-lg text-gray-600">Manage tests and view analytics</p>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <Link
-                href="/student"
-                className="rounded-lg bg-gray-100 px-6 py-3 text-base font-medium text-gray-700 hover:bg-gray-200 transition-colors min-h-[44px] flex items-center"
-              >
-                Student View
-              </Link>
-              <button
-                onClick={() => router.push('/login')}
-                className="rounded-lg bg-red-100 px-6 py-3 text-base font-medium text-red-700 hover:bg-red-200 transition-colors min-h-[44px]"
-              >
-                Sign Out
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <Header />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+          <p className="text-lg text-gray-600">Manage tests and view platform analytics</p>
+        </div>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-          <div className="rounded-2xl bg-white p-6 shadow-lg border-2 border-blue-200">
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-blue-200 hover:shadow-lg transition-shadow">
             <div className="text-center">
-              <div className="text-4xl font-bold text-blue-600">{stats.totalTests}</div>
-              <div className="text-sm text-gray-600 mt-2">Total Tests</div>
+              <div className="text-5xl font-bold text-blue-600 mb-2">{stats.totalTests}</div>
+              <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Tests</div>
             </div>
           </div>
-          <div className="rounded-2xl bg-white p-6 shadow-lg border-2 border-green-200">
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-green-200 hover:shadow-lg transition-shadow">
             <div className="text-center">
-              <div className="text-4xl font-bold text-green-600">{stats.publishedTests}</div>
-              <div className="text-sm text-gray-600 mt-2">Published Tests</div>
+              <div className="text-5xl font-bold text-green-600 mb-2">{stats.publishedTests}</div>
+              <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Published</div>
             </div>
           </div>
-          <div className="rounded-2xl bg-white p-6 shadow-lg border-2 border-purple-200">
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-purple-200 hover:shadow-lg transition-shadow">
             <div className="text-center">
-              <div className="text-4xl font-bold text-purple-600">{stats.totalUsers}</div>
-              <div className="text-sm text-gray-600 mt-2">Total Users</div>
+              <div className="text-5xl font-bold text-purple-600 mb-2">{stats.totalUsers}</div>
+              <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Users</div>
             </div>
           </div>
-          <div className="rounded-2xl bg-white p-6 shadow-lg border-2 border-orange-200">
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-orange-200 hover:shadow-lg transition-shadow">
             <div className="text-center">
-              <div className="text-4xl font-bold text-orange-600">{stats.totalAttempts}</div>
-              <div className="text-sm text-gray-600 mt-2">Test Attempts</div>
+              <div className="text-5xl font-bold text-orange-600 mb-2">{stats.totalAttempts}</div>
+              <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Test Attempts</div>
             </div>
           </div>
         </div>
 
         {/* Tests Management */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-3xl font-bold text-gray-900">Test Management</h2>
-            <Link
-              href="/admin/tests/new"
-              className="rounded-lg bg-indigo-600 px-6 py-3 text-base font-semibold text-white hover:bg-indigo-700 transition-colors min-h-[44px] flex items-center"
-            >
-              + Create New Test
-            </Link>
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Test Management</h2>
+                <p className="text-gray-600 mt-1">Manage all practice tests</p>
+              </div>
+              <div className="flex gap-3">
+                <Link
+                  href="/admin/tests"
+                  className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all min-h-[44px] flex items-center"
+                >
+                  📁 Import Tests
+                </Link>
+                <Link
+                  href="/admin/tests/new"
+                  className="px-6 py-3 bg-white border-2 border-indigo-600 text-indigo-600 rounded-xl font-semibold hover:bg-indigo-50 shadow-md hover:shadow-lg transition-all min-h-[44px] flex items-center"
+                >
+                  + Create New Test
+                </Link>
+              </div>
+            </div>
           </div>
           
           {tests.length === 0 ? (
-            <div className="rounded-2xl bg-white p-8 shadow-lg border-2 border-gray-200 text-center">
-              <p className="text-xl text-gray-600">No tests created yet.</p>
+            <div className="p-12 text-center">
+              <div className="text-6xl mb-4">📚</div>
+              <p className="text-xl text-gray-600 font-semibold">No tests created yet.</p>
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow-md border-2 border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Questions</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Title</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Questions</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {tests.map((test) => (
-                    <tr key={test.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{test.title}</div>
+                    <tr key={test.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-gray-900">{test.title}</div>
                         <div className="text-sm text-gray-500">{test.description}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${
                           test.status === 'published' ? 'bg-green-100 text-green-800' :
                           test.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
                           'bg-gray-100 text-gray-800'
@@ -178,15 +171,15 @@ export default function AdminDashboard() {
                           {test.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 text-sm text-gray-700 font-medium">
                         {test.totalQuestions}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-4 text-sm font-medium">
                         <Link
                           href={`/admin/tests/${test.id}`}
-                          className="text-indigo-600 hover:text-indigo-900 mr-4"
+                          className="text-indigo-600 hover:text-indigo-900 font-semibold"
                         >
-                          Edit
+                          Edit →
                         </Link>
                       </td>
                     </tr>

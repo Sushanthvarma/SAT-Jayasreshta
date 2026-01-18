@@ -179,8 +179,10 @@ export async function POST(
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          testScore: resultData.percentage,
+          testScore: resultData.totalScore,
+          maxScore: resultData.maxScore,
           testCompleted: true,
+          timeSpent: resultData.totalTimeSpent,
         }),
       });
       

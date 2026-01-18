@@ -8,6 +8,7 @@ import { getAuthInstance } from '@/lib/firebase';
 import { getIdToken } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
+import Header from '@/components/layout/Header';
 
 export default function ResultsPage({ params }: { params: { attemptId: string } }) {
   const { user, loading: authLoading } = useAuth();
@@ -57,10 +58,10 @@ export default function ResultsPage({ params }: { params: { attemptId: string } 
 
   if (authLoading || loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
         <div className="text-center">
-          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-          <p className="text-xl font-semibold text-gray-700">Loading results...</p>
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
+          <p className="text-lg font-semibold text-gray-700">Loading results...</p>
         </div>
       </div>
     );
@@ -77,121 +78,106 @@ export default function ResultsPage({ params }: { params: { attemptId: string } 
   };
 
   const getScoreBgColor = (percentage: number) => {
-    if (percentage >= 80) return 'bg-green-100 border-green-500';
-    if (percentage >= 60) return 'bg-yellow-100 border-yellow-500';
-    return 'bg-red-100 border-red-500';
+    if (percentage >= 80) return 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-300';
+    if (percentage >= 60) return 'bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-300';
+    return 'bg-gradient-to-br from-red-50 to-pink-50 border-red-300';
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      {/* Header */}
-      <div className="bg-white border-b-2 shadow-md">
-        <div className="mx-auto max-w-7xl px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Test Results</h1>
-              <p className="text-lg text-gray-600">{result.testTitle}</p>
-            </div>
-            <Link
-              href="/student"
-              className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors min-h-[44px] flex items-center"
-            >
-              Back to Dashboard
-            </Link>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <Header />
 
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Overall Score Card */}
-        <div className={`mb-8 rounded-2xl p-8 shadow-lg border-4 ${getScoreBgColor(result.percentage)}`}>
+        <div className={`mb-8 rounded-2xl p-10 shadow-xl border-4 ${getScoreBgColor(result.percentage)}`}>
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Your Score</h2>
-            <div className="mb-4">
-              <div className={`text-7xl font-bold ${getScoreColor(result.percentage)}`}>
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">Your Test Results</h2>
+            <div className="mb-6">
+              <div className={`text-8xl font-bold mb-4 ${getScoreColor(result.percentage)}`}>
                 {Math.round(result.percentage)}%
               </div>
-              <div className="text-xl text-gray-700 mt-2">
+              <div className="text-2xl text-gray-700 font-semibold mb-2">
                 {result.totalScore} / {result.maxScore} points
               </div>
               {result.scaledScore && (
-                <div className="text-lg text-gray-600 mt-2">
-                  Scaled Score: {result.scaledScore}
+                <div className="text-xl text-gray-600 font-medium">
+                  Scaled Score: <span className="font-bold">{result.scaledScore}</span>
                 </div>
               )}
             </div>
+            <p className="text-lg text-gray-600">{result.testTitle}</p>
           </div>
         </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6 border-2 border-green-200">
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-green-200 hover:shadow-lg transition-shadow">
             <div className="text-center">
-              <div className="text-4xl font-bold text-green-600">{result.questionsCorrect}</div>
-              <div className="text-sm text-gray-600 mt-2">Correct</div>
+              <div className="text-5xl font-bold text-green-600 mb-2">{result.questionsCorrect}</div>
+              <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Correct</div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6 border-2 border-red-200">
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-red-200 hover:shadow-lg transition-shadow">
             <div className="text-center">
-              <div className="text-4xl font-bold text-red-600">{result.questionsIncorrect}</div>
-              <div className="text-sm text-gray-600 mt-2">Incorrect</div>
+              <div className="text-5xl font-bold text-red-600 mb-2">{result.questionsIncorrect}</div>
+              <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Incorrect</div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6 border-2 border-yellow-200">
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-yellow-200 hover:shadow-lg transition-shadow">
             <div className="text-center">
-              <div className="text-4xl font-bold text-yellow-600">{result.questionsSkipped}</div>
-              <div className="text-sm text-gray-600 mt-2">Skipped</div>
+              <div className="text-5xl font-bold text-yellow-600 mb-2">{result.questionsSkipped}</div>
+              <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Skipped</div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6 border-2 border-blue-200">
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-blue-200 hover:shadow-lg transition-shadow">
             <div className="text-center">
-              <div className="text-4xl font-bold text-blue-600">
+              <div className="text-5xl font-bold text-blue-600 mb-2">
                 {Math.floor(result.totalTimeSpent / 60)}
               </div>
-              <div className="text-sm text-gray-600 mt-2">Minutes</div>
+              <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Minutes</div>
             </div>
           </div>
         </div>
 
         {/* Section Breakdown */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">Section Breakdown</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">Section Performance</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {result.sectionScores.map((section) => (
-              <div key={section.sectionId} className="bg-white rounded-lg shadow-md p-6 border-2 border-gray-200">
+              <div key={section.sectionId} className="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow">
                 <div className="mb-4">
-                  <h3 className="text-xl font-bold text-gray-900">{section.sectionName}</h3>
-                  <p className="text-sm text-gray-600">{section.subject}</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">{section.sectionName}</h3>
+                  <p className="text-sm text-gray-500 uppercase tracking-wide">{section.subject}</p>
                 </div>
                 <div className="mb-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-700">Score</span>
-                    <span className={`text-2xl font-bold ${getScoreColor(section.percentage)}`}>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-gray-700 font-medium">Score</span>
+                    <span className={`text-3xl font-bold ${getScoreColor(section.percentage)}`}>
                       {Math.round(section.percentage)}%
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3">
                     <div
-                      className={`h-3 rounded-full ${
-                        section.percentage >= 80 ? 'bg-green-500' :
-                        section.percentage >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                      className={`h-3 rounded-full transition-all ${
+                        section.percentage >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
+                        section.percentage >= 60 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'bg-gradient-to-r from-red-500 to-pink-500'
                       }`}
                       style={{ width: `${section.percentage}%` }}
                     ></div>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <div className="font-semibold text-gray-900">{section.questionsCorrect}</div>
-                    <div className="text-gray-600">Correct</div>
+                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+                  <div className="text-center">
+                    <div className="font-bold text-gray-900 text-lg">{section.questionsCorrect}</div>
+                    <div className="text-xs text-gray-600">Correct</div>
                   </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">{section.questionsIncorrect}</div>
-                    <div className="text-gray-600">Incorrect</div>
+                  <div className="text-center">
+                    <div className="font-bold text-gray-900 text-lg">{section.questionsIncorrect}</div>
+                    <div className="text-xs text-gray-600">Incorrect</div>
                   </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">{section.questionsSkipped}</div>
-                    <div className="text-gray-600">Skipped</div>
+                  <div className="text-center">
+                    <div className="font-bold text-gray-900 text-lg">{section.questionsSkipped}</div>
+                    <div className="text-xs text-gray-600">Skipped</div>
                   </div>
                 </div>
               </div>
@@ -199,108 +185,56 @@ export default function ResultsPage({ params }: { params: { attemptId: string } 
           </div>
         </div>
 
-        {/* Performance by Difficulty */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">Performance by Difficulty</h2>
-          <div className="bg-white rounded-lg shadow-md p-6 border-2 border-gray-200">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {result.sectionScores.map((section) => (
-                <div key={section.sectionId} className="text-center">
-                  <h4 className="font-semibold text-gray-900 mb-4">{section.sectionName}</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-600">Easy</span>
-                        <span className="font-semibold">
-                          {section.easyCorrect}/{section.easyTotal}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-green-500 h-2 rounded-full"
-                          style={{ width: `${section.easyTotal > 0 ? (section.easyCorrect / section.easyTotal) * 100 : 0}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-600">Medium</span>
-                        <span className="font-semibold">
-                          {section.mediumCorrect}/{section.mediumTotal}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-yellow-500 h-2 rounded-full"
-                          style={{ width: `${section.mediumTotal > 0 ? (section.mediumCorrect / section.mediumTotal) * 100 : 0}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-600">Hard</span>
-                        <span className="font-semibold">
-                          {section.hardCorrect}/{section.hardTotal}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-red-500 h-2 rounded-full"
-                          style={{ width: `${section.hardTotal > 0 ? (section.hardCorrect / section.hardTotal) * 100 : 0}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
         {/* Strengths and Weaknesses */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6 border-2 border-green-200">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">💪 Strengths</h3>
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-green-200">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <span className="text-3xl">💪</span> Strengths
+            </h3>
             {result.strengths.length > 0 ? (
-              <ul className="space-y-2">
+              <ul className="space-y-3">
                 {result.strengths.map((strength, idx) => (
-                  <li key={idx} className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-600">✓</span>
-                    {strength}
+                  <li key={idx} className="flex items-center text-gray-700 p-3 bg-green-50 rounded-lg">
+                    <span className="mr-3 text-green-600 text-xl">✓</span>
+                    <span className="font-medium">{strength}</span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-600">Keep practicing to identify your strengths!</p>
+              <p className="text-gray-600 italic">Keep practicing to identify your strengths!</p>
             )}
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 border-2 border-red-200">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">📚 Areas to Improve</h3>
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-red-200">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <span className="text-3xl">📚</span> Areas to Improve
+            </h3>
             {result.weaknesses.length > 0 ? (
-              <ul className="space-y-2">
+              <ul className="space-y-3">
                 {result.weaknesses.map((weakness, idx) => (
-                  <li key={idx} className="flex items-center text-gray-700">
-                    <span className="mr-2 text-red-600">→</span>
-                    {weakness}
+                  <li key={idx} className="flex items-center text-gray-700 p-3 bg-red-50 rounded-lg">
+                    <span className="mr-3 text-red-600 text-xl">→</span>
+                    <span className="font-medium">{weakness}</span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-600">Great job! Keep up the excellent work!</p>
+              <p className="text-gray-600 italic">Great job! Keep up the excellent work!</p>
             )}
           </div>
         </div>
 
         {/* Recommendations */}
         {result.recommendations.length > 0 && (
-          <div className="mb-8 bg-indigo-50 rounded-lg shadow-md p-6 border-2 border-indigo-200">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">💡 Recommendations</h3>
-            <ul className="space-y-2">
+          <div className="mb-8 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl shadow-md p-6 border-2 border-indigo-200">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <span className="text-3xl">💡</span> Recommendations
+            </h3>
+            <ul className="space-y-3">
               {result.recommendations.map((rec, idx) => (
-                <li key={idx} className="flex items-start text-gray-700">
-                  <span className="mr-2 text-indigo-600 mt-1">•</span>
-                  <span>{rec}</span>
+                <li key={idx} className="flex items-start text-gray-700 p-3 bg-white rounded-lg">
+                  <span className="mr-3 text-indigo-600 text-xl mt-1">•</span>
+                  <span className="font-medium">{rec}</span>
                 </li>
               ))}
             </ul>
@@ -311,13 +245,13 @@ export default function ResultsPage({ params }: { params: { attemptId: string } 
         <div className="flex gap-4 justify-center">
           <Link
             href={`/student/test/${result.testId}`}
-            className="px-8 py-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors min-h-[44px] flex items-center"
+            className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all min-h-[44px] flex items-center"
           >
             Retake Test
           </Link>
           <Link
             href="/student"
-            className="px-8 py-4 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors min-h-[44px] flex items-center"
+            className="px-8 py-4 bg-white text-gray-700 rounded-xl font-semibold hover:bg-gray-50 border-2 border-gray-200 transition-all min-h-[44px] flex items-center"
           >
             Back to Dashboard
           </Link>

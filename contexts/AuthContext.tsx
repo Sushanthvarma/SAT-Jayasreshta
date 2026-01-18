@@ -20,6 +20,7 @@ interface AuthContextType {
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -69,30 +70,97 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        let errorData;
+        let errorText = '';
+        let errorData: any = {};
+        
         try {
-          errorData = JSON.parse(errorText);
-        } catch {
-          errorData = { error: errorText };
+          errorText = await response.text();
+          if (errorText) {
+            try {
+              errorData = JSON.parse(errorText);
+            } catch {
+              errorData = { error: errorText || `HTTP ${response.status}: ${response.statusText}` };
+            }
+          } else {
+            errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
+          }
+        } catch (parseError) {
+          errorData = { error: `Failed to parse error response: ${response.status} ${response.statusText}` };
         }
+        
+        // Check if it's a Firestore API not enabled error
+        const errorMessage = errorData.error || errorText || '';
+        const isFirestoreError = errorMessage.includes('PERMISSION_DENIED') || 
+                                 errorMessage.includes('Cloud Firestore API has not been used') ||
+                                 errorMessage.includes('Firestore API');
+        
+        if (isFirestoreError) {
+          console.warn('⚠️ Firestore API not enabled. Using Firebase Auth data only.');
+          console.warn('💡 Enable Firestore API: https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=sat-mock-test-platform');
+          
+          // Fallback to Firebase Auth data
+          const displayName = firebaseUser.displayName || 
+                            (firebaseUser.email ? firebaseUser.email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Student');
+          setUserData({
+            role: 'student',
+            displayName: displayName,
+            email: firebaseUser.email || '',
+            photoURL: firebaseUser.photoURL || null,
+            streak: 0,
+            badges: [],
+          });
+          return; // Don't throw error, just use fallback
+        }
+        
+        // Log error for debugging
         console.error('❌ API Error Response:', {
           status: response.status,
           statusText: response.statusText,
           error: errorData,
+          errorText: errorText || 'No error text',
         });
-        throw new Error(`Failed to fetch user data: ${errorData.error || response.statusText}`);
+        
+        // For other errors, still use fallback but log the error
+        const displayName = firebaseUser.displayName || 
+                          (firebaseUser.email ? firebaseUser.email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Student');
+        setUserData({
+          role: 'student',
+          displayName: displayName,
+          email: firebaseUser.email || '',
+          photoURL: firebaseUser.photoURL || null,
+          streak: 0,
+          badges: [],
+        });
+        return; // Don't throw error, use fallback
       }
 
       const result = await response.json();
       if (result.success && result.user) {
+        // Use name from API, or fallback to Firebase user's displayName, or email username
+        const displayName = result.user.displayName || 
+                            firebaseUser.displayName || 
+                            (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Student');
+        const photoURL = result.user.photoURL || firebaseUser.photoURL || null;
+        
         setUserData({
           role: result.user.role,
-          displayName: result.user.displayName,
-          email: result.user.email,
-          photoURL: result.user.photoURL,
+          displayName: displayName,
+          email: result.user.email || firebaseUser.email || '',
+          photoURL: photoURL,
           streak: result.user.currentStreak || 0,
           badges: result.user.badges || [],
+        });
+      } else if (firebaseUser) {
+        // Fallback: use Firebase user data if API fails
+        const displayName = firebaseUser.displayName || 
+                            (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Student');
+        setUserData({
+          role: 'student',
+          displayName: displayName,
+          email: firebaseUser.email || '',
+          photoURL: firebaseUser.photoURL || null,
+          streak: 0,
+          badges: [],
         });
       }
     } catch (error) {
@@ -167,6 +235,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Refresh user profile (force refresh from Firestore)
+  const refreshProfile = async () => {
+    if (user) {
+      console.log('🔄 Refreshing user profile...');
+      // Force refresh by getting a new token and fetching fresh data
+      try {
+        const newToken = await getIdToken(user, true); // Force refresh token
+        const response = await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken: newToken }),
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.user) {
+            setUserData({
+              role: result.user.role,
+              displayName: result.user.displayName || user.displayName || user.email?.split('@')[0] || 'Student',
+              email: result.user.email || user.email || '',
+              photoURL: result.user.photoURL || user.photoURL || null,
+              streak: result.user.currentStreak || 0,
+              badges: result.user.badges || [],
+              xp: result.user.xp || 0,
+              level: result.user.level || 1,
+              totalTestsCompleted: result.user.totalTestsCompleted || 0,
+            });
+            console.log('✅ Profile refreshed. New role:', result.user.role);
+            return; // Success
+          }
+        }
+        // Fallback to regular fetch if refresh fails
+        console.warn('⚠️ Refresh failed, using regular fetch');
+        await fetchUserData(user);
+      } catch (error) {
+        console.error('Error refreshing profile:', error);
+        // Fallback to regular fetch
+        await fetchUserData(user);
+      }
+    }
+  };
+
   useEffect(() => {
     if (!auth) return; // Wait for auth to be initialized
 
@@ -214,6 +324,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loading,
         signInWithGoogle,
         signOut,
+        refreshProfile,
       }}
     >
       {children}

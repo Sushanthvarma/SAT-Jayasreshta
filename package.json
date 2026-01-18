@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "tsx scripts/seed-test-data.ts"
+    "seed": "tsx scripts/seed-test-data.ts",
+    "generate-tests": "tsx scripts/generate-sample-tests.ts",
+    "verify-tests": "tsx scripts/verify-tests.ts",
+    "test-import": "tsx scripts/test-import.ts",
+    "import-all-tests": "tsx scripts/import-all-tests.ts"
   },
   "dependencies": {
     "dotenv": "^17.2.3",

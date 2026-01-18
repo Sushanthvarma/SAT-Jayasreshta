@@ -1,0 +1,67 @@
+{
+  "metadata": {
+    "title": "Week 1 - Reading Comprehension (9th Grade)",
+    "description": "Reading comprehension practice test for 9th grade students, week 1",
+    "standard": "9th",
+    "week": "week-1",
+    "subject": "reading",
+    "difficulty": "intermediate",
+    "version": "1.0.0",
+    "tags": ["reading", "comprehension", "week-1"]
+  },
+  "sections": [
+    {
+      "id": "section-reading-1",
+      "sectionNumber": 1,
+      "name": "Reading Comprehension",
+      "subject": "reading",
+      "description": "Read the following passage and answer the questions",
+      "timeLimit": 1800,
+      "order": 1,
+      "questions": [
+        {
+          "id": "q-reading-1",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "What is the main idea of the passage?",
+          "passageText": "The art of storytelling has been a fundamental part of human culture for thousands of years. From ancient cave paintings to modern novels, stories have served as a way to preserve history, teach lessons, and entertain audiences. Stories help us understand different perspectives and connect with others on an emotional level.",
+          "options": [
+            { "id": "A", "text": "Storytelling is a modern invention", "isCorrect": false },
+            { "id": "B", "text": "Storytelling is an important part of human culture with multiple purposes", "isCorrect": true },
+            { "id": "C", "text": "Only novels are considered stories", "isCorrect": false },
+            { "id": "D", "text": "Stories are only for entertainment", "isCorrect": false }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The passage emphasizes that storytelling has been part of human culture for thousands of years and serves multiple purposes including preserving history, teaching, and entertainment.",
+          "topicTags": ["main-idea", "reading-comprehension"],
+          "skillTags": ["analysis", "inference"],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q-reading-2",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "easy",
+          "questionText": "According to the passage, stories help us:",
+          "passageText": "The art of storytelling has been a fundamental part of human culture for thousands of years. From ancient cave paintings to modern novels, stories have served as a way to preserve history, teach lessons, and entertain audiences. Stories help us understand different perspectives and connect with others on an emotional level.",
+          "options": [
+            { "id": "A", "text": "Only preserve history", "isCorrect": false },
+            { "id": "B", "text": "Understand perspectives and connect emotionally", "isCorrect": true },
+            { "id": "C", "text": "Create modern novels", "isCorrect": false },
+            { "id": "D", "text": "Replace other forms of communication", "isCorrect": false }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The passage explicitly states that stories help us understand different perspectives and connect with others on an emotional level.",
+          "topicTags": ["detail", "reading-comprehension"],
+          "skillTags": ["comprehension", "detail"],
+          "points": 1,
+          "estimatedTime": 60
+        }
+      ]
+    }
+  ]
+}

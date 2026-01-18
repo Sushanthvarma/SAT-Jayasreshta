@@ -1,0 +1,459 @@
+{
+  "metadata": {
+    "title": "Week 5 - Reading Comprehension (9th Grade)",
+    "description": "Reading comprehension practice test for 9th grade students, week-5",
+    "standard": "9th",
+    "week": "week-5",
+    "subject": "reading",
+    "difficulty": "intermediate",
+    "version": "1.0.0",
+    "tags": [
+      "reading",
+      "comprehension",
+      "week-5"
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-reading-1",
+      "sectionNumber": 1,
+      "name": "Reading Comprehension",
+      "subject": "reading",
+      "description": "Read the following passages and answer the questions",
+      "timeLimit": 1800,
+      "order": 1,
+      "questions": [
+        {
+          "id": "q-reading-1",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "easy",
+          "questionText": "What is the main purpose of photosynthesis?",
+          "passageText": "Photosynthesis is the process by which plants convert light energy into chemical energy. During this process, plants absorb carbon dioxide from the atmosphere and water from the soil. Using sunlight as the energy source, they produce glucose (sugar) and release oxygen as a byproduct. This process is essential for life on Earth as it produces the oxygen we breathe.",
+          "options": [
+            {
+              "id": "A",
+              "text": "To produce oxygen",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "To convert light energy to chemical energy",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "To absorb water",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "To release carbon dioxide",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Photosynthesis converts light energy into chemical energy.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q-reading-2",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "easy",
+          "questionText": "What was a negative consequence of the Industrial Revolution?",
+          "passageText": "The Industrial Revolution transformed society in the 18th and 19th centuries. It began in Britain with the invention of steam engines and mechanized textile production. This revolution led to urbanization as people moved from rural areas to cities to work in factories. While it brought economic growth, it also created social challenges including poor working conditions and environmental pollution.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Economic growth",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Urbanization",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Poor working conditions",
+              "isCorrect": true
+            },
+            {
+              "id": "D",
+              "text": "Technological advancement",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "C",
+          "explanation": "The passage mentions 'poor working conditions' as a social challenge.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q-reading-3",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "easy",
+          "questionText": "What was the primary characteristic of the Renaissance?",
+          "passageText": "The Renaissance was a period of cultural rebirth that began in Italy in the 14th century and spread throughout Europe. This era marked a transition from the Middle Ages to modernity, characterized by renewed interest in classical learning, humanism, and artistic achievement. Artists like Leonardo da Vinci and Michelangelo created masterpieces that continue to inspire today.",
+          "options": [
+            {
+              "id": "A",
+              "text": "A period of war",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "A cultural rebirth",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "A time of famine",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "An era of isolation",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The passage describes the Renaissance as 'a period of cultural rebirth'.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q-reading-4",
+          "questionNumber": 4,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "What gas do plants release during photosynthesis?",
+          "passageText": "Photosynthesis is the process by which plants convert light energy into chemical energy. During this process, plants absorb carbon dioxide from the atmosphere and water from the soil. Using sunlight as the energy source, they produce glucose (sugar) and release oxygen as a byproduct. This process is essential for life on Earth as it produces the oxygen we breathe.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Carbon dioxide",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Nitrogen",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Oxygen",
+              "isCorrect": true
+            },
+            {
+              "id": "D",
+              "text": "Hydrogen",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "C",
+          "explanation": "Plants release oxygen as a byproduct of photosynthesis.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q-reading-5",
+          "questionNumber": 5,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "What invention marked the beginning of the Industrial Revolution?",
+          "passageText": "The Industrial Revolution transformed society in the 18th and 19th centuries. It began in Britain with the invention of steam engines and mechanized textile production. This revolution led to urbanization as people moved from rural areas to cities to work in factories. While it brought economic growth, it also created social challenges including poor working conditions and environmental pollution.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Electricity",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Steam engines",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "Telephone",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Automobile",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The passage mentions 'steam engines' as a key invention.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q-reading-6",
+          "questionNumber": 6,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "Where did the Renaissance begin?",
+          "passageText": "The Renaissance was a period of cultural rebirth that began in Italy in the 14th century and spread throughout Europe. This era marked a transition from the Middle Ages to modernity, characterized by renewed interest in classical learning, humanism, and artistic achievement. Artists like Leonardo da Vinci and Michelangelo created masterpieces that continue to inspire today.",
+          "options": [
+            {
+              "id": "A",
+              "text": "France",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Germany",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Italy",
+              "isCorrect": true
+            },
+            {
+              "id": "D",
+              "text": "Spain",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "C",
+          "explanation": "The passage states the Renaissance 'began in Italy in the 14th century'.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q-reading-7",
+          "questionNumber": 7,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "What is the main purpose of photosynthesis?",
+          "passageText": "Photosynthesis is the process by which plants convert light energy into chemical energy. During this process, plants absorb carbon dioxide from the atmosphere and water from the soil. Using sunlight as the energy source, they produce glucose (sugar) and release oxygen as a byproduct. This process is essential for life on Earth as it produces the oxygen we breathe.",
+          "options": [
+            {
+              "id": "A",
+              "text": "To produce oxygen",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "To convert light energy to chemical energy",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "To absorb water",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "To release carbon dioxide",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Photosynthesis converts light energy into chemical energy.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q-reading-8",
+          "questionNumber": 8,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "hard",
+          "questionText": "What was a negative consequence of the Industrial Revolution?",
+          "passageText": "The Industrial Revolution transformed society in the 18th and 19th centuries. It began in Britain with the invention of steam engines and mechanized textile production. This revolution led to urbanization as people moved from rural areas to cities to work in factories. While it brought economic growth, it also created social challenges including poor working conditions and environmental pollution.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Economic growth",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Urbanization",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Poor working conditions",
+              "isCorrect": true
+            },
+            {
+              "id": "D",
+              "text": "Technological advancement",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "C",
+          "explanation": "The passage mentions 'poor working conditions' as a social challenge.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q-reading-9",
+          "questionNumber": 9,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "hard",
+          "questionText": "What was the primary characteristic of the Renaissance?",
+          "passageText": "The Renaissance was a period of cultural rebirth that began in Italy in the 14th century and spread throughout Europe. This era marked a transition from the Middle Ages to modernity, characterized by renewed interest in classical learning, humanism, and artistic achievement. Artists like Leonardo da Vinci and Michelangelo created masterpieces that continue to inspire today.",
+          "options": [
+            {
+              "id": "A",
+              "text": "A period of war",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "A cultural rebirth",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "A time of famine",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "An era of isolation",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The passage describes the Renaissance as 'a period of cultural rebirth'.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q-reading-10",
+          "questionNumber": 10,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "hard",
+          "questionText": "What gas do plants release during photosynthesis?",
+          "passageText": "Photosynthesis is the process by which plants convert light energy into chemical energy. During this process, plants absorb carbon dioxide from the atmosphere and water from the soil. Using sunlight as the energy source, they produce glucose (sugar) and release oxygen as a byproduct. This process is essential for life on Earth as it produces the oxygen we breathe.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Carbon dioxide",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Nitrogen",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Oxygen",
+              "isCorrect": true
+            },
+            {
+              "id": "D",
+              "text": "Hydrogen",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "C",
+          "explanation": "Plants release oxygen as a byproduct of photosynthesis.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        }
+      ]
+    }
+  ]
+}

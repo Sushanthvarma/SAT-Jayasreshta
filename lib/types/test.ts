@@ -30,6 +30,12 @@ export interface Question {
   // Question content
   questionText: string;
   passageText?: string; // For reading/writing questions
+  passageMetadata?: {
+    text: string;
+    source?: string;
+    lexileLevel?: number; // Lexile Framework alignment
+    wordCount?: number;
+  };
   imageUrl?: string; // For questions with diagrams/images
   
   // Answer options (for multiple-choice)
@@ -38,16 +44,41 @@ export interface Question {
   // Correct answer (for grid-in: numeric value as string)
   correctAnswer: string | number;
   
-  // Explanation and learning
-  explanation: string;
+  // Enhanced explanation and learning
+  explanation: {
+    correct: string; // Why the correct answer is right
+    whyOthersWrong?: string[]; // Why each distractor is wrong
+    learningTip?: string; // Additional learning insight
+  } | string; // Backward compatibility: can be simple string
+  
   topicTags: string[]; // e.g., ["algebra", "linear-equations"]
-  skillTags: string[]; // e.g., ["problem-solving", "data-analysis"]
+  skillTags: string[]; // e.g., ["reading-main-ideas", "math-word-problems"] - references to skill IDs
+  
+  // Adaptive Learning Data (Item Response Theory)
+  adaptiveData?: {
+    irtDifficulty: number; // 0.0 (easiest) to 1.0 (hardest)
+    irtDiscrimination: number; // How well question distinguishes ability levels
+    irtGuessing: number; // Probability of guessing correctly (usually 0.25 for 4-option MCQ)
+    timesAsked: number; // Total times question has been asked
+    timesCorrect: number; // Total times answered correctly
+    avgTimeToAnswer: number; // Average time in seconds
+    avgSuccessRate: number; // Percentage of correct answers
+  };
   
   // Metadata
   points: number; // Points for this question (usually 1)
   estimatedTime: number; // Estimated time in seconds
   createdAt: Timestamp | Date;
   updatedAt: Timestamp | Date;
+  
+  // Quality assurance
+  metadata?: {
+    createdBy: string;
+    reviewedBy?: string[]; // IDs of educators who reviewed
+    lastReviewed?: Timestamp | Date;
+    needsReview?: boolean; // Flag if accuracy < 20% or > 95%
+    flaggedAsConfusing?: number; // Count of times students flagged as confusing
+  };
 }
 
 // ============================================================================

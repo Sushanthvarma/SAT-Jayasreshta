@@ -3,8 +3,8 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from 'react-hot-toast';
 
 export const metadata = {
-  title: 'SAT Mock Test Platform',
-  description: 'Practice SAT tests with real-time scoring and progress tracking',
+  title: 'SAT Practice Platform | By Sushanth Varma',
+  description: 'Master the SAT with comprehensive practice tests, detailed analytics, and personalized learning paths. Educational excellence for students worldwide.',
 };
 
 export const viewport = {

@@ -26,26 +26,30 @@ import {
 
 /**
  * Get all published tests (client-side)
+ * Note: Fetches all tests and filters in memory to avoid index requirement
  */
 export async function getPublishedTests(): Promise<Test[]> {
   const db = getDbInstance();
   const testsRef = collection(db, 'tests');
   
-  const q = query(
-    testsRef,
-    where('status', '==', 'published'),
-    where('isActive', '==', true),
-    orderBy('createdAt', 'desc')
-  );
+  // Fetch all tests and filter/sort in memory to avoid index requirement
+  const snapshot = await getDocs(testsRef);
   
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-    createdAt: doc.data().createdAt?.toDate() || new Date(),
-    updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-    publishedAt: doc.data().publishedAt?.toDate(),
-  })) as Test[];
+  return snapshot.docs
+    .map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+      updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+      publishedAt: doc.data().publishedAt?.toDate(),
+    }))
+    .filter((test) => test.status === 'published' && test.isActive === true)
+    .sort((a, b) => {
+      // Sort by createdAt descending
+      const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
+      const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
+      return bTime - aTime;
+    }) as Test[];
 }
 
 /**

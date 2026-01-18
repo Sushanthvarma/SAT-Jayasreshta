@@ -12,24 +12,31 @@ export async function GET(req: NextRequest) {
   try {
     const testsRef = adminDb.collection('tests');
     
-    // Query for published and active tests
-    const q = testsRef
-      .where('status', '==', 'published')
-      .where('isActive', '==', true)
-      .orderBy('createdAt', 'desc');
+    // Fetch all tests and filter/sort in memory to avoid index requirement
+    // This works immediately but is less efficient for large datasets
+    // For better performance, create a composite index:
+    // Collection: tests
+    // Fields: isActive (Ascending), status (Ascending), createdAt (Descending)
+    const snapshot = await testsRef.get();
     
-    const snapshot = await q.get();
-    
-    const tests: Test[] = snapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        createdAt: (data.createdAt as any)?.toDate() || new Date(),
-        updatedAt: (data.updatedAt as any)?.toDate() || new Date(),
-        publishedAt: (data.publishedAt as any)?.toDate(),
-      } as Test;
-    });
+    const tests: Test[] = snapshot.docs
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: (data.createdAt as any)?.toDate() || new Date(),
+          updatedAt: (data.updatedAt as any)?.toDate() || new Date(),
+          publishedAt: (data.publishedAt as any)?.toDate(),
+        } as Test;
+      })
+      .filter((test) => test.status === 'published' && test.isActive === true)
+      .sort((a, b) => {
+        // Sort by createdAt descending
+        const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
+        const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
+        return bTime - aTime;
+      });
     
     return NextResponse.json({
       success: true,
@@ -38,6 +45,19 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: any) {
     console.error('Error fetching tests:', error);
+    
+    // If error mentions index, provide helpful message
+    if (error.message?.includes('index')) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Firestore index required. Please create a composite index for tests collection with fields: isActive, status, createdAt',
+          indexUrl: error.details || 'https://console.firebase.google.com/project/sat-mock-test-platform/firestore/indexes',
+        },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json(
       {
         success: false,
