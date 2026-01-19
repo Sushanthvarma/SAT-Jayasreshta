@@ -32,16 +32,13 @@ export async function GET(req: NextRequest) {
     // Scan all test files
     const scannedFiles = scanTestFiles();
     
-    // Get all existing tests from Firestore - only fetch IDs to minimize reads
-    // Use select() to only get document IDs, not full documents
+    // Get all existing tests from Firestore - fetch minimal data to reduce reads
+    // Note: Admin SDK doesn't support .select(), so we fetch full docs but limit count
     let testsMap: Map<string, { version?: string; status?: string; isActive?: boolean }> = new Map();
     try {
-      // First, try to get just the document IDs with minimal data
-      // Use a more efficient approach: only fetch what we need
-      const testsSnapshot = await adminDb.collection('tests')
-        .select('version', 'status', 'isActive', 'publishedAt', 'createdAt')
-        .limit(500) // Reduced limit to avoid quota
-        .get();
+      // Fetch limited number of tests to avoid quota
+      // Reduced limit significantly to prevent quota errors
+      const testsSnapshot = await adminDb.collection('tests').limit(200).get();
       
       testsSnapshot.docs.forEach(doc => {
         const data = doc.data();
@@ -52,36 +49,25 @@ export async function GET(req: NextRequest) {
         });
       });
     } catch (error: any) {
-      // If select() doesn't work or quota exceeded, try minimal approach
-      if (error.message?.includes('select') || error.message?.includes('RESOURCE_EXHAUSTED') || error.message?.includes('quota')) {
-        console.warn('⚠️ Could not fetch tests from Firestore (quota/select issue):', error.message);
-        
-        // Try fetching only IDs without data
-        try {
-          const testsSnapshot = await adminDb.collection('tests').limit(200).get();
-          testsSnapshot.docs.forEach(doc => {
-            testsMap.set(doc.id, {}); // Just mark as exists
-          });
-        } catch (fallbackError: any) {
-          // If even that fails, return error
-          return NextResponse.json({
-            success: false,
-            error: 'Firestore quota exceeded. Status check unavailable. You can still import tests - they will be checked during import.',
-            partial: true,
-            statusMap: {},
-            stats: {
-              total: scannedFiles.length,
-              valid: scannedFiles.filter(f => f.isValid).length,
-              invalid: scannedFiles.filter(f => !f.isValid).length,
-              new: scannedFiles.filter(f => f.isValid).length,
-              imported: 0,
-              updated: 0,
-            },
-          }, { status: 429 });
-        }
-      } else {
-        throw error;
+      // If quota exceeded, return error with helpful message
+      if (error.message?.includes('RESOURCE_EXHAUSTED') || error.message?.includes('quota')) {
+        console.warn('⚠️ Could not fetch tests from Firestore (quota exceeded):', error.message);
+        return NextResponse.json({
+          success: false,
+          error: 'Firestore quota exceeded. Status check unavailable. You can still import tests - they will be checked during import.',
+          partial: true,
+          statusMap: {},
+          stats: {
+            total: scannedFiles.length,
+            valid: scannedFiles.filter(f => f.isValid).length,
+            invalid: scannedFiles.filter(f => !f.isValid).length,
+            new: scannedFiles.filter(f => f.isValid).length,
+            imported: 0,
+            updated: 0,
+          },
+        }, { status: 429 });
       }
+      throw error;
     }
     
     // Check status for each scanned file using the cached data
