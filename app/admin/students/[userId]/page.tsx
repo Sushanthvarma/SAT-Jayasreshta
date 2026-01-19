@@ -100,7 +100,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ userId
     fetchData();
   }, [user, userData, userId, router]);
 
-  if (authLoading || loading) {
+  if (authLoading || loading || !paramsResolved || !userId) {
     return (
       <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
         <div className="text-center">
@@ -112,7 +112,17 @@ export default function StudentDetailPage({ params }: { params: Promise<{ userId
   }
 
   if (!user || !userData || userData.role !== 'admin' || !studentData) {
-    return null;
+    return (
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="text-center">
+          <p className="text-lg font-semibold text-gray-700 mb-2">Unable to load student data</p>
+          <p className="text-gray-600 mb-4">There was an issue loading the student information.</p>
+          <Link href="/admin" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            ← Back to Admin Dashboard
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const formatTime = (seconds: number) => {
