@@ -49,8 +49,8 @@ export function scanTestFiles(testsDir: string = 'tests'): ScannedTestFile[] {
       if (entry.isDirectory()) {
         // Recursively scan subdirectories
         scanDirectory(fullEntryPath, entryRelativePath);
-      } else if (entry.isFile() && entry.name === 'test.json') {
-        // Found a test file
+      } else if (entry.isFile() && (entry.name === 'test.json' || entry.name.startsWith('test-') && entry.name.endsWith('.json'))) {
+        // Found a test file (test.json or test-*.json for progressive tests)
         try {
           const fileContent = fs.readFileSync(fullEntryPath, 'utf-8');
           const testData = JSON.parse(fileContent) as TestFile;
@@ -62,8 +62,20 @@ export function scanTestFiles(testsDir: string = 'tests'): ScannedTestFile[] {
           const pathParts = entryRelativePath.split(path.sep);
           const standard = pathParts[0] || '';
           const subject = pathParts[1] === 'progressive' ? 'blended' : (pathParts[1] || '');
-          const testNumberStr = pathParts[2] || '';
-          const testNumber = testNumberStr && !isNaN(Number(testNumberStr)) ? Number(testNumberStr) : undefined;
+          
+          // Extract test number from filename (test-001.json -> 1) or from path
+          let testNumber: number | undefined;
+          if (entry.name.startsWith('test-') && entry.name.endsWith('.json')) {
+            // Extract number from filename: test-001.json -> 1
+            const match = entry.name.match(/test-(\d+)\.json/);
+            if (match) {
+              testNumber = parseInt(match[1], 10);
+            }
+          } else {
+            // Extract from path for old format
+            const testNumberStr = pathParts[2] || '';
+            testNumber = testNumberStr && !isNaN(Number(testNumberStr)) ? Number(testNumberStr) : undefined;
+          }
 
           // Validate test file
           const validation = validateTestFile(testData);
