@@ -14,8 +14,8 @@ interface ScannedFile {
   filePath: string;
   relativePath: string;
   standard: string;
-  week: string;
   subject: string;
+  testNumber?: number;
   isValid: boolean;
   errors: string[];
   title?: string;
@@ -139,7 +139,7 @@ export default function AdminTestManagement() {
           listData.files?.forEach((file: ScannedFile) => {
             if (file.isValid) {
               defaultStatus[file.relativePath] = {
-                testId: `${file.standard}-${file.subject}${file.testNumber && file.testNumber > 1 ? `-${file.testNumber}` : ''}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+                testId: `${file.standard}-${file.subject}${(file as any).testNumber && (file as any).testNumber > 1 ? `-${(file as any).testNumber}` : ''}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
                 status: 'new',
                 exists: false,
               };
@@ -154,7 +154,7 @@ export default function AdminTestManagement() {
         listData.files?.forEach((file: ScannedFile) => {
           if (file.isValid) {
             defaultStatus[file.relativePath] = {
-              testId: `${file.standard}-${file.week}-${file.subject}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+              testId: `${file.standard}-${file.subject}${file.testNumber && file.testNumber > 1 ? `-${file.testNumber}` : ''}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
               status: 'new',
               exists: false,
             };
@@ -727,7 +727,7 @@ export default function AdminTestManagement() {
                           </p>
                         </div>
                       )}
-                    </>
+                    </div>
                   )}
                 </div>
               </div>

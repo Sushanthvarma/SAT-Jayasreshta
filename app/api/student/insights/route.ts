@@ -28,8 +28,8 @@ export async function GET(req: NextRequest) {
     ]);
 
     const userData = userDoc.data();
-    const results = resultsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    const attempts = attemptsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const results = resultsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+    const attempts = attemptsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
     const skillMastery = skillMasteryDoc.exists ? skillMasteryDoc.data() : null;
 
     // Calculate comprehensive insights

@@ -340,7 +340,7 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
                   if (question.type === 'multiple-choice') {
                     if (studentAnswerIndex !== null && question.options && question.options[studentAnswerIndex]) {
                       studentAnswerText = `${String.fromCharCode(65 + studentAnswerIndex)}. ${question.options[studentAnswerIndex].text}`;
-                    } else if (studentAnswer?.answer !== null) {
+                    } else if (studentAnswer?.answer !== null && studentAnswer?.answer !== undefined) {
                       studentAnswerText = `Answer: ${studentAnswer.answer}`;
                     }
                     
@@ -350,7 +350,7 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
                       correctAnswerText = `Answer: ${question.correctAnswer}`;
                     }
                   } else if (question.type === 'grid-in') {
-                    studentAnswerText = studentAnswer?.answer !== null ? `Answer: ${studentAnswer.answer}` : 'Not answered';
+                    studentAnswerText = studentAnswer && studentAnswer.answer !== null ? `Answer: ${studentAnswer.answer}` : 'Not answered';
                     correctAnswerText = `Answer: ${question.correctAnswer}`;
                   }
                   

@@ -12,8 +12,12 @@ import { validateTestFile } from './test-file-schema';
 /**
  * Generate unique test ID from metadata
  */
-function generateTestId(metadata: { standard: string; week: string; subject: string }): string {
-  return `${metadata.standard}-${metadata.week}-${metadata.subject}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+function generateTestId(metadata: { standard: string; subject: string; testNumber?: number }): string {
+  const baseId = `${metadata.standard}-${metadata.subject}`;
+  const testId = metadata.testNumber && metadata.testNumber > 1 
+    ? `${baseId}-${metadata.testNumber}` 
+    : baseId;
+  return testId.toLowerCase().replace(/[^a-z0-9-]/g, '-');
 }
 
 /**

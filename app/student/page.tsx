@@ -457,7 +457,7 @@ export default function StudentDashboard() {
 
   // Use userData.totalTestsCompleted for accurate count (synced from server)
   // Fallback to attempts count if userData not available
-  const completedTests = userData?.totalTestsCompleted || attempts.filter(a => a.status === 'submitted').length;
+  const completedTests = (userData as any)?.totalTestsCompleted || attempts.filter(a => a.status === 'submitted').length;
   const inProgressTests = attempts.filter(a => a.status === 'in-progress' || a.status === 'paused').length;
   
   // Generate all grades from 4th to 12th

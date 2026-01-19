@@ -127,7 +127,7 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
           
           // Sort by XP descending
           const sortedStudents = allStudents.docs
-            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .map(doc => ({ id: doc.id, ...doc.data() } as any))
             .sort((a, b) => (b.totalXP || 0) - (a.totalXP || 0));
           
           // Calculate rank: find first user with same or lower XP

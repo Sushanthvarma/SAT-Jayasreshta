@@ -514,19 +514,30 @@ export async function POST(
     
     if (error.message === 'ALREADY_SUBMITTED') {
       // Attempt was submitted between check and transaction
-      const resultRef = adminDb.collection('testResults').where('attemptId', '==', body?.attemptId).limit(1);
-      const resultSnap = await resultRef.get();
+      // Try to get attemptId from error context or use a fallback
+      let attemptIdForCheck: string | undefined;
+      try {
+        const body = await req.json().catch(() => null);
+        attemptIdForCheck = body?.attemptId;
+      } catch {
+        // If we can't parse body, try to get from attemptRef if available
+      }
       
-      if (!resultSnap.empty) {
-        const existingResult = resultSnap.docs[0].data();
-        return NextResponse.json({
-          success: true,
-          result: {
-            id: resultSnap.docs[0].id,
-            ...existingResult,
-          },
-          message: 'Test was already submitted. Returning existing result.',
-        });
+      if (attemptIdForCheck) {
+        const resultRef = adminDb.collection('testResults').where('attemptId', '==', attemptIdForCheck).limit(1);
+        const resultSnap = await resultRef.get();
+        
+        if (!resultSnap.empty) {
+          const existingResult = resultSnap.docs[0].data();
+          return NextResponse.json({
+            success: true,
+            result: {
+              id: resultSnap.docs[0].id,
+              ...existingResult,
+            },
+            message: 'Test was already submitted. Returning existing result.',
+          });
+        }
       }
     }
     
