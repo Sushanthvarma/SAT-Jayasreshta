@@ -258,50 +258,68 @@ export async function importTestFiles(
   let imported = 0;
   let failed = 0;
 
-  for (const scannedFile of scannedFiles) {
-    if (!scannedFile.isValid && !options.skipInvalid) {
-      console.log(`❌ Skipping invalid file: ${scannedFile.relativePath}`, scannedFile.errors);
-      results.push({
-        file: scannedFile.relativePath,
-        success: false,
-        message: `Invalid: ${scannedFile.errors.join(', ')}`,
-      });
-      failed++;
-      continue;
-    }
-
-    if (!scannedFile.isValid && options.skipInvalid) {
-      console.log(`⏭️  Skipping invalid file (skipInvalid=true): ${scannedFile.relativePath}`);
-      continue; // Skip without adding to results
-    }
-
-    try {
-      console.log(`📥 Importing: ${scannedFile.relativePath}`);
-      const result = await importTestFile(scannedFile, createdBy, options);
-      console.log(`   Result: ${result.imported ? '✅' : '❌'} ${result.message}`);
-      
-      results.push({
-        file: scannedFile.relativePath,
-        success: result.imported,
-        message: result.message,
-        testId: result.testId,
-      });
-
-      if (result.imported) {
-        imported++;
-      } else {
+  // Process files in batches to avoid timeout issues
+  const BATCH_SIZE = 10;
+  const totalBatches = Math.ceil(scannedFiles.length / BATCH_SIZE);
+  
+  console.log(`📦 Processing ${scannedFiles.length} files in ${totalBatches} batches of ${BATCH_SIZE}`);
+  
+  for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+    const batchStart = batchIndex * BATCH_SIZE;
+    const batchEnd = Math.min(batchStart + BATCH_SIZE, scannedFiles.length);
+    const batch = scannedFiles.slice(batchStart, batchEnd);
+    
+    console.log(`📦 Processing batch ${batchIndex + 1}/${totalBatches} (files ${batchStart + 1}-${batchEnd})`);
+    
+    // Process batch sequentially to avoid overwhelming Firestore
+    for (const scannedFile of batch) {
+      if (!scannedFile.isValid && !options.skipInvalid) {
+        console.log(`❌ Skipping invalid file: ${scannedFile.relativePath}`, scannedFile.errors);
+        results.push({
+          file: scannedFile.relativePath,
+          success: false,
+          message: `Invalid: ${scannedFile.errors.join(', ')}`,
+        });
         failed++;
-        console.log(`   Failed reason: ${result.message}`);
+        continue;
       }
-    } catch (error: any) {
-      console.error(`❌ Error importing ${scannedFile.relativePath}:`, error);
-      results.push({
-        file: scannedFile.relativePath,
-        success: false,
-        message: `Import failed: ${error.message || String(error)}`,
-      });
-      failed++;
+
+      if (!scannedFile.isValid && options.skipInvalid) {
+        console.log(`⏭️  Skipping invalid file (skipInvalid=true): ${scannedFile.relativePath}`);
+        continue; // Skip without adding to results
+      }
+
+      try {
+        console.log(`📥 [${results.length + 1}/${scannedFiles.length}] Importing: ${scannedFile.relativePath}`);
+        const result = await importTestFile(scannedFile, createdBy, options);
+        console.log(`   Result: ${result.imported ? '✅' : '❌'} ${result.message}`);
+        
+        results.push({
+          file: scannedFile.relativePath,
+          success: result.imported,
+          message: result.message,
+          testId: result.testId,
+        });
+
+        if (result.imported) {
+          imported++;
+        } else {
+          failed++;
+          console.log(`   Failed reason: ${result.message}`);
+        }
+      } catch (error: any) {
+        console.error(`❌ Error importing ${scannedFile.relativePath}:`, error);
+        results.push({
+          file: scannedFile.relativePath,
+          success: false,
+          message: `Import failed: ${error.message || String(error)}`,
+        });
+        failed++;
+      }
     }
+    
+    // Log progress after each batch
+    console.log(`✅ Batch ${batchIndex + 1} complete: ${imported} imported, ${failed} failed so far`);
   }
 
   return {

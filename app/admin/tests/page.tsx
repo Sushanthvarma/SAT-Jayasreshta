@@ -196,25 +196,37 @@ export default function AdminTestManagement() {
       if (data.success) {
         if (data.imported > 0) {
           playSound('success');
-          toast.success(`✅ Imported ${data.imported} test(s) successfully!`);
+          toast.success(`✅ Imported ${data.imported} test(s) successfully! ${data.failed > 0 ? `(${data.failed} failed)` : ''}`, { duration: 5000 });
         } else {
           playSound('error');
-          toast.error(`No tests were imported. ${data.failed || 0} failed.`);
+          toast.error(`No tests were imported. ${data.failed || 0} failed.`, { duration: 8000 });
         }
         
-        if (data.failed > 0) {
-          const failedResults = data.results?.filter((r: any) => !r.success) || [];
+        if (data.failed > 0 && data.results) {
+          const failedResults = data.results.filter((r: any) => !r.success) || [];
           if (failedResults.length > 0) {
             const errorMsg = failedResults[0].message || 'Unknown error';
-            toast.error(`${data.failed} failed. First error: "${errorMsg}"`, { duration: 8000 });
+            console.error('Failed imports:', failedResults.slice(0, 5));
+            toast.error(`${data.failed} failed. First error: "${errorMsg}"`, { duration: 10000 });
           }
+        }
+        
+        // Log detailed results for debugging
+        if (data.results && data.results.length > 0) {
+          console.log('📊 Import Results:', {
+            total: data.total,
+            imported: data.imported,
+            failed: data.failed,
+            firstFew: data.results.slice(0, 5),
+          });
         }
         
         await loadAllData();
         setSelectedFiles(new Set());
       } else {
         playSound('error');
-        toast.error(data.error || 'Failed to import tests');
+        toast.error(data.error || 'Failed to import tests', { duration: 8000 });
+        console.error('Import error:', data);
       }
     } catch (error) {
       console.error('Error importing tests:', error);

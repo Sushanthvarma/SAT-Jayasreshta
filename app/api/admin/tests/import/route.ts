@@ -38,13 +38,26 @@ export async function POST(req: NextRequest) {
 
     // Filter to specific files if provided
     if (filePaths && Array.isArray(filePaths) && filePaths.length > 0) {
-      scannedFiles = scannedFiles.filter(file => filePaths.includes(file.relativePath));
+      // Normalize paths for comparison (handle both forward and backslashes)
+      const normalizedFilePaths = filePaths.map(p => p.replace(/\\/g, '/'));
+      scannedFiles = scannedFiles.filter(file => {
+        const normalizedRelativePath = file.relativePath.replace(/\\/g, '/');
+        return normalizedFilePaths.includes(normalizedRelativePath);
+      });
+      
+      // Log for debugging
+      console.log('📋 File path matching:', {
+        requested: filePaths.length,
+        found: scannedFiles.length,
+        sampleRequested: filePaths.slice(0, 3),
+        sampleFound: scannedFiles.slice(0, 3).map(f => f.relativePath),
+      });
     }
 
     if (scannedFiles.length === 0) {
       return NextResponse.json({
         success: false,
-        error: 'No test files found to import',
+        error: `No test files found to import. Requested: ${filePaths?.length || 0}, Found: 0`,
       }, { status: 400 });
     }
 
