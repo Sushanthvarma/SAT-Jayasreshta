@@ -222,6 +222,23 @@ export default function StudentDashboard() {
       return;
     }
     
+    // If grade is already set locally, don't override it (user just selected it)
+    if (selectedGrade && gradeInitialized.current) {
+      // Verify the grade matches what's in the profile
+      const userGrade = userData.grade;
+      if (userGrade) {
+        const gradeMatch = userGrade.match(/(\d+)(th|st|nd|rd)/i);
+        if (gradeMatch) {
+          const extractedGrade = gradeMatch[0].toLowerCase();
+          // If profile grade matches selected grade, we're good
+          if (selectedGrade === extractedGrade) {
+            setShowGradeModal(false);
+            return;
+          }
+        }
+      }
+    }
+    
     const userGrade = userData.grade;
     
     if (userGrade) {
@@ -240,11 +257,12 @@ export default function StudentDashboard() {
     }
     
     // If no grade in profile and we haven't initialized yet, show modal
-    if (!gradeInitialized.current) {
+    // But only if grade is not already set locally
+    if (!gradeInitialized.current && !selectedGrade) {
       setShowGradeModal(true);
       gradeInitialized.current = true; // Mark as initialized to prevent showing modal again on re-renders
     }
-  }, [userData]); // Only watch userData - don't include selectedGrade to avoid loops
+  }, [userData, selectedGrade]); // Include selectedGrade to check if it's already set
 
   // Filter and find next pending test - sequential completion
   useEffect(() => {
@@ -351,13 +369,28 @@ export default function StudentDashboard() {
       const data = await response.json();
       if (data.success) {
         playSound('success');
+        // Set grade locally immediately
+        const formattedGrade = grade.charAt(0).toUpperCase() + grade.slice(1);
         setSelectedGrade(grade);
         setShowGradeModal(false);
-        toast.success(`Grade set to ${grade.charAt(0).toUpperCase() + grade.slice(1)} Grade`);
-        // Refresh user data to get updated grade
-        await refreshProfile();
-        // Reset initialization flag so grade is loaded from refreshed userData
-        gradeInitialized.current = false;
+        toast.success(`Grade set to ${formattedGrade} Grade`);
+        
+        // Keep gradeInitialized as true so modal doesn't show again
+        // The refresh will update userData in the background
+        gradeInitialized.current = true;
+        
+        console.log('✅ Grade saved successfully:', grade);
+        
+        // Refresh user data in the background (don't wait for it)
+        // Add a small delay to ensure Firestore write is committed
+        setTimeout(() => {
+          refreshProfile().then(() => {
+            console.log('✅ Profile refreshed after grade save');
+          }).catch(error => {
+            console.error('Error refreshing profile after grade save:', error);
+            // Don't show error to user - grade is already set locally
+          });
+        }, 500); // 500ms delay to ensure Firestore write is committed
       } else {
         playSound('error');
         console.error('Profile update failed:', data);

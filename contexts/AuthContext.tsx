@@ -254,7 +254,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (response.ok) {
           const result = await response.json();
           if (result.success && result.user) {
-            setUserData({
+            const updatedUserData = {
               role: result.user.role,
               displayName: result.user.displayName || user.displayName || user.email?.split('@')[0] || 'Student',
               email: result.user.email || user.email || '',
@@ -262,8 +262,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               streak: result.user.currentStreak || 0,
               badges: result.user.badges || [],
               grade: result.user.grade,
-            });
-            console.log('✅ Profile refreshed. New role:', result.user.role);
+            };
+            setUserData(updatedUserData);
+            console.log('✅ Profile refreshed. Grade:', updatedUserData.grade);
             return; // Success
           }
         }
