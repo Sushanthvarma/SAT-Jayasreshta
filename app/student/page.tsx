@@ -35,6 +35,8 @@ export default function StudentDashboard() {
   const [challengesLoading, setChallengesLoading] = useState(true);
   const [skillTreeLoading, setSkillTreeLoading] = useState(true);
   const [selectedGrade, setSelectedGrade] = useState<string | null>(null); // '4th', '9th', '10th', '11th', '12th' or null
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all'); // 'all', 'beginner', 'intermediate', 'advanced', 'expert'
+  const [selectedSubject, setSelectedSubject] = useState<string>('all'); // 'all', 'reading', 'writing', 'math-calculator', 'math-no-calculator'
   const [activeTab, setActiveTab] = useState<'tests' | 'progress' | 'challenges'>('tests');
   const [showGradeModal, setShowGradeModal] = useState(false);
   const [savingGrade, setSavingGrade] = useState(false);
@@ -266,7 +268,7 @@ export default function StudentDashboard() {
     }
   }, [userData, selectedGrade]); // Include selectedGrade to check if it's already set
 
-  // Filter and find next pending test - sequential completion
+  // Filter tests by grade, difficulty, and subject
   useEffect(() => {
     if (!selectedGrade) {
       setTests([]);
@@ -275,23 +277,52 @@ export default function StudentDashboard() {
     }
     
     // Filter tests by grade (supports 4th, 9th, 10th, 11th, 12th, etc.)
-    const gradeTests = allTests.filter(test => {
+    let filteredTests = allTests.filter(test => {
       // Check if test ID starts with grade (e.g., "4th-...", "9th-...")
-      if (test.id.toLowerCase().startsWith(selectedGrade.toLowerCase() + '-')) {
-        return true;
+      const matchesGrade = test.id.toLowerCase().startsWith(selectedGrade.toLowerCase() + '-') ||
+        test.tags?.some(tag => tag.toLowerCase() === selectedGrade.toLowerCase());
+      
+      if (!matchesGrade) return false;
+      
+      // Filter by difficulty
+      if (selectedDifficulty !== 'all') {
+        // Map user-friendly difficulty to test difficulty
+        const difficultyMap: Record<string, string> = {
+          'easy': 'beginner',
+          'medium': 'intermediate',
+          'hard': 'advanced',
+        };
+        const testDifficulty = difficultyMap[selectedDifficulty] || selectedDifficulty;
+        if (test.difficulty !== testDifficulty && test.difficulty !== selectedDifficulty) {
+          return false;
+        }
       }
-      // Check tags for grade
-      if (test.tags?.some(tag => tag.toLowerCase() === selectedGrade.toLowerCase())) {
-        return true;
+      
+      // Filter by subject - check if test has a section with matching subject
+      if (selectedSubject !== 'all') {
+        const hasMatchingSubject = test.sections?.some(section => {
+          // Normalize subject names for comparison
+          const sectionSubject = section.subject?.toLowerCase();
+          const filterSubject = selectedSubject.toLowerCase();
+          
+          // Handle math subjects (both calculator and no-calculator match "math")
+          if (filterSubject === 'math') {
+            return sectionSubject === 'math-calculator' || sectionSubject === 'math-no-calculator';
+          }
+          return sectionSubject === filterSubject;
+        });
+        
+        if (!hasMatchingSubject) return false;
       }
-      return false;
+      
+      return true;
     });
 
     // Store all grade tests for reference
-    setAllGradeTests(gradeTests);
+    setAllGradeTests(filteredTests);
 
     // Sort tests by ID (alphabetical order) to ensure consistent sequential order
-    const sortedTests = [...gradeTests].sort((a, b) => a.id.localeCompare(b.id));
+    const sortedTests = [...filteredTests].sort((a, b) => a.id.localeCompare(b.id));
 
     // Find completed test IDs
     const completedTestIds = new Set(
@@ -300,12 +331,10 @@ export default function StudentDashboard() {
         .map(a => a.testId)
     );
 
-    // Find the next incomplete test (first test that hasn't been completed)
-    const nextPendingTest = sortedTests.find(test => !completedTestIds.has(test.id));
-
-    // Show only the next pending test, or empty array if all completed
-    setTests(nextPendingTest ? [nextPendingTest] : []);
-  }, [selectedGrade, allTests, attempts]);
+    // Show all filtered tests (not just next pending) so user can choose
+    // Mark which ones are completed
+    setTests(sortedTests);
+  }, [selectedGrade, selectedDifficulty, selectedSubject, allTests, attempts]);
 
   // Save grade preference to user profile
   const handleGradeSelect = async (grade: string) => {
@@ -536,21 +565,83 @@ export default function StudentDashboard() {
           
           {/* Grade Selector - Compact */}
           {selectedGrade && (
-            <div className="mb-4 flex flex-wrap items-center gap-2 sm:gap-3">
-              <span className="text-xs sm:text-sm text-gray-600">Grade:</span>
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-indigo-100 text-indigo-700 rounded-lg font-semibold text-xs sm:text-sm">
-                  {selectedGrade.charAt(0).toUpperCase() + selectedGrade.slice(1)} Grade
-                </span>
-                <button
-                  onClick={() => {
-                    playSound('click');
-                    setShowGradeModal(true);
-                  }}
-                  className="text-xs text-indigo-600 hover:text-indigo-700 font-medium underline min-h-[44px] px-2"
-                >
-                  Change
-                </button>
+            <div className="mb-4 space-y-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <span className="text-xs sm:text-sm text-gray-600">Grade:</span>
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-indigo-100 text-indigo-700 rounded-lg font-semibold text-xs sm:text-sm">
+                    {selectedGrade.charAt(0).toUpperCase() + selectedGrade.slice(1)} Grade
+                  </span>
+                  <button
+                    onClick={() => {
+                      playSound('click');
+                      setShowGradeModal(true);
+                    }}
+                    className="text-xs text-indigo-600 hover:text-indigo-700 font-medium underline min-h-[44px] px-2"
+                  >
+                    Change
+                  </button>
+                </div>
+              </div>
+              
+              {/* Difficulty and Subject Filters */}
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-white rounded-xl shadow-sm border border-gray-200">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs sm:text-sm font-semibold text-gray-700 whitespace-nowrap">Difficulty:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {['all', 'easy', 'medium', 'hard'].map((difficulty) => (
+                      <button
+                        key={difficulty}
+                        onClick={() => {
+                          playSound('click');
+                          setSelectedDifficulty(difficulty);
+                        }}
+                        className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm transition-all min-h-[36px] ${
+                          selectedDifficulty === difficulty
+                            ? 'bg-indigo-600 text-white shadow-md'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95'
+                        }`}
+                      >
+                        {difficulty === 'all' ? 'All' : difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-xs sm:text-sm font-semibold text-gray-700 whitespace-nowrap">Subject:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {['all', 'reading', 'writing', 'math'].map((subject) => (
+                      <button
+                        key={subject}
+                        onClick={() => {
+                          playSound('click');
+                          setSelectedSubject(subject);
+                        }}
+                        className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm transition-all min-h-[36px] ${
+                          selectedSubject === subject
+                            ? 'bg-purple-600 text-white shadow-md'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95'
+                        }`}
+                      >
+                        {subject === 'all' ? 'All' : subject.charAt(0).toUpperCase() + subject.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {(selectedDifficulty !== 'all' || selectedSubject !== 'all') && (
+                  <button
+                    onClick={() => {
+                      playSound('click');
+                      setSelectedDifficulty('all');
+                      setSelectedSubject('all');
+                    }}
+                    className="ml-auto px-3 py-1.5 text-xs sm:text-sm text-gray-600 hover:text-gray-800 underline min-h-[36px]"
+                  >
+                    Clear Filters
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -683,11 +774,13 @@ export default function StudentDashboard() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">
-                    {selectedGrade ? `Next Test - ${selectedGrade.charAt(0).toUpperCase() + selectedGrade.slice(1)} Grade` : 'Practice Tests'}
+                    {selectedGrade ? `${selectedGrade.charAt(0).toUpperCase() + selectedGrade.slice(1)} Grade Tests` : 'Practice Tests'}
                   </h2>
                   {selectedGrade && (
                     <p className="text-sm text-gray-600 mt-1">
-                      Complete tests sequentially, one at a time
+                      {tests.length > 0 
+                        ? `Showing ${tests.length} test${tests.length !== 1 ? 's' : ''}${selectedDifficulty !== 'all' || selectedSubject !== 'all' ? ' (filtered)' : ''}`
+                        : 'No tests match your filters'}
                     </p>
                   )}
                 </div>
