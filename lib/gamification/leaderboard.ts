@@ -407,6 +407,32 @@ export async function getSocialComparison(userId: string): Promise<{
   
   const averageScore = usersWithScores > 0 ? totalScore / usersWithScores : 0;
   
+  // Calculate rank change: compare current rank with previous rank
+  let rankChange = 0;
+  try {
+    const userDoc = await adminDb.collection('users').doc(userId).get();
+    if (userDoc.exists) {
+      const userData = userDoc.data()!;
+      const previousRank = userData.previousRank || userStats.rank; // Default to current if no previous
+      const currentRank = userStats.rank;
+      
+      // Rank change: positive = moved up (better), negative = moved down (worse)
+      // If previousRank is higher (worse), and currentRank is lower (better), rankChange is positive
+      rankChange = previousRank - currentRank;
+      
+      // Update previous rank for next time (only if rank actually changed)
+      if (previousRank !== currentRank) {
+        await adminDb.collection('users').doc(userId).update({
+          previousRank: currentRank,
+          lastRankUpdate: FieldValue.serverTimestamp(),
+        });
+      }
+    }
+  } catch (error: any) {
+    console.error('Error calculating rank change:', error);
+    // Continue with rankChange = 0 if error occurs
+  }
+  
   return {
     userRank: userStats.rank,
     totalUsers: totalUsers || userStats.rank,
@@ -414,6 +440,6 @@ export async function getSocialComparison(userId: string): Promise<{
     betterThan: userStats.percentile,
     averageScore: Math.round(averageScore),
     userScore: Math.round(userStats.averageScore),
-    rankChange: 0, // TODO: Track rank changes over time
+    rankChange: rankChange, // Positive = moved up, negative = moved down, 0 = no change
   };
 }
