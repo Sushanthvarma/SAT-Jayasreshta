@@ -14,11 +14,13 @@ export async function GET(req: NextRequest) {
     const userId = decodedToken.uid;
 
     const { searchParams } = new URL(req.url);
-    const limit = parseInt(searchParams.get('limit') || '100');
+    // PRODUCTION-GRADE: Always fetch ALL students for consistent leaderboard
+    // Limit is ignored - we return all students to ensure consistency
     const includeStats = searchParams.get('stats') === 'true';
     const includeComparison = searchParams.get('comparison') === 'true';
 
-    const leaderboard = await getLeaderboard(limit, userId);
+    // Fetch ALL students (no limit) for consistent leaderboard across all users
+    const leaderboard = await getLeaderboard(10000, userId); // Large limit to get all
     
     const response: any = {
       success: true,
