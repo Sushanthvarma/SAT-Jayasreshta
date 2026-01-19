@@ -72,7 +72,7 @@ function getQuestionTemplate(grade: number, testNumber: number, questionIndex: n
 async function generateTest(grade: number, testNumber: number): Promise<ProgressiveTest> {
   const testId = generateTestId(grade, testNumber);
   const masteryGate = getMasteryGate(grade, testNumber);
-  const difficulty = testNumber <= 15 ? 'easy' : testNumber <= 35 ? 'medium' : 'hard';
+  const difficulty: 'easy' | 'medium' | 'hard' | 'expert' = testNumber <= 15 ? 'easy' : testNumber <= 35 ? 'medium' : 'hard';
   
   // Grade-specific ratios
   const ratios: Record<number, { rw: number; m: number }> = {
@@ -109,7 +109,7 @@ async function generateTest(grade: number, testNumber: number): Promise<Progress
       explanation: template.explanation,
       standards_alignment: [`CCSS.GRADE.${grade}`],
       time_estimate_seconds: 60,
-      subject: isGrammar ? 'writing' : 'reading',
+      subject: (isGrammar ? 'writing' : 'reading') as 'reading' | 'writing' | 'math',
       section: 1,
     });
   }
@@ -135,7 +135,7 @@ async function generateTest(grade: number, testNumber: number): Promise<Progress
       explanation: template.explanation,
       standards_alignment: [`CCSS.MATH.GRADE.${grade}`],
       time_estimate_seconds: 75,
-      subject: 'math',
+      subject: 'math' as 'reading' | 'writing' | 'math',
       section: 2,
     });
   }
