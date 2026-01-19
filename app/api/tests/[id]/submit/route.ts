@@ -188,7 +188,49 @@ export async function POST(
           answeredAt: answer.answeredAt?.toDate(),
         })) || []);
     
-    console.log(`📊 Using ${finalAnswers.length} answers for scoring`);
+    // PRODUCTION-GRADE: Validate answers before processing
+    // Ensure answers match questions and are within valid range
+    const validatedAnswers = finalAnswers.map((answer: any, index: number) => {
+      if (index >= questions.length) {
+        console.warn(`⚠️ Answer index ${index} exceeds question count, skipping`);
+        return null;
+      }
+      
+      const question = questions[index];
+      
+      // Validate answer format
+      if (answer.answer !== null && answer.answer !== undefined && !answer.skipped) {
+        if (question.type === 'multiple-choice') {
+          // Multiple choice: answer should be 0-3 (A, B, C, D) or 'A'-'D'
+          const answerValue = typeof answer.answer === 'string' 
+            ? answer.answer.toUpperCase().charCodeAt(0) - 65 // Convert 'A' to 0, 'B' to 1, etc.
+            : answer.answer;
+          
+          if (typeof answerValue !== 'number' || answerValue < 0 || answerValue > 3) {
+            console.warn(`⚠️ Invalid multiple-choice answer: ${answer.answer}, defaulting to skipped`);
+            return { ...answer, answer: null, skipped: true };
+          }
+          
+          return { ...answer, answer: answerValue };
+        } else if (question.type === 'grid-in') {
+          // Grid-in: answer should be a number
+          const answerNum = typeof answer.answer === 'string' 
+            ? parseFloat(answer.answer) 
+            : answer.answer;
+          
+          if (isNaN(answerNum)) {
+            console.warn(`⚠️ Invalid grid-in answer: ${answer.answer}, defaulting to skipped`);
+            return { ...answer, answer: null, skipped: true };
+          }
+          
+          return { ...answer, answer: answerNum };
+        }
+      }
+      
+      return answer;
+    }).filter((answer: any) => answer !== null);
+    
+    console.log(`📊 Using ${validatedAnswers.length} validated answers for scoring`);
     
     // Calculate totalTimeSpent if not provided by client
     let calculatedTotalTimeSpent = clientTotalTimeSpent;
@@ -228,8 +270,14 @@ export async function POST(
           answeredAt: answer.answeredAt?.toDate(),
         })) || [],
       })) || [],
-      answers: finalAnswers,
+      answers: validatedAnswers,
     } as TestAttempt;
+    
+    // PRODUCTION-GRADE: Validate attempt data integrity
+    if (attempt.answers.length !== questions.length) {
+      console.warn(`⚠️ Answer count mismatch: ${attempt.answers.length} answers for ${questions.length} questions`);
+      // This is acceptable - user may have skipped questions
+    }
     
     // Calculate results
     console.log(`🧮 Calculating test results...`);
@@ -239,20 +287,30 @@ export async function POST(
     
     console.log(`✅ Results calculated: ${resultData.totalScore}/${resultData.maxScore} (${resultData.percentage}%)`);
     
+    // Check for duplicate submission BEFORE transaction (optimization)
+    const existingResultCheck = await adminDb
+      .collection('testResults')
+      .where('attemptId', '==', attemptId)
+      .limit(1)
+      .get();
+    
+    if (!existingResultCheck.empty) {
+      console.warn(`⚠️ Result already exists for attempt ${attemptId}`);
+      const existingResult = existingResultCheck.docs[0].data();
+      return NextResponse.json({
+        success: true,
+        result: {
+          id: existingResultCheck.docs[0].id,
+          ...existingResult,
+        },
+        message: 'Test was already submitted. Returning existing result.',
+      });
+    }
+    
     // PRODUCTION-GRADE: Use Firestore transaction for atomic operations
     // This ensures: result saved, attempt updated, user stats updated - all or nothing
+    // Transaction prevents race conditions and ensures data consistency
     const result = await adminDb.runTransaction(async (transaction) => {
-      // Check if result already exists (prevent duplicates)
-      const existingResultQuery = adminDb
-        .collection('testResults')
-        .where('attemptId', '==', attemptId)
-        .limit(1);
-      const existingResultSnap = await transaction.get(existingResultQuery);
-      
-      if (!existingResultSnap.empty) {
-        throw new Error('DUPLICATE_SUBMISSION');
-      }
-      
       // Re-check attempt status within transaction (prevent race condition)
       const attemptDoc = await transaction.get(attemptRef);
       const currentAttemptData = attemptDoc.data();
@@ -293,7 +351,7 @@ export async function POST(
         status: 'submitted',
         submittedAt: Timestamp.now(),
         totalTimeSpent: calculatedTotalTimeSpent,
-        answers: finalAnswers,
+        answers: validatedAnswers,
       });
       
       // Calculate gamification updates
