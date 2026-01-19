@@ -50,8 +50,10 @@ export default function AdminTestManagement() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(false);
   const [importing, setImporting] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('overview');
+  const [statusCheckEnabled, setStatusCheckEnabled] = useState(false);
   const [importOptions, setImportOptions] = useState({
     publish: true,
     activate: true,
@@ -118,42 +120,20 @@ export default function AdminTestManagement() {
         setStats(statsData.stats || null);
       }
 
-      // Load status separately (may fail due to quota)
-      try {
-        const statusRes = await fetch('/api/admin/tests/status', {
-          headers: { 'Authorization': `Bearer ${idToken}` },
-        });
-        const statusData = await statusRes.json();
-        
-        if (statusData.success) {
-          setImportStatus(statusData.statusMap || {});
-          if (statusData.stats) {
-            setStats((prev: any) => ({ ...prev, ...statusData.stats }));
-          }
-        } else if (statusData.error?.includes('quota') || statusRes.status === 429) {
-          // Quota exceeded - show warning but continue
-          toast.error('⚠️ Could not check import status (quota exceeded). Files will show as "New".', { duration: 8000 });
-          // Set all valid files as "new" as fallback
-          const fallbackStatus: { [key: string]: any } = {};
-          listData.files?.forEach((file: ScannedFile) => {
-            if (file.isValid) {
-              fallbackStatus[file.relativePath] = {
-                testId: `${file.standard}-${file.week}-${file.subject}`.toLowerCase(),
-                status: 'new',
-                exists: false,
-              };
-            }
-          });
-          setImportStatus(fallbackStatus);
-        } else {
-          console.error('Status check failed:', statusData.error);
-          toast.error('Could not check import status. Some features may be limited.');
+      // Don't check status by default to avoid quota issues
+      // User can manually trigger status check if needed
+      // Set all valid files as "new" as default
+      const defaultStatus: { [key: string]: any } = {};
+      listData.files?.forEach((file: ScannedFile) => {
+        if (file.isValid) {
+          defaultStatus[file.relativePath] = {
+            testId: `${file.standard}-${file.week}-${file.subject}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+            status: 'new',
+            exists: false,
+          };
         }
-      } catch (error) {
-        console.error('Error checking status:', error);
-        // Don't block the UI if status check fails
-        toast.error('Could not check import status. Files will show as "New".', { duration: 5000 });
-      }
+      });
+      setImportStatus(defaultStatus);
     } catch (error) {
       console.error('Error loading data:', error);
       toast.error('Failed to load test data');
@@ -295,6 +275,42 @@ export default function AdminTestManagement() {
     setSelectedFiles(new Set());
   };
 
+  const checkImportStatus = async () => {
+    try {
+      setCheckingStatus(true);
+      playSound('click');
+      const auth = getAuthInstance();
+      const idToken = await getIdToken(auth.currentUser!);
+      
+      const statusRes = await fetch('/api/admin/tests/status', {
+        headers: { 'Authorization': `Bearer ${idToken}` },
+      });
+      const statusData = await statusRes.json();
+      
+      if (statusData.success) {
+        playSound('success');
+        setImportStatus(statusData.statusMap || {});
+        if (statusData.stats) {
+          setStats((prev: any) => ({ ...prev, ...statusData.stats }));
+        }
+        toast.success('✅ Import status updated!');
+        setStatusCheckEnabled(true);
+      } else if (statusData.error?.includes('quota') || statusRes.status === 429) {
+        playSound('error');
+        toast.error('⚠️ Firestore quota exceeded. Status check unavailable. You can still import tests.', { duration: 8000 });
+      } else {
+        playSound('error');
+        toast.error(statusData.error || 'Could not check import status.');
+      }
+    } catch (error) {
+      console.error('Error checking status:', error);
+      playSound('error');
+      toast.error('Failed to check import status.');
+    } finally {
+      setCheckingStatus(false);
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
@@ -328,8 +344,26 @@ export default function AdminTestManagement() {
               <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Test Management</h1>
               <p className="text-base sm:text-lg text-gray-600">Import and manage test files from the tests/ directory</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               {userData?.role !== 'admin' && <RefreshRoleButton />}
+              <button
+                onClick={checkImportStatus}
+                disabled={checkingStatus}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50 min-h-[44px] flex items-center gap-2"
+                title="Check which tests are already imported (may hit Firestore quota)"
+              >
+                {checkingStatus ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Checking...
+                  </>
+                ) : (
+                  <>
+                    <span>🔍</span>
+                    Check Status
+                  </>
+                )}
+              </button>
               <button
                 onClick={() => {
                   playSound('click');

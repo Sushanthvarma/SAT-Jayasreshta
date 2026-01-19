@@ -32,34 +32,56 @@ export async function GET(req: NextRequest) {
     // Scan all test files
     const scannedFiles = scanTestFiles();
     
-    // Get all existing tests from Firestore in a single query
-    // Store both IDs and full data to avoid additional queries
-    let testsMap: Map<string, any> = new Map();
+    // Get all existing tests from Firestore - only fetch IDs to minimize reads
+    // Use select() to only get document IDs, not full documents
+    let testsMap: Map<string, { version?: string; status?: string; isActive?: boolean }> = new Map();
     try {
-      const testsSnapshot = await adminDb.collection('tests').limit(1000).get();
+      // First, try to get just the document IDs with minimal data
+      // Use a more efficient approach: only fetch what we need
+      const testsSnapshot = await adminDb.collection('tests')
+        .select('version', 'status', 'isActive', 'publishedAt', 'createdAt')
+        .limit(500) // Reduced limit to avoid quota
+        .get();
+      
       testsSnapshot.docs.forEach(doc => {
-        testsMap.set(doc.id, doc.data());
+        const data = doc.data();
+        testsMap.set(doc.id, {
+          version: data.version,
+          status: data.status,
+          isActive: data.isActive,
+        });
       });
     } catch (error: any) {
-      // If quota exceeded or other error, return partial results
-      console.warn('⚠️ Could not fetch all tests from Firestore:', error.message);
-      if (error.message?.includes('RESOURCE_EXHAUSTED') || error.message?.includes('quota')) {
-        return NextResponse.json({
-          success: false,
-          error: 'Firestore quota exceeded. Please try again later or import tests in smaller batches.',
-          partial: true,
-          statusMap: {},
-          stats: {
-            total: scannedFiles.length,
-            valid: scannedFiles.filter(f => f.isValid).length,
-            invalid: scannedFiles.filter(f => !f.isValid).length,
-            new: 0,
-            imported: 0,
-            updated: 0,
-          },
-        }, { status: 429 });
+      // If select() doesn't work or quota exceeded, try minimal approach
+      if (error.message?.includes('select') || error.message?.includes('RESOURCE_EXHAUSTED') || error.message?.includes('quota')) {
+        console.warn('⚠️ Could not fetch tests from Firestore (quota/select issue):', error.message);
+        
+        // Try fetching only IDs without data
+        try {
+          const testsSnapshot = await adminDb.collection('tests').limit(200).get();
+          testsSnapshot.docs.forEach(doc => {
+            testsMap.set(doc.id, {}); // Just mark as exists
+          });
+        } catch (fallbackError: any) {
+          // If even that fails, return error
+          return NextResponse.json({
+            success: false,
+            error: 'Firestore quota exceeded. Status check unavailable. You can still import tests - they will be checked during import.',
+            partial: true,
+            statusMap: {},
+            stats: {
+              total: scannedFiles.length,
+              valid: scannedFiles.filter(f => f.isValid).length,
+              invalid: scannedFiles.filter(f => !f.isValid).length,
+              new: scannedFiles.filter(f => f.isValid).length,
+              imported: 0,
+              updated: 0,
+            },
+          }, { status: 429 });
+        }
+      } else {
+        throw error;
       }
-      throw error;
     }
     
     // Check status for each scanned file using the cached data
@@ -81,7 +103,7 @@ export async function GET(req: NextRequest) {
       const exists = !!testData;
       
       if (exists) {
-        // Check if file was updated (compare metadata version or timestamp)
+        // Check if file was updated (compare metadata version)
         const fileVersion = file.testData.metadata.version || '1.0.0';
         const dbVersion = testData?.version || '1.0.0';
         const isUpdated = fileVersion !== dbVersion;
@@ -92,8 +114,9 @@ export async function GET(req: NextRequest) {
           exists: true,
           isPublished: testData?.status === 'published',
           isActive: testData?.isActive === true,
-          publishedAt: testData?.publishedAt?.toDate ? testData.publishedAt.toDate() : undefined,
-          createdAt: testData?.createdAt?.toDate ? testData.createdAt.toDate() : undefined,
+          // Don't include dates if we don't have them (minimal fetch)
+          publishedAt: undefined,
+          createdAt: undefined,
         };
       } else {
         statusMap[file.relativePath] = {
