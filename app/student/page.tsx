@@ -99,12 +99,14 @@ export default function StudentDashboard() {
     }
   }, [user]);
 
-  // Fetch user's test attempts
+  // Fetch user's test attempts (fetch recent ones for UI, use userData.totalTestsCompleted for count)
   useEffect(() => {
     if (user) {
       const fetchAttempts = async () => {
         try {
-          const userAttempts = await getUserTestAttempts(user.uid, 5);
+          // Fetch recent attempts for UI display (last 10)
+          // For accurate count, use userData.totalTestsCompleted which is synced from server
+          const userAttempts = await getUserTestAttempts(user.uid, 10);
           setAttempts(userAttempts);
         } catch (error) {
           console.error('Error fetching attempts:', error);
@@ -420,7 +422,9 @@ export default function StudentDashboard() {
     return null;
   }
 
-  const completedTests = attempts.filter(a => a.status === 'submitted').length;
+  // Use userData.totalTestsCompleted for accurate count (synced from server)
+  // Fallback to attempts count if userData not available
+  const completedTests = userData?.totalTestsCompleted || attempts.filter(a => a.status === 'submitted').length;
   const inProgressTests = attempts.filter(a => a.status === 'in-progress' || a.status === 'paused').length;
   
   // Generate all grades from 4th to 12th
