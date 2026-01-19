@@ -16,6 +16,7 @@ export default function LeaderboardPage() {
   const [stats, setStats] = useState<UserStats | null>(null);
   const [comparison, setComparison] = useState<SocialComparison | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -32,6 +33,7 @@ export default function LeaderboardPage() {
   const fetchLeaderboard = async () => {
     try {
       setLoading(true);
+      setError(null);
       const auth = getAuthInstance();
       const idToken = await getIdToken(auth.currentUser!);
       
@@ -40,6 +42,10 @@ export default function LeaderboardPage() {
           'Authorization': `Bearer ${idToken}`,
         },
       });
+
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}`);
+      }
 
       const data = await response.json();
       
@@ -55,12 +61,16 @@ export default function LeaderboardPage() {
           });
         }
       } else {
-        console.error('Leaderboard API error:', data.error);
-        toast.error(data.error || 'Failed to load leaderboard');
+        const errorMsg = data.error || 'Failed to load leaderboard';
+        console.error('Leaderboard API error:', errorMsg);
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (error: any) {
       console.error('Error fetching leaderboard:', error);
-      toast.error('Failed to load leaderboard. Please try again.');
+      const errorMsg = error.message || 'Failed to load leaderboard. Please try again.';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -89,10 +99,48 @@ export default function LeaderboardPage() {
       <Header />
 
       <div className="mx-auto max-w-7xl px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Leaderboard</h1>
-          <p className="text-lg text-gray-600">See how you rank among all students</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Leaderboard</h1>
+            <p className="text-lg text-gray-600">See how you rank among all students</p>
+          </div>
+          <button
+            onClick={fetchLeaderboard}
+            disabled={loading}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 min-h-[44px] flex items-center gap-2"
+          >
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Loading...
+              </>
+            ) : (
+              <>
+                <span>🔄</span>
+                Refresh
+              </>
+            )}
+          </button>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+            <div className="flex items-center gap-3">
+              <span className="text-red-600 text-xl">⚠️</span>
+              <div className="flex-1">
+                <p className="text-red-800 font-semibold">Error loading leaderboard</p>
+                <p className="text-red-600 text-sm mt-1">{error}</p>
+              </div>
+              <button
+                onClick={fetchLeaderboard}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors min-h-[36px]"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Social Comparison Card */}
         {comparison && stats && (
