@@ -1,0 +1,244 @@
+{
+  "metadata": {
+    "title": "8th Grade - Week 2 - Writing",
+    "description": "Practice test for 8th grade students, week 2, writing subject.",
+    "standard": "8th",
+    "week": "week-2",
+    "subject": "writing",
+    "difficulty": "intermediate",
+    "version": "1.0.0",
+    "tags": [
+      "8th",
+      "week-2",
+      "writing"
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "sectionNumber": 1,
+      "name": "Writing and Language",
+      "subject": "writing",
+      "description": "Writing and Language practice questions for 8th grade students.",
+      "timeLimit": 2100,
+      "order": 1,
+      "questions": [
+        {
+          "id": "q1",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "writing",
+          "difficulty": "easy",
+          "questionText": "Which sentence is grammatically correct? (Week 2, Question 1)",
+          "passageText": "Read the following sentences and identify the one that is grammatically correct.",
+          "options": [
+            {
+              "id": "A",
+              "text": "The students was studying.",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "The students were studying.",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "The students is studying.",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "The students be studying.",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B because \"students\" is plural and requires the plural verb \"were\".",
+          "topicTags": [
+            "grammar",
+            "subject-verb-agreement"
+          ],
+          "skillTags": [
+            "grammar",
+            "syntax"
+          ],
+          "points": 1,
+          "estimatedTime": 45
+        },
+        {
+          "id": "q2",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "writing",
+          "difficulty": "medium",
+          "questionText": "Which sentence is grammatically correct? (Week 2, Question 2)",
+          "passageText": "Read the following sentences and identify the one that is grammatically correct.",
+          "options": [
+            {
+              "id": "A",
+              "text": "The students was studying.",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "The students were studying.",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "The students is studying.",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "The students be studying.",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B because \"students\" is plural and requires the plural verb \"were\".",
+          "topicTags": [
+            "grammar",
+            "subject-verb-agreement"
+          ],
+          "skillTags": [
+            "grammar",
+            "syntax"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q3",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "writing",
+          "difficulty": "medium",
+          "questionText": "Which sentence is grammatically correct? (Week 2, Question 3)",
+          "passageText": "Read the following sentences and identify the one that is grammatically correct.",
+          "options": [
+            {
+              "id": "A",
+              "text": "The students was studying.",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "The students were studying.",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "The students is studying.",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "The students be studying.",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B because \"students\" is plural and requires the plural verb \"were\".",
+          "topicTags": [
+            "grammar",
+            "subject-verb-agreement"
+          ],
+          "skillTags": [
+            "grammar",
+            "syntax"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q4",
+          "questionNumber": 4,
+          "type": "multiple-choice",
+          "subject": "writing",
+          "difficulty": "hard",
+          "questionText": "Which sentence is grammatically correct? (Week 2, Question 4)",
+          "passageText": "Read the following sentences and identify the one that is grammatically correct.",
+          "options": [
+            {
+              "id": "A",
+              "text": "The students was studying.",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "The students were studying.",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "The students is studying.",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "The students be studying.",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B because \"students\" is plural and requires the plural verb \"were\".",
+          "topicTags": [
+            "grammar",
+            "subject-verb-agreement"
+          ],
+          "skillTags": [
+            "grammar",
+            "syntax"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q5",
+          "questionNumber": 5,
+          "type": "multiple-choice",
+          "subject": "writing",
+          "difficulty": "hard",
+          "questionText": "Which sentence is grammatically correct? (Week 2, Question 5)",
+          "passageText": "Read the following sentences and identify the one that is grammatically correct.",
+          "options": [
+            {
+              "id": "A",
+              "text": "The students was studying.",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "The students were studying.",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "The students is studying.",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "The students be studying.",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B because \"students\" is plural and requires the plural verb \"were\".",
+          "topicTags": [
+            "grammar",
+            "subject-verb-agreement"
+          ],
+          "skillTags": [
+            "grammar",
+            "syntax"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        }
+      ]
+    }
+  ]
+}

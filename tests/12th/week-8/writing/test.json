@@ -1,447 +1,328 @@
 {
   "metadata": {
-    "title": "Week 8 - Writing and Language (12th Grade)",
-    "description": "Writing and language practice test for 12th grade students, week-8",
+    "title": "12th Grade - Week 8 - Writing",
+    "description": "Practice test for 12th grade students, week 8, writing subject.",
     "standard": "12th",
     "week": "week-8",
     "subject": "writing",
-    "difficulty": "intermediate",
+    "difficulty": "expert",
     "version": "1.0.0",
     "tags": [
-      "writing",
-      "grammar",
-      "week-8"
+      "12th",
+      "week-8",
+      "writing"
     ]
   },
   "sections": [
     {
-      "id": "section-writing-1",
+      "id": "section-1",
       "sectionNumber": 1,
       "name": "Writing and Language",
       "subject": "writing",
-      "description": "Choose the best revision for each sentence",
-      "timeLimit": 1200,
+      "description": "Writing and Language practice questions for 12th grade students.",
+      "timeLimit": 3000,
       "order": 1,
       "questions": [
         {
-          "id": "q-writing-1",
+          "id": "q1",
           "questionNumber": 1,
           "type": "multiple-choice",
           "subject": "writing",
           "difficulty": "easy",
-          "questionText": "Choose the best revision for the underlined portion: 'The students was excited about the field trip.'",
+          "questionText": "Which sentence is grammatically correct? (Week 8, Question 1)",
+          "passageText": "Read the following sentences and identify the one that is grammatically correct.",
           "options": [
             {
               "id": "A",
-              "text": "NO CHANGE",
+              "text": "The students was studying.",
               "isCorrect": false
             },
             {
               "id": "B",
-              "text": "The students were excited",
+              "text": "The students were studying.",
               "isCorrect": true
             },
             {
               "id": "C",
-              "text": "The students is excited",
+              "text": "The students is studying.",
               "isCorrect": false
             },
             {
               "id": "D",
-              "text": "The students be excited",
+              "text": "The students be studying.",
               "isCorrect": false
             }
           ],
           "correctAnswer": "B",
-          "explanation": "Subject-verb agreement: 'students' (plural) requires 'were' (plural).",
+          "explanation": "The correct answer is B because \"students\" is plural and requires the plural verb \"were\".",
           "topicTags": [
             "grammar",
-            "sentence-structure"
+            "subject-verb-agreement"
           ],
           "skillTags": [
-            "editing",
-            "revision"
+            "grammar",
+            "syntax"
           ],
           "points": 1,
-          "estimatedTime": 60
+          "estimatedTime": 45
         },
         {
-          "id": "q-writing-2",
+          "id": "q2",
           "questionNumber": 2,
           "type": "multiple-choice",
           "subject": "writing",
           "difficulty": "easy",
-          "questionText": "Which sentence is grammatically correct?",
+          "questionText": "Which sentence is grammatically correct? (Week 8, Question 2)",
+          "passageText": "Read the following sentences and identify the one that is grammatically correct.",
           "options": [
             {
               "id": "A",
-              "text": "She don't like pizza.",
+              "text": "The students was studying.",
               "isCorrect": false
             },
             {
               "id": "B",
-              "text": "She doesn't like pizza.",
+              "text": "The students were studying.",
               "isCorrect": true
             },
             {
               "id": "C",
-              "text": "She do not like pizza.",
+              "text": "The students is studying.",
               "isCorrect": false
             },
             {
               "id": "D",
-              "text": "She not like pizza.",
+              "text": "The students be studying.",
               "isCorrect": false
             }
           ],
           "correctAnswer": "B",
-          "explanation": "Third person singular requires 'doesn't' not 'don't'.",
+          "explanation": "The correct answer is B because \"students\" is plural and requires the plural verb \"were\".",
           "topicTags": [
             "grammar",
-            "sentence-structure"
+            "subject-verb-agreement"
           ],
           "skillTags": [
-            "editing",
-            "revision"
+            "grammar",
+            "syntax"
           ],
           "points": 1,
-          "estimatedTime": 60
+          "estimatedTime": 45
         },
         {
-          "id": "q-writing-3",
+          "id": "q3",
           "questionNumber": 3,
           "type": "multiple-choice",
           "subject": "writing",
-          "difficulty": "easy",
-          "questionText": "Choose the sentence with correct punctuation:",
+          "difficulty": "medium",
+          "questionText": "Which sentence is grammatically correct? (Week 8, Question 3)",
+          "passageText": "Read the following sentences and identify the one that is grammatically correct.",
           "options": [
             {
               "id": "A",
-              "text": "I went to the store, and I bought milk.",
-              "isCorrect": true
-            },
-            {
-              "id": "B",
-              "text": "I went to the store and I bought milk.",
+              "text": "The students was studying.",
               "isCorrect": false
             },
             {
+              "id": "B",
+              "text": "The students were studying.",
+              "isCorrect": true
+            },
+            {
               "id": "C",
-              "text": "I went to the store, and, I bought milk.",
+              "text": "The students is studying.",
               "isCorrect": false
             },
             {
               "id": "D",
-              "text": "I went to the store and, I bought milk.",
+              "text": "The students be studying.",
               "isCorrect": false
             }
           ],
-          "correctAnswer": "A",
-          "explanation": "A comma is needed before 'and' when connecting two independent clauses.",
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B because \"students\" is plural and requires the plural verb \"were\".",
           "topicTags": [
             "grammar",
-            "sentence-structure"
+            "subject-verb-agreement"
           ],
           "skillTags": [
-            "editing",
-            "revision"
+            "grammar",
+            "syntax"
           ],
           "points": 1,
           "estimatedTime": 60
         },
         {
-          "id": "q-writing-4",
+          "id": "q4",
           "questionNumber": 4,
           "type": "multiple-choice",
           "subject": "writing",
           "difficulty": "medium",
-          "questionText": "Choose the best revision for the underlined portion: 'The students was excited about the field trip.'",
+          "questionText": "Which sentence is grammatically correct? (Week 8, Question 4)",
+          "passageText": "Read the following sentences and identify the one that is grammatically correct.",
           "options": [
             {
               "id": "A",
-              "text": "NO CHANGE",
+              "text": "The students was studying.",
               "isCorrect": false
             },
             {
               "id": "B",
-              "text": "The students were excited",
+              "text": "The students were studying.",
               "isCorrect": true
             },
             {
               "id": "C",
-              "text": "The students is excited",
+              "text": "The students is studying.",
               "isCorrect": false
             },
             {
               "id": "D",
-              "text": "The students be excited",
+              "text": "The students be studying.",
               "isCorrect": false
             }
           ],
           "correctAnswer": "B",
-          "explanation": "Subject-verb agreement: 'students' (plural) requires 'were' (plural).",
+          "explanation": "The correct answer is B because \"students\" is plural and requires the plural verb \"were\".",
           "topicTags": [
             "grammar",
-            "sentence-structure"
+            "subject-verb-agreement"
           ],
           "skillTags": [
-            "editing",
-            "revision"
+            "grammar",
+            "syntax"
           ],
           "points": 1,
           "estimatedTime": 60
         },
         {
-          "id": "q-writing-5",
+          "id": "q5",
           "questionNumber": 5,
           "type": "multiple-choice",
           "subject": "writing",
-          "difficulty": "medium",
-          "questionText": "Which sentence is grammatically correct?",
+          "difficulty": "hard",
+          "questionText": "Which sentence is grammatically correct? (Week 8, Question 5)",
+          "passageText": "Read the following sentences and identify the one that is grammatically correct.",
           "options": [
             {
               "id": "A",
-              "text": "She don't like pizza.",
+              "text": "The students was studying.",
               "isCorrect": false
             },
             {
               "id": "B",
-              "text": "She doesn't like pizza.",
+              "text": "The students were studying.",
               "isCorrect": true
             },
             {
               "id": "C",
-              "text": "She do not like pizza.",
+              "text": "The students is studying.",
               "isCorrect": false
             },
             {
               "id": "D",
-              "text": "She not like pizza.",
+              "text": "The students be studying.",
               "isCorrect": false
             }
           ],
           "correctAnswer": "B",
-          "explanation": "Third person singular requires 'doesn't' not 'don't'.",
+          "explanation": "The correct answer is B because \"students\" is plural and requires the plural verb \"were\".",
           "topicTags": [
             "grammar",
-            "sentence-structure"
+            "subject-verb-agreement"
           ],
           "skillTags": [
-            "editing",
-            "revision"
+            "grammar",
+            "syntax"
           ],
           "points": 1,
-          "estimatedTime": 60
+          "estimatedTime": 90
         },
         {
-          "id": "q-writing-6",
+          "id": "q6",
           "questionNumber": 6,
           "type": "multiple-choice",
           "subject": "writing",
-          "difficulty": "medium",
-          "questionText": "Choose the sentence with correct punctuation:",
+          "difficulty": "hard",
+          "questionText": "Which sentence is grammatically correct? (Week 8, Question 6)",
+          "passageText": "Read the following sentences and identify the one that is grammatically correct.",
           "options": [
             {
               "id": "A",
-              "text": "I went to the store, and I bought milk.",
-              "isCorrect": true
-            },
-            {
-              "id": "B",
-              "text": "I went to the store and I bought milk.",
+              "text": "The students was studying.",
               "isCorrect": false
             },
             {
+              "id": "B",
+              "text": "The students were studying.",
+              "isCorrect": true
+            },
+            {
               "id": "C",
-              "text": "I went to the store, and, I bought milk.",
+              "text": "The students is studying.",
               "isCorrect": false
             },
             {
               "id": "D",
-              "text": "I went to the store and, I bought milk.",
+              "text": "The students be studying.",
               "isCorrect": false
             }
           ],
-          "correctAnswer": "A",
-          "explanation": "A comma is needed before 'and' when connecting two independent clauses.",
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B because \"students\" is plural and requires the plural verb \"were\".",
           "topicTags": [
             "grammar",
-            "sentence-structure"
+            "subject-verb-agreement"
           ],
           "skillTags": [
-            "editing",
-            "revision"
+            "grammar",
+            "syntax"
           ],
           "points": 1,
-          "estimatedTime": 60
+          "estimatedTime": 90
         },
         {
-          "id": "q-writing-7",
+          "id": "q7",
           "questionNumber": 7,
           "type": "multiple-choice",
           "subject": "writing",
-          "difficulty": "medium",
-          "questionText": "Choose the best revision for the underlined portion: 'The students was excited about the field trip.'",
+          "difficulty": "hard",
+          "questionText": "Which sentence is grammatically correct? (Week 8, Question 7)",
+          "passageText": "Read the following sentences and identify the one that is grammatically correct.",
           "options": [
             {
               "id": "A",
-              "text": "NO CHANGE",
+              "text": "The students was studying.",
               "isCorrect": false
             },
             {
               "id": "B",
-              "text": "The students were excited",
+              "text": "The students were studying.",
               "isCorrect": true
             },
             {
               "id": "C",
-              "text": "The students is excited",
+              "text": "The students is studying.",
               "isCorrect": false
             },
             {
               "id": "D",
-              "text": "The students be excited",
+              "text": "The students be studying.",
               "isCorrect": false
             }
           ],
           "correctAnswer": "B",
-          "explanation": "Subject-verb agreement: 'students' (plural) requires 'were' (plural).",
+          "explanation": "The correct answer is B because \"students\" is plural and requires the plural verb \"were\".",
           "topicTags": [
             "grammar",
-            "sentence-structure"
+            "subject-verb-agreement"
           ],
           "skillTags": [
-            "editing",
-            "revision"
-          ],
-          "points": 1,
-          "estimatedTime": 60
-        },
-        {
-          "id": "q-writing-8",
-          "questionNumber": 8,
-          "type": "multiple-choice",
-          "subject": "writing",
-          "difficulty": "hard",
-          "questionText": "Which sentence is grammatically correct?",
-          "options": [
-            {
-              "id": "A",
-              "text": "She don't like pizza.",
-              "isCorrect": false
-            },
-            {
-              "id": "B",
-              "text": "She doesn't like pizza.",
-              "isCorrect": true
-            },
-            {
-              "id": "C",
-              "text": "She do not like pizza.",
-              "isCorrect": false
-            },
-            {
-              "id": "D",
-              "text": "She not like pizza.",
-              "isCorrect": false
-            }
-          ],
-          "correctAnswer": "B",
-          "explanation": "Third person singular requires 'doesn't' not 'don't'.",
-          "topicTags": [
             "grammar",
-            "sentence-structure"
-          ],
-          "skillTags": [
-            "editing",
-            "revision"
+            "syntax"
           ],
           "points": 1,
-          "estimatedTime": 60
-        },
-        {
-          "id": "q-writing-9",
-          "questionNumber": 9,
-          "type": "multiple-choice",
-          "subject": "writing",
-          "difficulty": "hard",
-          "questionText": "Choose the sentence with correct punctuation:",
-          "options": [
-            {
-              "id": "A",
-              "text": "I went to the store, and I bought milk.",
-              "isCorrect": true
-            },
-            {
-              "id": "B",
-              "text": "I went to the store and I bought milk.",
-              "isCorrect": false
-            },
-            {
-              "id": "C",
-              "text": "I went to the store, and, I bought milk.",
-              "isCorrect": false
-            },
-            {
-              "id": "D",
-              "text": "I went to the store and, I bought milk.",
-              "isCorrect": false
-            }
-          ],
-          "correctAnswer": "A",
-          "explanation": "A comma is needed before 'and' when connecting two independent clauses.",
-          "topicTags": [
-            "grammar",
-            "sentence-structure"
-          ],
-          "skillTags": [
-            "editing",
-            "revision"
-          ],
-          "points": 1,
-          "estimatedTime": 60
-        },
-        {
-          "id": "q-writing-10",
-          "questionNumber": 10,
-          "type": "multiple-choice",
-          "subject": "writing",
-          "difficulty": "hard",
-          "questionText": "Choose the best revision for the underlined portion: 'The students was excited about the field trip.'",
-          "options": [
-            {
-              "id": "A",
-              "text": "NO CHANGE",
-              "isCorrect": false
-            },
-            {
-              "id": "B",
-              "text": "The students were excited",
-              "isCorrect": true
-            },
-            {
-              "id": "C",
-              "text": "The students is excited",
-              "isCorrect": false
-            },
-            {
-              "id": "D",
-              "text": "The students be excited",
-              "isCorrect": false
-            }
-          ],
-          "correctAnswer": "B",
-          "explanation": "Subject-verb agreement: 'students' (plural) requires 'were' (plural).",
-          "topicTags": [
-            "grammar",
-            "sentence-structure"
-          ],
-          "skillTags": [
-            "editing",
-            "revision"
-          ],
-          "points": 1,
-          "estimatedTime": 60
+          "estimatedTime": 90
         }
       ]
     }

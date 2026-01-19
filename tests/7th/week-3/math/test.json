@@ -1,0 +1,197 @@
+{
+  "metadata": {
+    "title": "7th Grade - Week 3 - Math",
+    "description": "Practice test for 7th grade students, week 3, math subject.",
+    "standard": "7th",
+    "week": "week-3",
+    "subject": "math",
+    "difficulty": "intermediate",
+    "version": "1.0.0",
+    "tags": [
+      "7th",
+      "week-3",
+      "math"
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "sectionNumber": 1,
+      "name": "Mathematics",
+      "subject": "math-calculator",
+      "description": "Mathematics practice questions for 7th grade students.",
+      "timeLimit": 1800,
+      "order": 1,
+      "questions": [
+        {
+          "id": "q1",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "easy",
+          "questionText": "What is 88 × 61?",
+          "options": [
+            {
+              "id": "A",
+              "text": "5358",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "5368",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "5378",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "10736",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 7th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 45
+        },
+        {
+          "id": "q2",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "What is 65 × 41?",
+          "options": [
+            {
+              "id": "A",
+              "text": "2655",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "2665",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "2675",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "5330",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 7th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q3",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 44 × 97?",
+          "options": [
+            {
+              "id": "A",
+              "text": "4258",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "4268",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "4278",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "8536",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 7th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q4",
+          "questionNumber": 4,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 68 × 30?",
+          "options": [
+            {
+              "id": "A",
+              "text": "2030",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "2040",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "2050",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "4080",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 7th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        }
+      ]
+    }
+  ]
+}

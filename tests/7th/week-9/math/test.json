@@ -1,0 +1,197 @@
+{
+  "metadata": {
+    "title": "7th Grade - Week 9 - Math",
+    "description": "Practice test for 7th grade students, week 9, math subject.",
+    "standard": "7th",
+    "week": "week-9",
+    "subject": "math",
+    "difficulty": "intermediate",
+    "version": "1.0.0",
+    "tags": [
+      "7th",
+      "week-9",
+      "math"
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "sectionNumber": 1,
+      "name": "Mathematics",
+      "subject": "math-calculator",
+      "description": "Mathematics practice questions for 7th grade students.",
+      "timeLimit": 1800,
+      "order": 1,
+      "questions": [
+        {
+          "id": "q1",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "easy",
+          "questionText": "What is 58 × 78?",
+          "options": [
+            {
+              "id": "A",
+              "text": "4514",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "4524",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "4534",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "9048",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 7th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 45
+        },
+        {
+          "id": "q2",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "What is 58 × 5?",
+          "options": [
+            {
+              "id": "A",
+              "text": "280",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "290",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "300",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "580",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 7th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q3",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 67 × 23?",
+          "options": [
+            {
+              "id": "A",
+              "text": "1531",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "1541",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "1551",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "3082",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 7th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q4",
+          "questionNumber": 4,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 49 × 9?",
+          "options": [
+            {
+              "id": "A",
+              "text": "431",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "441",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "451",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "882",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 7th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        }
+      ]
+    }
+  ]
+}

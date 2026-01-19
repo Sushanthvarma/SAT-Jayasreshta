@@ -1,0 +1,197 @@
+{
+  "metadata": {
+    "title": "6th Grade - Week 9 - Math",
+    "description": "Practice test for 6th grade students, week 9, math subject.",
+    "standard": "6th",
+    "week": "week-9",
+    "subject": "math",
+    "difficulty": "beginner",
+    "version": "1.0.0",
+    "tags": [
+      "6th",
+      "week-9",
+      "math"
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "sectionNumber": 1,
+      "name": "Mathematics",
+      "subject": "math-calculator",
+      "description": "Mathematics practice questions for 6th grade students.",
+      "timeLimit": 1800,
+      "order": 1,
+      "questions": [
+        {
+          "id": "q1",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "easy",
+          "questionText": "What is 1 + 45?",
+          "options": [
+            {
+              "id": "A",
+              "text": "44",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "46",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "48",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "51",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 6th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 45
+        },
+        {
+          "id": "q2",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "What is 31 + 12?",
+          "options": [
+            {
+              "id": "A",
+              "text": "41",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "43",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "45",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "48",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 6th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q3",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 48 + 41?",
+          "options": [
+            {
+              "id": "A",
+              "text": "87",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "89",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "91",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "94",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 6th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q4",
+          "questionNumber": 4,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 16 + 26?",
+          "options": [
+            {
+              "id": "A",
+              "text": "40",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "42",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "44",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "47",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 6th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        }
+      ]
+    }
+  ]
+}

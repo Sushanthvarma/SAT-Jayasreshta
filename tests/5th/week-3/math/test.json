@@ -1,0 +1,155 @@
+{
+  "metadata": {
+    "title": "5th Grade - Week 3 - Math",
+    "description": "Practice test for 5th grade students, week 3, math subject.",
+    "standard": "5th",
+    "week": "week-3",
+    "subject": "math",
+    "difficulty": "beginner",
+    "version": "1.0.0",
+    "tags": [
+      "5th",
+      "week-3",
+      "math"
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "sectionNumber": 1,
+      "name": "Mathematics",
+      "subject": "math-calculator",
+      "description": "Mathematics practice questions for 5th grade students.",
+      "timeLimit": 1500,
+      "order": 1,
+      "questions": [
+        {
+          "id": "q1",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "What is 5 + 14?",
+          "options": [
+            {
+              "id": "A",
+              "text": "17",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "19",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "21",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "24",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 5th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q2",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "What is 22 + 40?",
+          "options": [
+            {
+              "id": "A",
+              "text": "60",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "62",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "64",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "67",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 5th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q3",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 20 + 18?",
+          "options": [
+            {
+              "id": "A",
+              "text": "36",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "38",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "40",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "43",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 5th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        }
+      ]
+    }
+  ]
+}

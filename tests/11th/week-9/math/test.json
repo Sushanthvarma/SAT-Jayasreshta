@@ -1,300 +1,302 @@
 {
   "metadata": {
-    "title": "Week 9 - Mathematics (11th Grade)",
-    "description": "Mathematics practice test for 11th grade students, week-9",
+    "title": "11th Grade - Week 9 - Math",
+    "description": "Practice test for 11th grade students, week 9, math subject.",
     "standard": "11th",
     "week": "week-9",
     "subject": "math",
-    "difficulty": "intermediate",
+    "difficulty": "advanced",
     "version": "1.0.0",
     "tags": [
-      "math",
-      "algebra",
-      "week-9"
+      "11th",
+      "week-9",
+      "math"
     ]
   },
   "sections": [
     {
-      "id": "section-math-1",
+      "id": "section-1",
       "sectionNumber": 1,
-      "name": "Mathematics - No Calculator",
-      "subject": "math-no-calculator",
-      "description": "Solve mathematical problems without a calculator",
-      "timeLimit": 1500,
+      "name": "Mathematics",
+      "subject": "math-calculator",
+      "description": "Mathematics practice questions for 11th grade students.",
+      "timeLimit": 3000,
       "order": 1,
       "questions": [
         {
-          "id": "q-math-1",
+          "id": "q1",
           "questionNumber": 1,
           "type": "multiple-choice",
-          "subject": "math-no-calculator",
+          "subject": "math-calculator",
           "difficulty": "easy",
-          "questionText": "If x + 5 = 12, what is the value of x?",
+          "questionText": "If x = 4 and y = 10, what is x × y?",
           "options": [
             {
               "id": "A",
-              "text": "5",
+              "text": "35",
               "isCorrect": false
             },
             {
               "id": "B",
-              "text": "7",
+              "text": "40",
               "isCorrect": true
             },
             {
               "id": "C",
-              "text": "12",
+              "text": "45",
               "isCorrect": false
             },
             {
               "id": "D",
-              "text": "17",
+              "text": "14",
               "isCorrect": false
             }
           ],
           "correctAnswer": "B",
-          "explanation": "x + 5 = 12, so x = 12 - 5 = 7",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 11th grade students.",
           "topicTags": [
-            "algebra",
-            "arithmetic"
+            "arithmetic",
+            "basic-math"
           ],
           "skillTags": [
-            "problem-solving",
-            "calculation"
+            "calculation",
+            "problem-solving"
           ],
           "points": 1,
-          "estimatedTime": 90
+          "estimatedTime": 45
         },
         {
-          "id": "q-math-2",
+          "id": "q2",
           "questionNumber": 2,
           "type": "multiple-choice",
-          "subject": "math-no-calculator",
+          "subject": "math-calculator",
           "difficulty": "easy",
-          "questionText": "What is 15% of 200?",
+          "questionText": "If x = 6 and y = 3, what is x × y?",
           "options": [
             {
               "id": "A",
-              "text": "15",
+              "text": "13",
               "isCorrect": false
             },
             {
               "id": "B",
-              "text": "30",
+              "text": "18",
               "isCorrect": true
             },
             {
               "id": "C",
-              "text": "45",
+              "text": "23",
               "isCorrect": false
             },
             {
               "id": "D",
-              "text": "60",
+              "text": "9",
               "isCorrect": false
             }
           ],
           "correctAnswer": "B",
-          "explanation": "15% of 200 = 0.15 × 200 = 30",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 11th grade students.",
           "topicTags": [
-            "algebra",
-            "arithmetic"
+            "arithmetic",
+            "basic-math"
           ],
           "skillTags": [
-            "problem-solving",
-            "calculation"
+            "calculation",
+            "problem-solving"
           ],
           "points": 1,
-          "estimatedTime": 90
+          "estimatedTime": 45
         },
         {
-          "id": "q-math-3",
+          "id": "q3",
           "questionNumber": 3,
-          "type": "grid-in",
-          "subject": "math-no-calculator",
-          "difficulty": "easy",
-          "questionText": "If a rectangle has length 8 and width 5, what is its area?",
-          "correctAnswer": 40,
-          "explanation": "Area = length × width = 8 × 5 = 40",
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "If x = 9 and y = 4, what is x × y?",
+          "options": [
+            {
+              "id": "A",
+              "text": "31",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "36",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "41",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "13",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 11th grade students.",
           "topicTags": [
-            "algebra",
-            "arithmetic"
+            "arithmetic",
+            "basic-math"
           ],
           "skillTags": [
-            "problem-solving",
-            "calculation"
+            "calculation",
+            "problem-solving"
           ],
           "points": 1,
-          "estimatedTime": 120
+          "estimatedTime": 60
         },
         {
-          "id": "q-math-4",
+          "id": "q4",
           "questionNumber": 4,
           "type": "multiple-choice",
-          "subject": "math-no-calculator",
+          "subject": "math-calculator",
           "difficulty": "medium",
-          "questionText": "Solve for y: 2y - 6 = 10",
+          "questionText": "If x = 3 and y = 2, what is x × y?",
           "options": [
             {
               "id": "A",
-              "text": "2",
+              "text": "1",
               "isCorrect": false
             },
             {
               "id": "B",
-              "text": "4",
-              "isCorrect": false
-            },
-            {
-              "id": "C",
-              "text": "8",
+              "text": "6",
               "isCorrect": true
             },
             {
+              "id": "C",
+              "text": "11",
+              "isCorrect": false
+            },
+            {
               "id": "D",
-              "text": "16",
+              "text": "5",
               "isCorrect": false
             }
           ],
-          "correctAnswer": "C",
-          "explanation": "2y - 6 = 10, so 2y = 16, therefore y = 8",
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 11th grade students.",
           "topicTags": [
-            "algebra",
-            "arithmetic"
+            "arithmetic",
+            "basic-math"
           ],
           "skillTags": [
-            "problem-solving",
-            "calculation"
+            "calculation",
+            "problem-solving"
           ],
           "points": 1,
-          "estimatedTime": 90
+          "estimatedTime": 60
         },
         {
-          "id": "q-math-5",
+          "id": "q5",
           "questionNumber": 5,
           "type": "multiple-choice",
-          "subject": "math-no-calculator",
-          "difficulty": "medium",
-          "questionText": "If x + 5 = 12, what is the value of x?",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "If x = 9 and y = 6, what is x × y?",
           "options": [
             {
               "id": "A",
-              "text": "5",
+              "text": "49",
               "isCorrect": false
             },
             {
               "id": "B",
-              "text": "7",
+              "text": "54",
               "isCorrect": true
             },
             {
               "id": "C",
-              "text": "12",
+              "text": "59",
               "isCorrect": false
             },
             {
               "id": "D",
-              "text": "17",
-              "isCorrect": false
-            }
-          ],
-          "correctAnswer": "B",
-          "explanation": "x + 5 = 12, so x = 12 - 5 = 7",
-          "topicTags": [
-            "algebra",
-            "arithmetic"
-          ],
-          "skillTags": [
-            "problem-solving",
-            "calculation"
-          ],
-          "points": 1,
-          "estimatedTime": 90
-        },
-        {
-          "id": "q-math-6",
-          "questionNumber": 6,
-          "type": "multiple-choice",
-          "subject": "math-no-calculator",
-          "difficulty": "medium",
-          "questionText": "What is 15% of 200?",
-          "options": [
-            {
-              "id": "A",
               "text": "15",
               "isCorrect": false
-            },
-            {
-              "id": "B",
-              "text": "30",
-              "isCorrect": true
-            },
-            {
-              "id": "C",
-              "text": "45",
-              "isCorrect": false
-            },
-            {
-              "id": "D",
-              "text": "60",
-              "isCorrect": false
             }
           ],
           "correctAnswer": "B",
-          "explanation": "15% of 200 = 0.15 × 200 = 30",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 11th grade students.",
           "topicTags": [
-            "algebra",
-            "arithmetic"
+            "arithmetic",
+            "basic-math"
           ],
           "skillTags": [
-            "problem-solving",
-            "calculation"
+            "calculation",
+            "problem-solving"
           ],
           "points": 1,
           "estimatedTime": 90
         },
         {
-          "id": "q-math-7",
-          "questionNumber": 7,
-          "type": "grid-in",
-          "subject": "math-no-calculator",
-          "difficulty": "medium",
-          "questionText": "If a rectangle has length 8 and width 5, what is its area?",
-          "correctAnswer": 40,
-          "explanation": "Area = length × width = 8 × 5 = 40",
-          "topicTags": [
-            "algebra",
-            "arithmetic"
-          ],
-          "skillTags": [
-            "problem-solving",
-            "calculation"
-          ],
-          "points": 1,
-          "estimatedTime": 120
-        },
-        {
-          "id": "q-math-8",
-          "questionNumber": 8,
+          "id": "q6",
+          "questionNumber": 6,
           "type": "multiple-choice",
-          "subject": "math-no-calculator",
+          "subject": "math-calculator",
           "difficulty": "hard",
-          "questionText": "Solve for y: 2y - 6 = 10",
+          "questionText": "If x = 3 and y = 9, what is x × y?",
           "options": [
             {
               "id": "A",
-              "text": "2",
+              "text": "22",
               "isCorrect": false
             },
             {
               "id": "B",
-              "text": "4",
-              "isCorrect": false
+              "text": "27",
+              "isCorrect": true
             },
             {
               "id": "C",
-              "text": "8",
+              "text": "32",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "12",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 11th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q7",
+          "questionNumber": 7,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "If x = 10 and y = 6, what is x × y?",
+          "options": [
+            {
+              "id": "A",
+              "text": "55",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "60",
               "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "65",
+              "isCorrect": false
             },
             {
               "id": "D",
@@ -302,99 +304,15 @@
               "isCorrect": false
             }
           ],
-          "correctAnswer": "C",
-          "explanation": "2y - 6 = 10, so 2y = 16, therefore y = 8",
-          "topicTags": [
-            "algebra",
-            "arithmetic"
-          ],
-          "skillTags": [
-            "problem-solving",
-            "calculation"
-          ],
-          "points": 1,
-          "estimatedTime": 90
-        },
-        {
-          "id": "q-math-9",
-          "questionNumber": 9,
-          "type": "multiple-choice",
-          "subject": "math-no-calculator",
-          "difficulty": "hard",
-          "questionText": "If x + 5 = 12, what is the value of x?",
-          "options": [
-            {
-              "id": "A",
-              "text": "5",
-              "isCorrect": false
-            },
-            {
-              "id": "B",
-              "text": "7",
-              "isCorrect": true
-            },
-            {
-              "id": "C",
-              "text": "12",
-              "isCorrect": false
-            },
-            {
-              "id": "D",
-              "text": "17",
-              "isCorrect": false
-            }
-          ],
           "correctAnswer": "B",
-          "explanation": "x + 5 = 12, so x = 12 - 5 = 7",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 11th grade students.",
           "topicTags": [
-            "algebra",
-            "arithmetic"
+            "arithmetic",
+            "basic-math"
           ],
           "skillTags": [
-            "problem-solving",
-            "calculation"
-          ],
-          "points": 1,
-          "estimatedTime": 90
-        },
-        {
-          "id": "q-math-10",
-          "questionNumber": 10,
-          "type": "multiple-choice",
-          "subject": "math-no-calculator",
-          "difficulty": "hard",
-          "questionText": "What is 15% of 200?",
-          "options": [
-            {
-              "id": "A",
-              "text": "15",
-              "isCorrect": false
-            },
-            {
-              "id": "B",
-              "text": "30",
-              "isCorrect": true
-            },
-            {
-              "id": "C",
-              "text": "45",
-              "isCorrect": false
-            },
-            {
-              "id": "D",
-              "text": "60",
-              "isCorrect": false
-            }
-          ],
-          "correctAnswer": "B",
-          "explanation": "15% of 200 = 0.15 × 200 = 30",
-          "topicTags": [
-            "algebra",
-            "arithmetic"
-          ],
-          "skillTags": [
-            "problem-solving",
-            "calculation"
+            "calculation",
+            "problem-solving"
           ],
           "points": 1,
           "estimatedTime": 90

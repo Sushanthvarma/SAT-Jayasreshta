@@ -1,0 +1,287 @@
+{
+  "metadata": {
+    "title": "7th Grade - Week 4 - Reading",
+    "description": "Practice test for 7th grade students, week 4, reading subject.",
+    "standard": "7th",
+    "week": "week-4",
+    "subject": "reading",
+    "difficulty": "intermediate",
+    "version": "1.0.0",
+    "tags": [
+      "7th",
+      "week-4",
+      "reading"
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "sectionNumber": 1,
+      "name": "Reading Comprehension",
+      "subject": "reading",
+      "description": "Reading Comprehension practice questions for 7th grade students.",
+      "timeLimit": 1800,
+      "order": 1,
+      "questions": [
+        {
+          "id": "q1",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "easy",
+          "questionText": "What is the main idea of the passage? (Week 4, Question 1)",
+          "passageText": "This is a sample reading passage for 7th grade students. The passage discusses various topics relevant to students at this grade level. It contains information that students need to understand and analyze to answer the questions correctly.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Option A - First main point",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Option B - Correct main idea",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "Option C - Supporting detail",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Option D - Minor detail",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B because it best summarizes the main idea of the passage.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q2",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "What is the main idea of the passage? (Week 4, Question 2)",
+          "passageText": "This is a sample reading passage for 7th grade students. The passage discusses various topics relevant to students at this grade level. It contains information that students need to understand and analyze to answer the questions correctly.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Option A - First main point",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Option B - Correct main idea",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "Option C - Supporting detail",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Option D - Minor detail",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B because it best summarizes the main idea of the passage.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q3",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "What is the main idea of the passage? (Week 4, Question 3)",
+          "passageText": "This is a sample reading passage for 7th grade students. The passage discusses various topics relevant to students at this grade level. It contains information that students need to understand and analyze to answer the questions correctly.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Option A - First main point",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Option B - Correct main idea",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "Option C - Supporting detail",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Option D - Minor detail",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B because it best summarizes the main idea of the passage.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q4",
+          "questionNumber": 4,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "What is the main idea of the passage? (Week 4, Question 4)",
+          "passageText": "This is a sample reading passage for 7th grade students. The passage discusses various topics relevant to students at this grade level. It contains information that students need to understand and analyze to answer the questions correctly.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Option A - First main point",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Option B - Correct main idea",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "Option C - Supporting detail",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Option D - Minor detail",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B because it best summarizes the main idea of the passage.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q5",
+          "questionNumber": 5,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "hard",
+          "questionText": "What is the main idea of the passage? (Week 4, Question 5)",
+          "passageText": "This is a sample reading passage for 7th grade students. The passage discusses various topics relevant to students at this grade level. It contains information that students need to understand and analyze to answer the questions correctly.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Option A - First main point",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Option B - Correct main idea",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "Option C - Supporting detail",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Option D - Minor detail",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B because it best summarizes the main idea of the passage.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 120
+        },
+        {
+          "id": "q6",
+          "questionNumber": 6,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "hard",
+          "questionText": "What is the main idea of the passage? (Week 4, Question 6)",
+          "passageText": "This is a sample reading passage for 7th grade students. The passage discusses various topics relevant to students at this grade level. It contains information that students need to understand and analyze to answer the questions correctly.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Option A - First main point",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Option B - Correct main idea",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "Option C - Supporting detail",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Option D - Minor detail",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B because it best summarizes the main idea of the passage.",
+          "topicTags": [
+            "reading-comprehension",
+            "main-idea"
+          ],
+          "skillTags": [
+            "analysis",
+            "inference"
+          ],
+          "points": 1,
+          "estimatedTime": 120
+        }
+      ]
+    }
+  ]
+}

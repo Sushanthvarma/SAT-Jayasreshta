@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { playSound } from '@/lib/audio';
 
 export default function UserMenu() {
   const { user, userData, signOut } = useAuth();
@@ -46,32 +47,35 @@ export default function UserMenu() {
     <div className="relative" ref={menuRef}>
       {/* User Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 group"
+        onClick={() => {
+          playSound('click');
+          setIsOpen(!isOpen);
+        }}
+        className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 group min-h-[44px]"
       >
-        {/* Profile Picture - Larger and More Professional */}
-        <div className="relative">
+        {/* Profile Picture - Mobile Responsive */}
+        <div className="relative flex-shrink-0">
           {photoURL ? (
             <div className="relative">
               <img
                 src={photoURL}
                 alt={displayName}
                 onError={() => setImageError(true)}
-                className="w-12 h-12 rounded-full object-cover border-4 border-white shadow-lg ring-2 ring-indigo-200 group-hover:ring-indigo-400 transition-all duration-200"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 sm:border-4 border-white shadow-lg ring-2 ring-indigo-200 group-hover:ring-indigo-400 transition-all duration-200"
               />
               {/* Online indicator */}
-              <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
             </div>
           ) : (
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg shadow-lg ring-2 ring-indigo-200 group-hover:ring-indigo-400 transition-all duration-200">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg ring-2 ring-indigo-200 group-hover:ring-indigo-400 transition-all duration-200">
               {initials}
             </div>
           )}
         </div>
         
-        {/* User Info - Better Typography */}
-        <div className="hidden sm:block text-left">
-          <p className="text-sm font-bold text-gray-900 leading-tight">{displayName}</p>
+        {/* User Info - Better Typography - Hidden on very small screens */}
+        <div className="hidden md:block text-left min-w-0 flex-1">
+          <p className="text-sm font-bold text-gray-900 leading-tight truncate">{displayName}</p>
           {streak > 0 ? (
             <p className="text-xs text-orange-600 font-semibold mt-0.5 flex items-center gap-1">
               <span>🔥</span>
@@ -84,7 +88,7 @@ export default function UserMenu() {
         
         {/* Dropdown Arrow */}
         <svg
-          className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-indigo-600' : 'group-hover:text-gray-600'}`}
+          className={`w-4 h-4 sm:w-5 sm:h-5 text-gray-400 transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180 text-indigo-600' : 'group-hover:text-gray-600'}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -93,32 +97,32 @@ export default function UserMenu() {
         </svg>
       </button>
 
-      {/* Dropdown Menu */}
+      {/* Dropdown Menu - Mobile Responsive */}
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 animate-in">
-          {/* User Info Section - Enhanced */}
-          <div className="px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
-            <div className="flex items-center gap-4">
+        <div className="absolute right-0 mt-2 sm:mt-3 w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 animate-in max-h-[calc(100vh-120px)] overflow-y-auto">
+          {/* User Info Section - Enhanced Mobile */}
+          <div className="px-4 sm:px-5 py-3 sm:py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+            <div className="flex items-center gap-3 sm:gap-4">
               {photoURL ? (
-                <div className="relative">
+                <div className="relative flex-shrink-0">
                   <img
                     src={photoURL}
                     alt={displayName}
-                    className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-xl ring-2 ring-indigo-200"
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-3 sm:border-4 border-white shadow-xl ring-2 ring-indigo-200"
                   />
-                  <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-green-500 border-2 border-white rounded-full"></div>
                 </div>
               ) : (
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-2xl shadow-xl ring-2 ring-indigo-200">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl sm:text-2xl shadow-xl ring-2 ring-indigo-200 flex-shrink-0">
                   {initials}
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-base font-bold text-gray-900 truncate">{displayName}</p>
+                <p className="text-sm sm:text-base font-bold text-gray-900 truncate">{displayName}</p>
                 <p className="text-xs text-gray-600 truncate mt-0.5">{user.email}</p>
                 {streak > 0 && (
                   <div className="flex items-center gap-1.5 mt-2 px-2 py-1 bg-orange-100 rounded-lg w-fit">
-                    <span className="text-sm">🔥</span>
+                    <span className="text-xs sm:text-sm">🔥</span>
                     <span className="text-xs font-bold text-orange-700">{streak} day streak</span>
                   </div>
                 )}
@@ -130,8 +134,11 @@ export default function UserMenu() {
           <div className="py-2">
             <Link
               href="/student/profile"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-5 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-150 group"
+              onClick={() => {
+                playSound('click');
+                setIsOpen(false);
+              }}
+              className="flex items-center gap-3 px-4 sm:px-5 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 active:bg-indigo-100 transition-all duration-150 group min-h-[44px]"
             >
               <div className="w-9 h-9 rounded-lg bg-indigo-100 group-hover:bg-indigo-200 flex items-center justify-center transition-colors">
                 <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,8 +149,11 @@ export default function UserMenu() {
             </Link>
             <Link
               href="/student"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-5 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-150 group"
+              onClick={() => {
+                playSound('click');
+                setIsOpen(false);
+              }}
+              className="flex items-center gap-3 px-4 sm:px-5 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 active:bg-indigo-100 transition-all duration-150 group min-h-[44px]"
             >
               <div className="w-9 h-9 rounded-lg bg-indigo-100 group-hover:bg-indigo-200 flex items-center justify-center transition-colors">
                 <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,8 +164,11 @@ export default function UserMenu() {
             </Link>
             <Link
               href="/student/progress"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-5 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-150 group"
+              onClick={() => {
+                playSound('click');
+                setIsOpen(false);
+              }}
+              className="flex items-center gap-3 px-4 sm:px-5 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 active:bg-indigo-100 transition-all duration-150 group min-h-[44px]"
             >
               <div className="w-9 h-9 rounded-lg bg-indigo-100 group-hover:bg-indigo-200 flex items-center justify-center transition-colors">
                 <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -166,8 +179,11 @@ export default function UserMenu() {
             </Link>
             <Link
               href="/student/badges"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-5 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-150 group"
+              onClick={() => {
+                playSound('click');
+                setIsOpen(false);
+              }}
+              className="flex items-center gap-3 px-4 sm:px-5 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 active:bg-indigo-100 transition-all duration-150 group min-h-[44px]"
             >
               <div className="w-9 h-9 rounded-lg bg-indigo-100 group-hover:bg-indigo-200 flex items-center justify-center transition-colors">
                 <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,8 +194,11 @@ export default function UserMenu() {
             </Link>
             <Link
               href="/student/leaderboard"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-5 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-150 group"
+              onClick={() => {
+                playSound('click');
+                setIsOpen(false);
+              }}
+              className="flex items-center gap-3 px-4 sm:px-5 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 active:bg-indigo-100 transition-all duration-150 group min-h-[44px]"
             >
               <div className="w-9 h-9 rounded-lg bg-indigo-100 group-hover:bg-indigo-200 flex items-center justify-center transition-colors">
                 <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,10 +215,11 @@ export default function UserMenu() {
           {/* Sign Out */}
           <button
             onClick={() => {
+              playSound('click');
               setIsOpen(false);
               signOut();
             }}
-            className="w-full flex items-center gap-3 px-5 py-3 text-sm text-red-600 hover:bg-red-50 transition-all duration-150 group"
+            className="w-full flex items-center gap-3 px-4 sm:px-5 py-3 text-sm text-red-600 hover:bg-red-50 active:bg-red-100 transition-all duration-150 group min-h-[44px]"
           >
             <div className="w-9 h-9 rounded-lg bg-red-100 group-hover:bg-red-200 flex items-center justify-center transition-colors">
               <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,0 +1,197 @@
+{
+  "metadata": {
+    "title": "6th Grade - Week 3 - Math",
+    "description": "Practice test for 6th grade students, week 3, math subject.",
+    "standard": "6th",
+    "week": "week-3",
+    "subject": "math",
+    "difficulty": "beginner",
+    "version": "1.0.0",
+    "tags": [
+      "6th",
+      "week-3",
+      "math"
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "sectionNumber": 1,
+      "name": "Mathematics",
+      "subject": "math-calculator",
+      "description": "Mathematics practice questions for 6th grade students.",
+      "timeLimit": 1800,
+      "order": 1,
+      "questions": [
+        {
+          "id": "q1",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "easy",
+          "questionText": "What is 45 + 49?",
+          "options": [
+            {
+              "id": "A",
+              "text": "92",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "94",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "96",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "99",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 6th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 45
+        },
+        {
+          "id": "q2",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "What is 21 + 4?",
+          "options": [
+            {
+              "id": "A",
+              "text": "23",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "25",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "27",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "30",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 6th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q3",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 5 + 3?",
+          "options": [
+            {
+              "id": "A",
+              "text": "6",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "8",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "10",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "13",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 6th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q4",
+          "questionNumber": 4,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 11 + 18?",
+          "options": [
+            {
+              "id": "A",
+              "text": "27",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "29",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "31",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "34",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 6th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        }
+      ]
+    }
+  ]
+}

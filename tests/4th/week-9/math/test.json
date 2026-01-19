@@ -1,0 +1,155 @@
+{
+  "metadata": {
+    "title": "4th Grade - Week 9 - Math",
+    "description": "Practice test for 4th grade students, week 9, math subject.",
+    "standard": "4th",
+    "week": "week-9",
+    "subject": "math",
+    "difficulty": "beginner",
+    "version": "1.0.0",
+    "tags": [
+      "4th",
+      "week-9",
+      "math"
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "sectionNumber": 1,
+      "name": "Mathematics",
+      "subject": "math-calculator",
+      "description": "Mathematics practice questions for 4th grade students.",
+      "timeLimit": 1200,
+      "order": 1,
+      "questions": [
+        {
+          "id": "q1",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "What is 38 + 49?",
+          "options": [
+            {
+              "id": "A",
+              "text": "85",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "87",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "89",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "92",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 4th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q2",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "What is 16 + 10?",
+          "options": [
+            {
+              "id": "A",
+              "text": "24",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "26",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "28",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "31",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 4th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q3",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 19 + 34?",
+          "options": [
+            {
+              "id": "A",
+              "text": "51",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "53",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "55",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "58",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 4th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "metadata": {
+    "title": "7th Grade - Week 6 - Math",
+    "description": "Practice test for 7th grade students, week 6, math subject.",
+    "standard": "7th",
+    "week": "week-6",
+    "subject": "math",
+    "difficulty": "intermediate",
+    "version": "1.0.0",
+    "tags": [
+      "7th",
+      "week-6",
+      "math"
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "sectionNumber": 1,
+      "name": "Mathematics",
+      "subject": "math-calculator",
+      "description": "Mathematics practice questions for 7th grade students.",
+      "timeLimit": 1800,
+      "order": 1,
+      "questions": [
+        {
+          "id": "q1",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "easy",
+          "questionText": "What is 99 × 37?",
+          "options": [
+            {
+              "id": "A",
+              "text": "3653",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "3663",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "3673",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "7326",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 7th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 45
+        },
+        {
+          "id": "q2",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "What is 59 × 11?",
+          "options": [
+            {
+              "id": "A",
+              "text": "639",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "649",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "659",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "1298",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 7th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q3",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 87 × 57?",
+          "options": [
+            {
+              "id": "A",
+              "text": "4949",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "4959",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "4969",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "9918",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 7th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q4",
+          "questionNumber": 4,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 85 × 92?",
+          "options": [
+            {
+              "id": "A",
+              "text": "7810",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "7820",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "7830",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "15640",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 7th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        }
+      ]
+    }
+  ]
+}

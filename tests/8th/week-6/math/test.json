@@ -1,0 +1,239 @@
+{
+  "metadata": {
+    "title": "8th Grade - Week 6 - Math",
+    "description": "Practice test for 8th grade students, week 6, math subject.",
+    "standard": "8th",
+    "week": "week-6",
+    "subject": "math",
+    "difficulty": "intermediate",
+    "version": "1.0.0",
+    "tags": [
+      "8th",
+      "week-6",
+      "math"
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "sectionNumber": 1,
+      "name": "Mathematics",
+      "subject": "math-calculator",
+      "description": "Mathematics practice questions for 8th grade students.",
+      "timeLimit": 2100,
+      "order": 1,
+      "questions": [
+        {
+          "id": "q1",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "easy",
+          "questionText": "What is 42 × 91?",
+          "options": [
+            {
+              "id": "A",
+              "text": "3812",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "3822",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "3832",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "7644",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 8th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 45
+        },
+        {
+          "id": "q2",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "What is 42 × 56?",
+          "options": [
+            {
+              "id": "A",
+              "text": "2342",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "2352",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "2362",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "4704",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 8th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q3",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "What is 78 × 43?",
+          "options": [
+            {
+              "id": "A",
+              "text": "3344",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "3354",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "3364",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "6708",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 8th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q4",
+          "questionNumber": 4,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 83 × 22?",
+          "options": [
+            {
+              "id": "A",
+              "text": "1816",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "1826",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "1836",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "3652",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 8th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q5",
+          "questionNumber": 5,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 82 × 16?",
+          "options": [
+            {
+              "id": "A",
+              "text": "1302",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "1312",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "1322",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "2624",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 8th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        }
+      ]
+    }
+  ]
+}

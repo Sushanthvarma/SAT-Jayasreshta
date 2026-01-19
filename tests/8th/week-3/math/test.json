@@ -1,0 +1,239 @@
+{
+  "metadata": {
+    "title": "8th Grade - Week 3 - Math",
+    "description": "Practice test for 8th grade students, week 3, math subject.",
+    "standard": "8th",
+    "week": "week-3",
+    "subject": "math",
+    "difficulty": "intermediate",
+    "version": "1.0.0",
+    "tags": [
+      "8th",
+      "week-3",
+      "math"
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "sectionNumber": 1,
+      "name": "Mathematics",
+      "subject": "math-calculator",
+      "description": "Mathematics practice questions for 8th grade students.",
+      "timeLimit": 2100,
+      "order": 1,
+      "questions": [
+        {
+          "id": "q1",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "easy",
+          "questionText": "What is 85 × 42?",
+          "options": [
+            {
+              "id": "A",
+              "text": "3560",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "3570",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "3580",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "7140",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 8th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 45
+        },
+        {
+          "id": "q2",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "What is 28 × 35?",
+          "options": [
+            {
+              "id": "A",
+              "text": "970",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "980",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "990",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "1960",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 8th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q3",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "What is 35 × 10?",
+          "options": [
+            {
+              "id": "A",
+              "text": "340",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "350",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "360",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "700",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 8th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "q4",
+          "questionNumber": 4,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 5 × 85?",
+          "options": [
+            {
+              "id": "A",
+              "text": "415",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "425",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "435",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "850",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 8th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        },
+        {
+          "id": "q5",
+          "questionNumber": 5,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 71 × 46?",
+          "options": [
+            {
+              "id": "A",
+              "text": "3256",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "3266",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "3276",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "6532",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The correct answer is B. This is a basic arithmetic problem appropriate for 8th grade students.",
+          "topicTags": [
+            "arithmetic",
+            "basic-math"
+          ],
+          "skillTags": [
+            "calculation",
+            "problem-solving"
+          ],
+          "points": 1,
+          "estimatedTime": 90
+        }
+      ]
+    }
+  ]
+}
