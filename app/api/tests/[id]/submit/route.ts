@@ -279,15 +279,28 @@ export async function POST(
     });
     console.log(`💾 Saved totalTimeSpent to attempt: ${calculatedTotalTimeSpent} seconds`);
     
-    // Update user's test count
+    // Update user's test count - verify no duplicate submissions
     const userRef = adminDb.collection('users').doc(userId);
     const userSnap = await userRef.get();
     if (userSnap.exists) {
-      const currentCount = userSnap.data()?.totalTestsCompleted || 0;
-      await userRef.update({
-        totalTestsCompleted: currentCount + 1,
-        lastTestDate: Timestamp.now(),
-      });
+      // Check if this result already exists (prevent duplicate counting)
+      const existingResult = await adminDb
+        .collection('testResults')
+        .where('attemptId', '==', attemptId)
+        .limit(1)
+        .get();
+      
+      if (existingResult.empty) {
+        // Only increment if this is a new result
+        const currentCount = userSnap.data()?.totalTestsCompleted || 0;
+        await userRef.update({
+          totalTestsCompleted: currentCount + 1,
+          lastTestDate: Timestamp.now(),
+        });
+        console.log(`✅ Updated totalTestsCompleted: ${currentCount} -> ${currentCount + 1}`);
+      } else {
+        console.log(`⚠️ Result already exists for attempt ${attemptId}, skipping count increment`);
+      }
     }
     
     // Update gamification (streaks, badges, XP) - call directly instead of fetch

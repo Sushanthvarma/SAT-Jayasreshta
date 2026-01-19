@@ -27,7 +27,12 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const targetUserId = body.userId || userId; // Default to current user if not specified
+    const targetUserId = body.userId;
+    
+    // If no userId provided, sync all users
+    if (!targetUserId) {
+      return syncAllUsers();
+    }
 
     // Count actual test results for this user
     const resultsSnapshot = await adminDb
@@ -68,11 +73,55 @@ export async function POST(req: NextRequest) {
       message: 'User stats synced successfully',
       userId: targetUserId,
       totalTestsCompleted: actualCount,
+      previousCount: userSnap.data()?.totalTestsCompleted || 0,
     });
   } catch (error: any) {
     console.error('Error syncing user stats:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to sync user stats' },
+      { status: 500 }
+    );
+  }
+}
+
+async function syncAllUsers() {
+  try {
+    const usersSnapshot = await adminDb.collection('users').get();
+    const results: Array<{ userId: string; previous: number; actual: number }> = [];
+    
+    for (const userDoc of usersSnapshot.docs) {
+      const userId = userDoc.id;
+      const userData = userDoc.data();
+      
+      // Count actual test results
+      const resultsSnapshot = await adminDb
+        .collection('testResults')
+        .where('userId', '==', userId)
+        .get();
+      
+      const actualCount = resultsSnapshot.size;
+      const previousCount = userData.totalTestsCompleted || 0;
+      
+      if (actualCount !== previousCount) {
+        // Update user document
+        await adminDb.collection('users').doc(userId).update({
+          totalTestsCompleted: actualCount,
+        });
+        
+        results.push({ userId, previous: previousCount, actual: actualCount });
+      }
+    }
+    
+    return NextResponse.json({
+      success: true,
+      message: `Synced ${results.length} users`,
+      synced: results,
+      totalUsers: usersSnapshot.size,
+    });
+  } catch (error: any) {
+    console.error('Error syncing all users:', error);
+    return NextResponse.json(
+      { success: false, error: error.message || 'Failed to sync all users' },
       { status: 500 }
     );
   }
