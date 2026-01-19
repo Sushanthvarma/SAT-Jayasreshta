@@ -34,17 +34,30 @@ export default function StudentDetailPage({ params }: { params: Promise<{ userId
   const { user, userData, loading: authLoading } = useAuth();
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
+  const [paramsResolved, setParamsResolved] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [studentData, setStudentData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (params instanceof Promise) {
-      params.then(resolved => setUserId(resolved.userId));
-    } else {
-      setUserId(params.userId);
-    }
-  }, [params]);
+    const resolveParams = async () => {
+      if (params instanceof Promise) {
+        try {
+          const resolved = await params;
+          setUserId(resolved.userId);
+          setParamsResolved(true);
+        } catch (error) {
+          console.error('Error resolving params:', error);
+          router.push('/admin');
+        }
+      } else {
+        setUserId(params.userId);
+        setParamsResolved(true);
+      }
+    };
+    
+    resolveParams();
+  }, [params, router]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -55,7 +68,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ userId
   }, [user, userData, authLoading, router]);
 
   useEffect(() => {
-    if (!user || !userData || userData.role !== 'admin' || !userId) return;
+    if (!user || !userData || userData.role !== 'admin' || !userId || !paramsResolved) return;
 
     const fetchData = async () => {
       try {

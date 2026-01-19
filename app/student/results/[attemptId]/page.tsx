@@ -17,15 +17,28 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
   const [result, setResult] = useState<TestResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [attemptId, setAttemptId] = useState<string | null>(null);
+  const [paramsResolved, setParamsResolved] = useState(false);
 
-  // Handle both Promise and direct params (Next.js 15 compatibility)
+  // Handle both Promise and direct params (Next.js 15/16 compatibility)
   useEffect(() => {
-    if (params instanceof Promise) {
-      params.then(resolved => setAttemptId(resolved.attemptId));
-    } else {
-      setAttemptId(params.attemptId);
-    }
-  }, [params]);
+    const resolveParams = async () => {
+      if (params instanceof Promise) {
+        try {
+          const resolved = await params;
+          setAttemptId(resolved.attemptId);
+          setParamsResolved(true);
+        } catch (error) {
+          console.error('Error resolving params:', error);
+          router.push('/student');
+        }
+      } else {
+        setAttemptId(params.attemptId);
+        setParamsResolved(true);
+      }
+    };
+    
+    resolveParams();
+  }, [params, router]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -34,7 +47,7 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (!user || !attemptId) return;
+    if (!user || !attemptId || !paramsResolved) return;
 
     const fetchResult = async () => {
       try {
@@ -83,7 +96,7 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
     fetchResult();
   }, [user, attemptId, router]);
 
-  if (authLoading || loading) {
+  if (authLoading || loading || !paramsResolved || !attemptId) {
     return (
       <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
         <div className="text-center">
@@ -95,7 +108,17 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
   }
 
   if (!user || !result) {
-    return null;
+    return (
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="text-center">
+          <p className="text-lg font-semibold text-gray-700 mb-2">Unable to load results</p>
+          <p className="text-gray-600 mb-4">There was an issue loading the test results.</p>
+          <Link href="/student" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            ← Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const getScoreColor = (percentage: number) => {

@@ -19,16 +19,29 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
   const searchParams = useSearchParams();
   const attemptIdParam = searchParams.get('attempt');
   
-  // Handle both Promise and direct params (Next.js 15 compatibility)
+  // Handle both Promise and direct params (Next.js 15/16 compatibility)
   const [testId, setTestId] = useState<string | null>(null);
+  const [paramsResolved, setParamsResolved] = useState(false);
   
   useEffect(() => {
-    if (params instanceof Promise) {
-      params.then(resolved => setTestId(resolved.id));
-    } else {
-      setTestId(params.id);
-    }
-  }, [params]);
+    const resolveParams = async () => {
+      if (params instanceof Promise) {
+        try {
+          const resolved = await params;
+          setTestId(resolved.id);
+          setParamsResolved(true);
+        } catch (error) {
+          console.error('Error resolving params:', error);
+          router.push('/student');
+        }
+      } else {
+        setTestId(params.id);
+        setParamsResolved(true);
+      }
+    };
+    
+    resolveParams();
+  }, [params, router]);
   
   const [test, setTest] = useState<Test | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -60,7 +73,7 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
 
   // Load test and questions
   useEffect(() => {
-    if (!user || !testId) return;
+    if (!user || !testId || !paramsResolved) return;
 
     const loadTest = async () => {
       try {
@@ -428,7 +441,7 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (authLoading || loading) {
+  if (authLoading || loading || !paramsResolved || !testId) {
     return (
       <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
         <div className="text-center">
