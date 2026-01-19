@@ -16,6 +16,7 @@ import XPProgressBar from '@/components/gamification/XPProgressBar';
 import DailyGoalWidget from '@/components/gamification/DailyGoalWidget';
 import DailyChallenges from '@/components/dashboard/DailyChallenges';
 import SkillTree from '@/components/dashboard/SkillTree';
+import ProgressiveMasteryTracker from '@/components/dashboard/ProgressiveMasteryTracker';
 import { getAuthInstance } from '@/lib/firebase';
 import { getIdToken } from 'firebase/auth';
 import { playSound } from '@/lib/audio';

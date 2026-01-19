@@ -1,0 +1,707 @@
+{
+  "metadata": {
+    "title": "Grade 10th Progressive Test 50",
+    "description": "Progressive assessment test 50 for grade 10th. Mastery threshold: 80%",
+    "standard": "10th",
+    "subject": "blended",
+    "difficulty": "expert",
+    "testNumber": 50,
+    "tags": [
+      "progressive",
+      "test-50",
+      "grade-10th"
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-reading-50",
+      "sectionNumber": 1,
+      "name": "Reading Comprehension",
+      "subject": "reading",
+      "description": "Reading comprehension and vocabulary questions",
+      "timeLimit": 420,
+      "order": 1,
+      "questions": [
+        {
+          "id": "grade-10-test-050-q01",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "hard",
+          "questionText": "What is the main idea of this passage?",
+          "passageText": "The library is a wonderful place to visit. It has thousands of books about many different topics. You can read stories, learn about science, or discover history.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Libraries have computers",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Libraries are great places with many resources",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "You can read stories at libraries",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Libraries are quiet places",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The main idea is that libraries are great places with many resources.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-10-test-050-q02",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "hard",
+          "questionText": "How are dogs and cats different?",
+          "passageText": "Dogs and cats are both popular pets. Dogs need daily walks and lots of attention. Cats are more independent.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Dogs need more attention than cats",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "Cats are not popular pets",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Dogs cannot be left alone",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Cats don't make good companions",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "Dogs need more attention than cats, as stated in the passage.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-10-test-050-q04",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "hard",
+          "questionText": "How are dogs and cats different?",
+          "passageText": "Dogs and cats are both popular pets. Dogs need daily walks and lots of attention. Cats are more independent.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Dogs need more attention than cats",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "Cats are not popular pets",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Dogs cannot be left alone",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Cats don't make good companions",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "Dogs need more attention than cats, as stated in the passage.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-10-test-050-q05",
+          "questionNumber": 4,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "hard",
+          "questionText": "What is the main idea of this passage?",
+          "passageText": "The library is a wonderful place to visit. It has thousands of books about many different topics. You can read stories, learn about science, or discover history.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Libraries have computers",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Libraries are great places with many resources",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "You can read stories at libraries",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Libraries are quiet places",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The main idea is that libraries are great places with many resources.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-10-test-050-q07",
+          "questionNumber": 5,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "hard",
+          "questionText": "What is the main idea of this passage?",
+          "passageText": "The library is a wonderful place to visit. It has thousands of books about many different topics. You can read stories, learn about science, or discover history.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Libraries have computers",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "Libraries are great places with many resources",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "You can read stories at libraries",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Libraries are quiet places",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "The main idea is that libraries are great places with many resources.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-10-test-050-q08",
+          "questionNumber": 6,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "hard",
+          "questionText": "How are dogs and cats different?",
+          "passageText": "Dogs and cats are both popular pets. Dogs need daily walks and lots of attention. Cats are more independent.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Dogs need more attention than cats",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "Cats are not popular pets",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Dogs cannot be left alone",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Cats don't make good companions",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "Dogs need more attention than cats, as stated in the passage.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-10-test-050-q10",
+          "questionNumber": 7,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "hard",
+          "questionText": "How are dogs and cats different?",
+          "passageText": "Dogs and cats are both popular pets. Dogs need daily walks and lots of attention. Cats are more independent.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Dogs need more attention than cats",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "Cats are not popular pets",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Dogs cannot be left alone",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Cats don't make good companions",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "Dogs need more attention than cats, as stated in the passage.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        }
+      ]
+    },
+    {
+      "id": "section-writing-50",
+      "sectionNumber": 2,
+      "name": "Writing and Grammar",
+      "subject": "writing",
+      "description": "Grammar, sentence structure, and writing conventions",
+      "timeLimit": 135,
+      "order": 2,
+      "questions": [
+        {
+          "id": "grade-10-test-050-q03",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "writing",
+          "difficulty": "hard",
+          "questionText": "Which sentence uses commas correctly?",
+          "options": [
+            {
+              "id": "A",
+              "text": "I need to buy apples, bananas, and oranges.",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "I need to buy apples, bananas and oranges.",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "I need, to buy apples bananas, and oranges.",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "I need to buy, apples bananas, and oranges.",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "Commas should separate each item in a list.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-10-test-050-q06",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "writing",
+          "difficulty": "hard",
+          "questionText": "Which sentence is complete?",
+          "options": [
+            {
+              "id": "A",
+              "text": "Running in the park.",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "The dog running in the park.",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "The dog is running in the park.",
+              "isCorrect": true
+            },
+            {
+              "id": "D",
+              "text": "The dog running.",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "C",
+          "explanation": "A complete sentence needs a subject and predicate.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-10-test-050-q09",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "writing",
+          "difficulty": "hard",
+          "questionText": "Which sentence uses commas correctly?",
+          "options": [
+            {
+              "id": "A",
+              "text": "I need to buy apples, bananas, and oranges.",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "I need to buy apples, bananas and oranges.",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "I need, to buy apples bananas, and oranges.",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "I need to buy, apples bananas, and oranges.",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "Commas should separate each item in a list.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        }
+      ]
+    },
+    {
+      "id": "section-math-50",
+      "sectionNumber": 3,
+      "name": "Mathematics",
+      "subject": "math-calculator",
+      "description": "Mathematical reasoning and problem solving",
+      "timeLimit": 750,
+      "order": 3,
+      "questions": [
+        {
+          "id": "grade-10-test-050-q11",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 7 × 8?",
+          "options": [
+            {
+              "id": "A",
+              "text": "54",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "56",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "63",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "64",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "7 × 8 = 56",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-10-test-050-q12",
+          "questionNumber": 2,
+          "type": "grid-in",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 48 ÷ 6?",
+          "correctAnswer": 8,
+          "explanation": "48 ÷ 6 = 8",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-10-test-050-q13",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 3/4 + 1/4?",
+          "options": [
+            {
+              "id": "A",
+              "text": "4/8",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "1",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "4/4",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "2/4",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "3/4 + 1/4 = 4/4 = 1",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-10-test-050-q14",
+          "questionNumber": 4,
+          "type": "grid-in",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 7 × 8?",
+          "correctAnswer": 56,
+          "explanation": "7 × 8 = 56",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-10-test-050-q15",
+          "questionNumber": 5,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 48 ÷ 6?",
+          "options": [
+            {
+              "id": "A",
+              "text": "6",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "7",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "8",
+              "isCorrect": true
+            },
+            {
+              "id": "D",
+              "text": "9",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "C",
+          "explanation": "48 ÷ 6 = 8",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-10-test-050-q16",
+          "questionNumber": 6,
+          "type": "grid-in",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 3/4 + 1/4?",
+          "correctAnswer": 1,
+          "explanation": "3/4 + 1/4 = 4/4 = 1",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-10-test-050-q17",
+          "questionNumber": 7,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 7 × 8?",
+          "options": [
+            {
+              "id": "A",
+              "text": "54",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "56",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "63",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "64",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "7 × 8 = 56",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-10-test-050-q18",
+          "questionNumber": 8,
+          "type": "grid-in",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 48 ÷ 6?",
+          "correctAnswer": 8,
+          "explanation": "48 ÷ 6 = 8",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-10-test-050-q19",
+          "questionNumber": 9,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 3/4 + 1/4?",
+          "options": [
+            {
+              "id": "A",
+              "text": "4/8",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "1",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "4/4",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "2/4",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "3/4 + 1/4 = 4/4 = 1",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-10-test-050-q20",
+          "questionNumber": 10,
+          "type": "grid-in",
+          "subject": "math-calculator",
+          "difficulty": "hard",
+          "questionText": "What is 7 × 8?",
+          "correctAnswer": 56,
+          "explanation": "7 × 8 = 56",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.10"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        }
+      ]
+    }
+  ]
+}

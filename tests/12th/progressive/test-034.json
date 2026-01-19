@@ -1,0 +1,707 @@
+{
+  "metadata": {
+    "title": "Grade 12th Progressive Test 34",
+    "description": "Progressive assessment test 34 for grade 12th. Mastery threshold: 80%",
+    "standard": "12th",
+    "subject": "blended",
+    "difficulty": "expert",
+    "testNumber": 34,
+    "tags": [
+      "progressive",
+      "test-34",
+      "grade-12th"
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-reading-34",
+      "sectionNumber": 1,
+      "name": "Reading Comprehension",
+      "subject": "reading",
+      "description": "Reading comprehension and vocabulary questions",
+      "timeLimit": 420,
+      "order": 1,
+      "questions": [
+        {
+          "id": "grade-12-test-034-q01",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "What does the word \"ancient\" mean?",
+          "passageText": "The ancient castle stood on the hill for hundreds of years. Many visitors came to see its old walls and towers.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Very old",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "Very new",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Very large",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Very beautiful",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "The context clues indicate that \"ancient\" means very old.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-12-test-034-q02",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "What does the word \"ancient\" mean?",
+          "passageText": "The ancient castle stood on the hill for hundreds of years. Many visitors came to see its old walls and towers.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Very old",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "Very new",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Very large",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Very beautiful",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "The context clues indicate that \"ancient\" means very old.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-12-test-034-q04",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "What does the word \"ancient\" mean?",
+          "passageText": "The ancient castle stood on the hill for hundreds of years. Many visitors came to see its old walls and towers.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Very old",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "Very new",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Very large",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Very beautiful",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "The context clues indicate that \"ancient\" means very old.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-12-test-034-q05",
+          "questionNumber": 4,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "What does the word \"ancient\" mean?",
+          "passageText": "The ancient castle stood on the hill for hundreds of years. Many visitors came to see its old walls and towers.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Very old",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "Very new",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Very large",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Very beautiful",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "The context clues indicate that \"ancient\" means very old.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-12-test-034-q07",
+          "questionNumber": 5,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "What does the word \"ancient\" mean?",
+          "passageText": "The ancient castle stood on the hill for hundreds of years. Many visitors came to see its old walls and towers.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Very old",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "Very new",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Very large",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Very beautiful",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "The context clues indicate that \"ancient\" means very old.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-12-test-034-q08",
+          "questionNumber": 6,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "What does the word \"ancient\" mean?",
+          "passageText": "The ancient castle stood on the hill for hundreds of years. Many visitors came to see its old walls and towers.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Very old",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "Very new",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Very large",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Very beautiful",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "The context clues indicate that \"ancient\" means very old.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-12-test-034-q10",
+          "questionNumber": 7,
+          "type": "multiple-choice",
+          "subject": "reading",
+          "difficulty": "medium",
+          "questionText": "What does the word \"ancient\" mean?",
+          "passageText": "The ancient castle stood on the hill for hundreds of years. Many visitors came to see its old walls and towers.",
+          "options": [
+            {
+              "id": "A",
+              "text": "Very old",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "Very new",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "Very large",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "Very beautiful",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "The context clues indicate that \"ancient\" means very old.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        }
+      ]
+    },
+    {
+      "id": "section-writing-34",
+      "sectionNumber": 2,
+      "name": "Writing and Grammar",
+      "subject": "writing",
+      "description": "Grammar, sentence structure, and writing conventions",
+      "timeLimit": 135,
+      "order": 2,
+      "questions": [
+        {
+          "id": "grade-12-test-034-q03",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "writing",
+          "difficulty": "medium",
+          "questionText": "Which sentence uses commas correctly?",
+          "options": [
+            {
+              "id": "A",
+              "text": "I need to buy apples, bananas, and oranges.",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "I need to buy apples, bananas and oranges.",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "I need, to buy apples bananas, and oranges.",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "I need to buy, apples bananas, and oranges.",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "Commas should separate each item in a list.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-12-test-034-q06",
+          "questionNumber": 2,
+          "type": "multiple-choice",
+          "subject": "writing",
+          "difficulty": "medium",
+          "questionText": "Which sentence is complete?",
+          "options": [
+            {
+              "id": "A",
+              "text": "Running in the park.",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "The dog running in the park.",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "The dog is running in the park.",
+              "isCorrect": true
+            },
+            {
+              "id": "D",
+              "text": "The dog running.",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "C",
+          "explanation": "A complete sentence needs a subject and predicate.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        },
+        {
+          "id": "grade-12-test-034-q09",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "writing",
+          "difficulty": "medium",
+          "questionText": "Which sentence uses commas correctly?",
+          "options": [
+            {
+              "id": "A",
+              "text": "I need to buy apples, bananas, and oranges.",
+              "isCorrect": true
+            },
+            {
+              "id": "B",
+              "text": "I need to buy apples, bananas and oranges.",
+              "isCorrect": false
+            },
+            {
+              "id": "C",
+              "text": "I need, to buy apples bananas, and oranges.",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "I need to buy, apples bananas, and oranges.",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "A",
+          "explanation": "Commas should separate each item in a list.",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 60
+        }
+      ]
+    },
+    {
+      "id": "section-math-34",
+      "sectionNumber": 3,
+      "name": "Mathematics",
+      "subject": "math-calculator",
+      "description": "Mathematical reasoning and problem solving",
+      "timeLimit": 750,
+      "order": 3,
+      "questions": [
+        {
+          "id": "grade-12-test-034-q11",
+          "questionNumber": 1,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "A recipe uses 3/4 cup of sugar. If you double it, how much sugar?",
+          "options": [
+            {
+              "id": "A",
+              "text": "6/4 cups",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "1 1/2 cups",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "3/8 cups",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "6/8 cups",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Doubling 3/4 = 6/4 = 1 1/2",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-12-test-034-q12",
+          "questionNumber": 2,
+          "type": "grid-in",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "A rectangle is 5 inches long and 3 inches wide. What is its area?",
+          "correctAnswer": 15,
+          "explanation": "Area = 5 × 3 = 15 square inches",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-12-test-034-q13",
+          "questionNumber": 3,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "A recipe uses 3/4 cup of sugar. If you double it, how much sugar?",
+          "options": [
+            {
+              "id": "A",
+              "text": "6/4 cups",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "1 1/2 cups",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "3/8 cups",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "6/8 cups",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Doubling 3/4 = 6/4 = 1 1/2",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-12-test-034-q14",
+          "questionNumber": 4,
+          "type": "grid-in",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "A rectangle is 5 inches long and 3 inches wide. What is its area?",
+          "correctAnswer": 15,
+          "explanation": "Area = 5 × 3 = 15 square inches",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-12-test-034-q15",
+          "questionNumber": 5,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "A recipe uses 3/4 cup of sugar. If you double it, how much sugar?",
+          "options": [
+            {
+              "id": "A",
+              "text": "6/4 cups",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "1 1/2 cups",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "3/8 cups",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "6/8 cups",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Doubling 3/4 = 6/4 = 1 1/2",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-12-test-034-q16",
+          "questionNumber": 6,
+          "type": "grid-in",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "A rectangle is 5 inches long and 3 inches wide. What is its area?",
+          "correctAnswer": 15,
+          "explanation": "Area = 5 × 3 = 15 square inches",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-12-test-034-q17",
+          "questionNumber": 7,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "A recipe uses 3/4 cup of sugar. If you double it, how much sugar?",
+          "options": [
+            {
+              "id": "A",
+              "text": "6/4 cups",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "1 1/2 cups",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "3/8 cups",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "6/8 cups",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Doubling 3/4 = 6/4 = 1 1/2",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-12-test-034-q18",
+          "questionNumber": 8,
+          "type": "grid-in",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "A rectangle is 5 inches long and 3 inches wide. What is its area?",
+          "correctAnswer": 15,
+          "explanation": "Area = 5 × 3 = 15 square inches",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-12-test-034-q19",
+          "questionNumber": 9,
+          "type": "multiple-choice",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "A recipe uses 3/4 cup of sugar. If you double it, how much sugar?",
+          "options": [
+            {
+              "id": "A",
+              "text": "6/4 cups",
+              "isCorrect": false
+            },
+            {
+              "id": "B",
+              "text": "1 1/2 cups",
+              "isCorrect": true
+            },
+            {
+              "id": "C",
+              "text": "3/8 cups",
+              "isCorrect": false
+            },
+            {
+              "id": "D",
+              "text": "6/8 cups",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Doubling 3/4 = 6/4 = 1 1/2",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        },
+        {
+          "id": "grade-12-test-034-q20",
+          "questionNumber": 10,
+          "type": "grid-in",
+          "subject": "math-calculator",
+          "difficulty": "medium",
+          "questionText": "A rectangle is 5 inches long and 3 inches wide. What is its area?",
+          "correctAnswer": 15,
+          "explanation": "Area = 5 × 3 = 15 square inches",
+          "topicTags": [],
+          "skillTags": [
+            "CCSS.MATH.GRADE.12"
+          ],
+          "points": 1,
+          "estimatedTime": 75
+        }
+      ]
+    }
+  ]
+}

@@ -68,17 +68,17 @@ export function validateTestFile(data: any): { valid: boolean; errors: string[] 
     if (!metadata.title) errors.push('Missing metadata.title');
     if (!metadata.description) errors.push('Missing metadata.description');
     if (!metadata.standard) errors.push('Missing metadata.standard');
-    if (!metadata.week) errors.push('Missing metadata.week');
+    // Week is optional (progressive tests don't use week)
     if (!metadata.subject) errors.push('Missing metadata.subject');
     if (!metadata.difficulty) errors.push('Missing metadata.difficulty');
     
-    // Validate standard format (4th through 12th grade)
-    const validStandards = ['4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th'];
+    // Validate standard format (K through 12th grade)
+    const validStandards = ['K', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th'];
     if (metadata.standard && !validStandards.includes(metadata.standard)) {
       errors.push(`Invalid standard: ${metadata.standard}. Must be one of: ${validStandards.join(', ')}`);
     }
     
-    // Validate week format
+    // Validate week format (only if present)
     if (metadata.week && !/^week-\d+$/.test(metadata.week)) {
       errors.push(`Invalid week format: ${metadata.week}. Must be week-1, week-2, etc.`);
     }

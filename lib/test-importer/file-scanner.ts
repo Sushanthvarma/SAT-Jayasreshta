@@ -58,9 +58,10 @@ export function scanTestFiles(testsDir: string = 'tests'): ScannedTestFile[] {
           // Extract standard, subject from path
           // Path format: tests/{standard}/{subject}/test.json
           // Or: tests/{standard}/{subject}/{testNumber}/test.json for multiple tests
+          // Or: tests/{standard}/progressive/test-{NNN}.json for progressive tests
           const pathParts = entryRelativePath.split(path.sep);
           const standard = pathParts[0] || '';
-          const subject = pathParts[1] || '';
+          const subject = pathParts[1] === 'progressive' ? 'blended' : (pathParts[1] || '');
           const testNumberStr = pathParts[2] || '';
           const testNumber = testNumberStr && !isNaN(Number(testNumberStr)) ? Number(testNumberStr) : undefined;
 
