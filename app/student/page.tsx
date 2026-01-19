@@ -331,9 +331,13 @@ export default function StudentDashboard() {
         .map(a => a.testId)
     );
 
-    // Show all filtered tests (not just next pending) so user can choose
-    // Mark which ones are completed
-    setTests(sortedTests);
+    // Show only ONE test - the next pending test based on filters
+    // If filters are applied, find next pending from filtered results
+    // Otherwise, find next pending from all grade tests
+    const nextPendingTest = sortedTests.find(test => !completedTestIds.has(test.id));
+
+    // Show only the next pending test, or empty array if all completed
+    setTests(nextPendingTest ? [nextPendingTest] : []);
   }, [selectedGrade, selectedDifficulty, selectedSubject, allTests, attempts]);
 
   // Save grade preference to user profile

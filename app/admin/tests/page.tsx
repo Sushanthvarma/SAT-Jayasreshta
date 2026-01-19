@@ -62,6 +62,7 @@ export default function AdminTestManagement() {
   });
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [lastImportResults, setLastImportResults] = useState<any>(null);
+  const [expandedGrades, setExpandedGrades] = useState<Set<string>>(new Set());
   
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -480,10 +481,10 @@ export default function AdminTestManagement() {
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div className="space-y-6">
-                {/* Quick Actions */}
-                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {/* Quick Actions - Compact */}
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">Quick Actions</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <button
                       onClick={() => {
                         playSound('click');
@@ -527,17 +528,17 @@ export default function AdminTestManagement() {
                   </div>
                 </div>
 
-                {/* Import Options */}
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Import Options</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Import Options - Compact */}
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <h3 className="text-base font-bold text-gray-900 mb-3">Import Options</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
                       { key: 'publish', label: 'Publish', desc: 'Make tests immediately available' },
                       { key: 'activate', label: 'Activate', desc: 'Enable tests for students' },
                       { key: 'overwrite', label: 'Overwrite', desc: 'Replace existing tests' },
                       { key: 'skipInvalid', label: 'Skip Invalid', desc: 'Skip files with errors' },
                     ].map((option) => (
-                      <label key={option.key} className="flex items-start gap-3 p-4 bg-white rounded-lg border-2 border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
+                      <label key={option.key} className="flex items-center gap-2 p-2.5 bg-white rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
                         <input
                           type="checkbox"
                           checked={importOptions[option.key as keyof typeof importOptions]}
@@ -545,11 +546,11 @@ export default function AdminTestManagement() {
                             playSound('click');
                             setImportOptions({ ...importOptions, [option.key]: e.target.checked });
                           }}
-                          className="w-5 h-5 text-indigo-600 mt-0.5"
+                          className="w-4 h-4 text-indigo-600"
                         />
                         <div>
-                          <div className="font-semibold text-gray-900">{option.label}</div>
-                          <div className="text-xs text-gray-600 mt-1">{option.desc}</div>
+                          <div className="font-medium text-sm text-gray-900">{option.label}</div>
+                          <div className="text-xs text-gray-600">{option.desc}</div>
                         </div>
                       </label>
                     ))}
@@ -643,14 +644,15 @@ export default function AdminTestManagement() {
                   </div>
                 </div>
 
-                {/* File List */}
-                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                {/* File List - Compact with Pagination */}
+                <div className="space-y-2">
                   {filteredFiles.length === 0 ? (
-                    <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+                    <div className="text-center py-8 bg-white rounded-lg border border-gray-200">
                       <p className="text-gray-600">No files match your filters</p>
                     </div>
                   ) : (
-                    filteredFiles.map((file) => {
+                    <div className="space-y-1">
+                      {filteredFiles.slice(0, 20).map((file) => {
                       const status = importStatus[file.relativePath];
                       const isSelected = selectedFiles.has(file.relativePath);
                       
@@ -677,8 +679,8 @@ export default function AdminTestManagement() {
                             className="w-5 h-5 text-indigo-600"
                           />
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap mb-1">
-                              <span className="font-semibold text-gray-900 truncate">{file.title || file.relativePath}</span>
+                            <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                              <span className="font-medium text-sm text-gray-900 truncate">{file.title || file.relativePath}</span>
                               <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
                                 file.standard === '4th' || file.standard === '5th' || file.standard === '6th'
                                   ? 'bg-blue-100 text-blue-700'
@@ -706,125 +708,153 @@ export default function AdminTestManagement() {
                                 </span>
                               )}
                             </div>
-                            <div className="text-xs text-gray-600 truncate">{file.relativePath}</div>
                             {!file.isValid && file.errors.length > 0 && (
-                              <div className="mt-1 text-xs text-red-600">
-                                Errors: {file.errors.join(', ')}
+                              <div className="text-xs text-red-600 truncate">
+                                {file.errors[0]}
                               </div>
-                            )}
-                            {status?.isPublished && (
-                              <div className="mt-1 text-xs text-green-600">✓ Published</div>
                             )}
                           </div>
                           {file.isValid && (
                             <button
                               onClick={() => handleImport([file.relativePath])}
                               disabled={importing}
-                              className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 min-h-[36px] whitespace-nowrap"
+                              className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 min-h-[32px] whitespace-nowrap"
                             >
                               Import
                             </button>
                           )}
                         </div>
                       );
-                    })
+                      })}
+                      {filteredFiles.length > 20 && (
+                        <div className="text-center py-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <p className="text-xs text-gray-600">
+                            Showing 20 of {filteredFiles.length} files. Use filters to narrow results.
+                          </p>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
             )}
 
-            {/* Organized Tab */}
+            {/* Organized Tab - Compact Collapsible */}
             {activeTab === 'organized' && (
-              <div className="space-y-6">
+              <div className="space-y-2">
                 {Object.keys(organized).length === 0 ? (
-                  <div className="text-center py-12">
+                  <div className="text-center py-8">
                     <p className="text-gray-600">No organized tests found</p>
                   </div>
                 ) : (
-                  Object.entries(organized).map(([standard, weeks]) => (
-                    <div key={standard} className="border-l-4 border-indigo-500 pl-4">
-                      <h3 className="text-xl font-bold text-gray-900 mb-4">{standard} Grade</h3>
-                      {Object.entries(weeks).map(([week, subjects]) => (
-                        <div key={week} className="ml-4 mb-4">
-                          <h4 className="text-lg font-semibold text-gray-700 mb-3">{week.replace('week-', 'Week ')}</h4>
-                          {Object.entries(subjects).map(([subject, files]) => (
-                            <div key={subject} className="ml-4 mb-3">
-                              <h5 className="text-md font-medium text-gray-600 mb-2 capitalize">{subject}</h5>
-                              <div className="space-y-2">
-                                {files.map((file) => {
-                                  const status = importStatus[file.relativePath];
-                                  const isSelected = selectedFiles.has(file.relativePath);
-                                  
-                                  return (
-                                    <div
-                                      key={file.relativePath}
-                                      className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
-                                        !file.isValid
-                                          ? 'bg-red-50 border-red-200'
-                                          : isSelected
-                                          ? 'bg-indigo-50 border-indigo-500'
-                                          : 'bg-white border-gray-200 hover:border-gray-300'
-                                      }`}
-                                    >
-                                      <input
-                                        type="checkbox"
-                                        checked={isSelected}
-                                        onChange={() => toggleFileSelection(file.relativePath)}
-                                        disabled={!file.isValid}
-                                        className="w-4 h-4 text-indigo-600"
-                                      />
-                                      <div className="flex-1">
-                                        <div className="font-medium text-gray-900">{file.title || file.relativePath}</div>
-                                        {status && (
-                                          <span className={`text-xs px-2 py-0.5 rounded ${
-                                            status.status === 'new'
-                                              ? 'bg-blue-100 text-blue-700'
-                                              : status.status === 'updated'
-                                              ? 'bg-orange-100 text-orange-700'
-                                              : 'bg-green-100 text-green-700'
-                                          }`}>
-                                            {status.status}
-                                          </span>
-                                        )}
+                  Object.entries(organized).map(([standard, weeks]) => {
+                    const isExpanded = expandedGrades.has(standard);
+                    const totalFiles = Object.values(weeks).reduce((sum, subjects) => 
+                      sum + Object.values(subjects).reduce((s, files) => s + files.length, 0), 0
+                    );
+                    
+                    return (
+                      <div key={standard} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <button
+                          onClick={() => {
+                            playSound('click');
+                            const newExpanded = new Set(expandedGrades);
+                            if (isExpanded) {
+                              newExpanded.delete(standard);
+                            } else {
+                              newExpanded.add(standard);
+                            }
+                            setExpandedGrades(newExpanded);
+                          }}
+                          className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-gray-900">{standard} Grade</span>
+                            <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
+                              {totalFiles} files
+                            </span>
+                          </div>
+                          <span className="text-gray-400">{isExpanded ? '▼' : '▶'}</span>
+                        </button>
+                        
+                        {isExpanded && (
+                          <div className="border-t border-gray-200 p-3 space-y-2 max-h-[400px] overflow-y-auto">
+                            {Object.entries(weeks).map(([week, subjects]) => (
+                              <div key={week} className="bg-gray-50 rounded p-2">
+                                <div className="text-sm font-semibold text-gray-700 mb-2">{week.replace('week-', 'Week ')}</div>
+                                <div className="space-y-1">
+                                  {Object.entries(subjects).map(([subject, files]) => (
+                                    <div key={subject} className="flex items-center gap-2">
+                                      <span className="text-xs text-gray-600 capitalize w-20">{subject}:</span>
+                                      <div className="flex-1 flex flex-wrap gap-1">
+                                        {files.map((file) => {
+                                          const status = importStatus[file.relativePath];
+                                          const isSelected = selectedFiles.has(file.relativePath);
+                                          
+                                          return (
+                                            <button
+                                              key={file.relativePath}
+                                              onClick={() => toggleFileSelection(file.relativePath)}
+                                              className={`px-2 py-1 rounded text-xs border transition-all ${
+                                                !file.isValid
+                                                  ? 'bg-red-50 border-red-200 text-red-700'
+                                                  : isSelected
+                                                  ? 'bg-indigo-100 border-indigo-400 text-indigo-700'
+                                                  : status?.status === 'new'
+                                                  ? 'bg-blue-50 border-blue-200 text-blue-700'
+                                                  : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
+                                              }`}
+                                            >
+                                              {file.title || file.relativePath.split('/').pop()}
+                                            </button>
+                                          );
+                                        })}
                                       </div>
                                     </div>
-                                  );
-                                })}
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  ))
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
                 )}
               </div>
             )}
 
-            {/* Invalid Tab */}
+            {/* Invalid Tab - Compact */}
             {activeTab === 'invalid' && (
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {invalidFiles.length === 0 ? (
-                  <div className="text-center py-12 bg-green-50 rounded-lg border border-green-200">
+                  <div className="text-center py-8 bg-green-50 rounded-lg border border-green-200">
                     <p className="text-green-700 font-semibold">✅ All files are valid!</p>
                   </div>
                 ) : (
-                  invalidFiles.map((file) => (
-                    <div key={file.relativePath} className="p-4 bg-red-50 rounded-lg border-2 border-red-200">
-                      <div className="flex items-start gap-3">
-                        <span className="text-red-600 font-bold">✗</span>
-                        <div className="flex-1">
-                          <div className="font-semibold text-gray-900 mb-1">{file.relativePath}</div>
-                          <div className="text-sm text-gray-600 mb-2">
+                  invalidFiles.slice(0, 20).map((file) => (
+                    <div key={file.relativePath} className="p-3 bg-red-50 rounded-lg border border-red-200">
+                      <div className="flex items-start gap-2">
+                        <span className="text-red-600 font-bold text-sm">✗</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm text-gray-900 truncate">{file.relativePath}</div>
+                          <div className="text-xs text-gray-600 mt-0.5">
                             {file.standard} • {file.week} • {file.subject}
                           </div>
-                          <div className="text-sm text-red-600">
-                            <strong>Errors:</strong> {file.errors.join(', ')}
+                          <div className="text-xs text-red-600 mt-1">
+                            {file.errors[0]}
                           </div>
                         </div>
                       </div>
                     </div>
                   ))
+                )}
+                {invalidFiles.length > 20 && (
+                  <div className="text-center py-2 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-600">
+                      Showing 20 of {invalidFiles.length} invalid files
+                    </p>
+                  </div>
                 )}
               </div>
             )}
