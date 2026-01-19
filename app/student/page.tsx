@@ -333,6 +333,18 @@ export default function StudentDashboard() {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Profile API error:', response.status, errorText);
+        
+        // Check if it's a quota error - don't throw, just log and return
+        const isQuotaError = errorText?.includes('quota') || 
+                            errorText?.includes('RESOURCE_EXHAUSTED');
+        
+        if (isQuotaError) {
+          console.warn('⚠️ Quota error detected in grade selection, but continuing');
+          // Don't show error toast for quota issues - they're temporary
+          setSavingGrade(false);
+          return;
+        }
+        
         throw new Error(`API returned ${response.status}: ${errorText}`);
       }
 
