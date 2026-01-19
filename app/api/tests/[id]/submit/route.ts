@@ -1,11 +1,14 @@
 /**
  * API Route: POST /api/tests/[id]/submit
  * Submits a test attempt and calculates results
+ * 
+ * PRODUCTION-GRADE: Uses Firestore transactions for atomic operations
+ * Prevents race conditions, ensures data consistency, handles rollbacks
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
-import { Timestamp } from 'firebase-admin/firestore';
+import { Timestamp, FieldValue } from 'firebase-admin/firestore';
 import { getTestByIdAdmin, saveTestResult } from '@/lib/firestore/tests-server';
 import { calculateTestResult } from '@/lib/scoring/calculator';
 import { TestAttempt, Question } from '@/lib/types/test';
@@ -60,8 +63,7 @@ export async function POST(
     let body;
     try {
       body = await req.json();
-    } catch (parseError: any) {
-      console.error('❌ Error parsing request body:', parseError);
+    } catch (error) {
       return NextResponse.json(
         { success: false, error: 'Invalid request body' },
         { status: 400 }
@@ -71,45 +73,26 @@ export async function POST(
     const { attemptId, answers: clientAnswers, totalTimeSpent: clientTotalTimeSpent } = body;
     
     if (!attemptId) {
-      console.error('❌ Attempt ID missing in request body');
       return NextResponse.json(
         { success: false, error: 'Attempt ID is required' },
         { status: 400 }
       );
     }
     
-    console.log(`📋 Attempt ID: ${attemptId}`);
-    console.log(`📋 Client provided ${clientAnswers?.length || 0} answers`);
-    
-    // Get test directly from Firestore (more reliable)
-    const testRef = adminDb.collection('tests').doc(testId);
-    const testSnap = await testRef.get();
-    
-    if (!testSnap.exists) {
-      console.error(`❌ Test not found: ${testId}`);
+    // Get test
+    const test = await getTestByIdAdmin(testId);
+    if (!test) {
       return NextResponse.json(
         { success: false, error: 'Test not found' },
         { status: 404 }
       );
     }
     
-    const testData = testSnap.data()!;
-    const test = {
-      id: testSnap.id,
-      ...testData,
-      createdAt: (testData.createdAt as any)?.toDate() || new Date(),
-      updatedAt: (testData.updatedAt as any)?.toDate() || new Date(),
-      publishedAt: (testData.publishedAt as any)?.toDate(),
-    } as any;
-    
-    console.log(`✅ Test found: ${test.title}`);
-    
     // Get attempt
     const attemptRef = adminDb.collection('testAttempts').doc(attemptId);
     const attemptSnap = await attemptRef.get();
     
     if (!attemptSnap.exists) {
-      console.error(`❌ Attempt not found: ${attemptId}`);
       return NextResponse.json(
         { success: false, error: 'Test attempt not found' },
         { status: 404 }
@@ -117,7 +100,6 @@ export async function POST(
     }
     
     const attemptData = attemptSnap.data()!;
-    console.log(`✅ Attempt found: ${attemptId}, status: ${attemptData.status}`);
     
     // Verify attempt belongs to user
     if (attemptData.userId !== userId) {
@@ -137,7 +119,7 @@ export async function POST(
       );
     }
     
-    // Check if already submitted
+    // Check if already submitted - use transaction for atomic check
     if (attemptData.status === 'submitted') {
       console.warn(`⚠️ Attempt already submitted: ${attemptId}`);
       // If already submitted, return the existing result instead of error
@@ -209,27 +191,21 @@ export async function POST(
     console.log(`📊 Using ${finalAnswers.length} answers for scoring`);
     
     // Calculate totalTimeSpent if not provided by client
-    // Use client value if provided, otherwise calculate from time remaining or elapsed time
     let calculatedTotalTimeSpent = clientTotalTimeSpent;
     if (!calculatedTotalTimeSpent || calculatedTotalTimeSpent === 0) {
-      // Try method 1: Calculate from time remaining
       const initialTimeLimit = test.totalTimeLimit || 0;
       const currentTimeRemaining = attemptData.timeRemaining || 0;
       calculatedTotalTimeSpent = Math.max(0, initialTimeLimit - currentTimeRemaining);
       
-      // Method 2: Calculate from actual elapsed time (more accurate)
       if (attemptData.startedAt) {
         const startedAt = (attemptData.startedAt as any)?.toDate() || new Date();
         const elapsedTime = Math.floor((Date.now() - startedAt.getTime()) / 1000);
-        // Use elapsed time if it's more reasonable (not negative and not too large)
-        if (elapsedTime > 0 && elapsedTime <= initialTimeLimit + 300) { // Allow 5 min buffer
+        if (elapsedTime > 0 && elapsedTime <= initialTimeLimit + 300) {
           calculatedTotalTimeSpent = elapsedTime;
           console.log(`⏱️ Calculated totalTimeSpent from elapsed time: ${elapsedTime} seconds`);
         } else {
           console.log(`⏱️ Calculated totalTimeSpent from time remaining: ${initialTimeLimit} - ${currentTimeRemaining} = ${calculatedTotalTimeSpent} seconds`);
         }
-      } else {
-        console.log(`⏱️ Calculated totalTimeSpent from time remaining: ${initialTimeLimit} - ${currentTimeRemaining} = ${calculatedTotalTimeSpent} seconds`);
       }
     } else {
       console.log(`⏱️ Using client-provided totalTimeSpent: ${calculatedTotalTimeSpent} seconds`);
@@ -242,7 +218,7 @@ export async function POST(
       startedAt: (attemptData.startedAt as any)?.toDate() || new Date(),
       submittedAt: new Date(),
       expiresAt: (attemptData.expiresAt as any)?.toDate(),
-      totalTimeSpent: calculatedTotalTimeSpent, // Ensure totalTimeSpent is set
+      totalTimeSpent: calculatedTotalTimeSpent,
       sections: attemptData.sections?.map((section: any) => ({
         ...section,
         startedAt: section.startedAt?.toDate(),
@@ -257,76 +233,82 @@ export async function POST(
     
     // Calculate results
     console.log(`🧮 Calculating test results...`);
-    console.log(`   Attempt answers: ${attempt.answers?.length || 0}`);
-    console.log(`   Questions: ${questions.length}`);
-    
     const resultData = await calculateTestResult(test, attempt, questions);
     resultData.userName = userName;
     resultData.userEmail = userEmail;
     
     console.log(`✅ Results calculated: ${resultData.totalScore}/${resultData.maxScore} (${resultData.percentage}%)`);
     
-    // Save result
-    console.log(`💾 Saving test result...`);
-    const resultId = await saveTestResult(resultData);
-    console.log(`✅ Result saved: ${resultId}`);
-    
-    // Update attempt status and ensure totalTimeSpent is saved
-    await attemptRef.update({
-      status: 'submitted',
-      submittedAt: Timestamp.now(),
-      totalTimeSpent: calculatedTotalTimeSpent, // Use calculated time spent
-    });
-    console.log(`💾 Saved totalTimeSpent to attempt: ${calculatedTotalTimeSpent} seconds`);
-    
-    // Update user's test count - verify no duplicate submissions
-    const userRef = adminDb.collection('users').doc(userId);
-    const userSnap = await userRef.get();
-    if (userSnap.exists) {
-      // Check if this result already exists (prevent duplicate counting)
-      const existingResult = await adminDb
+    // PRODUCTION-GRADE: Use Firestore transaction for atomic operations
+    // This ensures: result saved, attempt updated, user stats updated - all or nothing
+    const result = await adminDb.runTransaction(async (transaction) => {
+      // Check if result already exists (prevent duplicates)
+      const existingResultQuery = adminDb
         .collection('testResults')
         .where('attemptId', '==', attemptId)
-        .limit(1)
-        .get();
+        .limit(1);
+      const existingResultSnap = await transaction.get(existingResultQuery);
       
-      if (existingResult.empty) {
-        // Only increment if this is a new result
-        const currentCount = userSnap.data()?.totalTestsCompleted || 0;
-        await userRef.update({
-          totalTestsCompleted: currentCount + 1,
-          lastTestDate: Timestamp.now(),
-        });
-        console.log(`✅ Updated totalTestsCompleted: ${currentCount} -> ${currentCount + 1}`);
-      } else {
-        console.log(`⚠️ Result already exists for attempt ${attemptId}, skipping count increment`);
+      if (!existingResultSnap.empty) {
+        throw new Error('DUPLICATE_SUBMISSION');
       }
-    }
-    
-    // Update gamification (streaks, badges, XP) - call directly instead of fetch
-    let gamificationData = null;
-    try {
-      console.log(`🎮 Updating gamification for user: ${userId}`);
       
-      // Import gamification functions
+      // Re-check attempt status within transaction (prevent race condition)
+      const attemptDoc = await transaction.get(attemptRef);
+      const currentAttemptData = attemptDoc.data();
+      
+      if (!currentAttemptData) {
+        throw new Error('Attempt not found');
+      }
+      
+      if (currentAttemptData.status === 'submitted') {
+        throw new Error('ALREADY_SUBMITTED');
+      }
+      
+      // Get user document for atomic updates
+      const userRef = adminDb.collection('users').doc(userId);
+      const userDoc = await transaction.get(userRef);
+      
+      if (!userDoc.exists) {
+        throw new Error('User not found');
+      }
+      
+      const userData = userDoc.data()!;
+      
+      // Create result document
+      const resultRef = adminDb.collection('testResults').doc();
+      transaction.set(resultRef, {
+        ...resultData,
+        createdAt: Timestamp.now(),
+        completedAt: Timestamp.fromDate(
+          resultData.completedAt instanceof Date ? resultData.completedAt : new Date(resultData.completedAt as any)
+        ),
+        submittedAt: Timestamp.fromDate(
+          resultData.submittedAt instanceof Date ? resultData.submittedAt : new Date(resultData.submittedAt as any)
+        ),
+      });
+      
+      // Update attempt status atomically
+      transaction.update(attemptRef, {
+        status: 'submitted',
+        submittedAt: Timestamp.now(),
+        totalTimeSpent: calculatedTotalTimeSpent,
+        answers: finalAnswers,
+      });
+      
+      // Calculate gamification updates
       const { checkBadges } = await import('@/lib/gamification/badges');
       const { updateStreakAfterTest } = await import('@/lib/gamification/streaks');
-      const { calculateTestXP, calculateStreakBonus } = await import('@/lib/gamification/xp');
-      const { updateUserXP } = await import('@/lib/gamification/leaderboard');
-      const { updateDailyGoalXP } = await import('@/lib/gamification/daily-goals');
-      const { FieldValue } = await import('firebase-admin/firestore');
+      const { calculateTestXP, calculateStreakBonus, getLevelFromXP } = await import('@/lib/gamification/xp');
       
-      const userData = userSnap.data()!;
       const currentStreak = userData.currentStreak || 0;
       const longestStreak = userData.longestStreak || 0;
       const totalTestsCompleted = userData.totalTestsCompleted || 0;
       const badges = userData.badges || [];
       const lastTestDate = userData.lastTestDate;
-      
-      const updates: any = {};
-      const newBadges: string[] = [];
-      let xpGained = 0;
-      let leveledUp = false;
+      const currentXP = userData.totalXP || 0;
+      const currentLevel = userData.level || 1;
+      const totalScore = userData.totalScore || 0;
       
       // Update streak
       const streakResult = updateStreakAfterTest(
@@ -335,24 +317,13 @@ export async function POST(
         longestStreak
       );
       
-      updates.currentStreak = streakResult.currentStreak;
-      updates.longestStreak = streakResult.longestStreak;
-      updates.lastTestDate = Timestamp.now();
-      
       // Calculate XP
-      xpGained = calculateTestXP(resultData.totalScore, resultData.maxScore, resultData.totalTimeSpent || 0);
+      let xpGained = calculateTestXP(resultData.totalScore, resultData.maxScore, calculatedTotalTimeSpent);
       const streakBonus = calculateStreakBonus(streakResult.currentStreak);
       xpGained += streakBonus;
-      
-      // Update XP and level
-      const xpResult = await updateUserXP(userId, xpGained, 'test_completed');
-      leveledUp = xpResult.leveledUp;
-      updates.totalXP = xpResult.newTotalXP;
-      updates.level = xpResult.newLevel;
-      
-      // Update daily goal
-      const today = new Date().toISOString().split('T')[0];
-      await updateDailyGoalXP(userId, today, xpGained);
+      const newTotalXP = currentXP + xpGained;
+      const newLevel = getLevelFromXP(newTotalXP);
+      const leveledUp = newLevel > currentLevel;
       
       // Check for new badges
       const earnedBadges = checkBadges(
@@ -362,60 +333,133 @@ export async function POST(
         badges
       );
       
+      // Calculate average score
+      const newTotalScore = totalScore + resultData.totalScore;
+      const newAverageScore = Math.round(newTotalScore / (totalTestsCompleted + 1));
+      
+      // Update user document atomically using FieldValue.increment for counters
+      const userUpdates: any = {
+        totalTestsCompleted: FieldValue.increment(1), // Atomic increment
+        lastTestDate: Timestamp.now(),
+        currentStreak: streakResult.currentStreak,
+        longestStreak: Math.max(longestStreak, streakResult.currentStreak),
+        totalXP: newTotalXP,
+        level: newLevel,
+        totalScore: newTotalScore,
+        averageScore: newAverageScore,
+        updatedAt: FieldValue.serverTimestamp(),
+      };
+      
       if (earnedBadges.length > 0) {
-        newBadges.push(...earnedBadges);
-        updates.badges = [...badges, ...earnedBadges];
+        userUpdates.badges = FieldValue.arrayUnion(...earnedBadges);
       }
       
-      // Update average score
-      const totalScore = userData.totalScore || 0;
-      const newTotalScore = totalScore + resultData.totalScore;
-      const newAverageScore = newTotalScore / (totalTestsCompleted + 1);
-      updates.averageScore = Math.round(newAverageScore);
-      updates.totalScore = newTotalScore;
+      transaction.update(userRef, userUpdates);
       
-      // Apply all updates
-      if (Object.keys(updates).length > 0) {
-        await userRef.update({
-          ...updates,
+      // Update daily goal (separate collection, but log for tracking)
+      const today = new Date().toISOString().split('T')[0];
+      const dailyGoalRef = adminDb.collection('dailyGoals').doc(`${userId}_${today}`);
+      const dailyGoalDoc = await transaction.get(dailyGoalRef);
+      
+      if (dailyGoalDoc.exists) {
+        const goalData = dailyGoalDoc.data()!;
+        const newCurrentXP = (goalData.currentXP || 0) + xpGained;
+        transaction.update(dailyGoalRef, {
+          currentXP: newCurrentXP,
+          completed: newCurrentXP >= (goalData.targetXP || 100),
           updatedAt: FieldValue.serverTimestamp(),
         });
-        console.log(`✅ Gamification updated: ${xpGained} XP, ${newBadges.length} badges, level ${updates.level}`);
+      } else {
+        // Create daily goal if doesn't exist
+        transaction.set(dailyGoalRef, {
+          userId,
+          date: today,
+          targetXP: 100,
+          currentXP: xpGained,
+          completed: xpGained >= 100,
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        });
       }
       
-      gamificationData = {
+      // Log XP gain (non-critical, can fail without affecting submission)
+      try {
+        await adminDb.collection('xpLogs').add({
+          userId,
+          xpGained,
+          reason: 'test_completed',
+          totalXP: newTotalXP,
+          level: newLevel,
+          timestamp: FieldValue.serverTimestamp(),
+        });
+      } catch (logError) {
+        console.warn('⚠️ Failed to log XP gain (non-critical):', logError);
+      }
+      
+      return {
+        resultId: resultRef.id,
         xpGained,
         leveledUp,
-        newBadges,
-        newLevel: updates.level,
-        newTotalXP: updates.totalXP,
+        newBadges: earnedBadges,
+        newTotalXP,
+        newLevel,
       };
-    } catch (gamificationError: any) {
-      // Continue even if gamification fails
-      console.error('❌ Gamification update failed:', gamificationError);
-      console.error('   Error details:', gamificationError.message);
-    }
+    });
+    
+    console.log(`✅ Transaction completed successfully`);
+    console.log(`   Result ID: ${result.resultId}`);
+    console.log(`   XP Gained: ${result.xpGained}`);
+    console.log(`   Leveled Up: ${result.leveledUp}`);
+    console.log(`   New Badges: ${result.newBadges.length}`);
     
     return NextResponse.json({
       success: true,
       result: {
-        id: resultId,
+        id: result.resultId,
         ...resultData,
       },
-      gamification: gamificationData,
-      message: gamificationData?.newBadges?.length 
-        ? `Test submitted! You earned ${gamificationData.xpGained} XP and ${gamificationData.newBadges.length} badge(s)!`
-        : gamificationData?.leveledUp
-        ? `Test submitted! Level up! You're now level ${gamificationData.newLevel}!`
-        : `Test submitted! You earned ${gamificationData?.xpGained || 0} XP!`,
+      gamification: {
+        xpGained: result.xpGained,
+        leveledUp: result.leveledUp,
+        newBadges: result.newBadges,
+        newTotalXP: result.newTotalXP,
+        newLevel: result.newLevel,
+      },
+      message: result.leveledUp 
+        ? `Congratulations! You leveled up to level ${result.newLevel}!`
+        : result.newBadges.length > 0
+        ? `Great job! You earned ${result.newBadges.length} new badge(s)!`
+        : 'Test submitted successfully!',
     });
   } catch (error: any) {
     console.error('❌ Error submitting test:', error);
-    console.error('   Error details:', {
-      message: error.message,
-      code: error.code,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
-    });
+    
+    // Handle specific transaction errors
+    if (error.message === 'DUPLICATE_SUBMISSION') {
+      return NextResponse.json(
+        { success: false, error: 'This test has already been submitted.' },
+        { status: 409 }
+      );
+    }
+    
+    if (error.message === 'ALREADY_SUBMITTED') {
+      // Attempt was submitted between check and transaction
+      const resultRef = adminDb.collection('testResults').where('attemptId', '==', body?.attemptId).limit(1);
+      const resultSnap = await resultRef.get();
+      
+      if (!resultSnap.empty) {
+        const existingResult = resultSnap.docs[0].data();
+        return NextResponse.json({
+          success: true,
+          result: {
+            id: resultSnap.docs[0].id,
+            ...existingResult,
+          },
+          message: 'Test was already submitted. Returning existing result.',
+        });
+      }
+    }
+    
     return NextResponse.json(
       {
         success: false,
