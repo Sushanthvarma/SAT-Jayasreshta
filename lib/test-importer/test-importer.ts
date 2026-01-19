@@ -100,7 +100,6 @@ export function convertTestFileToFirestore(
     difficulty: metadata.difficulty,
     tags: [
       metadata.standard,
-      metadata.week,
       metadata.subject,
       ...(metadata.tags || []),
     ],

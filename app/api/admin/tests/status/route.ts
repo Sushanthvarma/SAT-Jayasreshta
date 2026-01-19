@@ -5,8 +5,12 @@ import { scanTestFiles } from '@/lib/test-importer/file-scanner';
 /**
  * Generate test ID from metadata (same logic as test-importer)
  */
-function generateTestId(metadata: { standard: string; week: string; subject: string }): string {
-  return `${metadata.standard}-${metadata.week}-${metadata.subject}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+function generateTestId(metadata: { standard: string; subject: string; testNumber?: number }): string {
+  const baseId = `${metadata.standard}-${metadata.subject}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+  if (metadata.testNumber && metadata.testNumber > 1) {
+    return `${baseId}-${metadata.testNumber}`;
+  }
+  return baseId;
 }
 
 export async function GET(req: NextRequest) {

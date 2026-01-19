@@ -33,9 +33,7 @@ interface ImportStatus {
 
 interface OrganizedTests {
   [standard: string]: {
-    [week: string]: {
-      [subject: string]: ScannedFile[];
-    };
+    [subject: string]: ScannedFile[];
   };
 }
 
@@ -141,7 +139,7 @@ export default function AdminTestManagement() {
           listData.files?.forEach((file: ScannedFile) => {
             if (file.isValid) {
               defaultStatus[file.relativePath] = {
-                testId: `${file.standard}-${file.week}-${file.subject}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+                testId: `${file.standard}-${file.subject}${file.testNumber && file.testNumber > 1 ? `-${file.testNumber}` : ''}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
                 status: 'new',
                 exists: false,
               };
@@ -248,7 +246,6 @@ export default function AdminTestManagement() {
           file.title?.toLowerCase().includes(query) ||
           file.relativePath.toLowerCase().includes(query) ||
           file.standard.toLowerCase().includes(query) ||
-          file.week.toLowerCase().includes(query) ||
           file.subject.toLowerCase().includes(query);
         if (!matchesSearch) return false;
       }
@@ -690,9 +687,6 @@ export default function AdminTestManagement() {
                               }`}>
                                 {file.standard}
                               </span>
-                              <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-semibold">
-                                {file.week}
-                              </span>
                               <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-semibold capitalize">
                                 {file.subject}
                               </span>
@@ -747,11 +741,9 @@ export default function AdminTestManagement() {
                     <p className="text-gray-600">No organized tests found</p>
                   </div>
                 ) : (
-                  Object.entries(organized).map(([standard, weeks]) => {
+                  Object.entries(organized).map(([standard, subjects]) => {
                     const isExpanded = expandedGrades.has(standard);
-                    const totalFiles = Object.values(weeks).reduce((sum, subjects) => 
-                      sum + Object.values(subjects).reduce((s, files) => s + files.length, 0), 0
-                    );
+                    const totalFiles = Object.values(subjects).reduce((sum, files) => sum + files.length, 0);
                     
                     return (
                       <div key={standard} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -779,39 +771,32 @@ export default function AdminTestManagement() {
                         
                         {isExpanded && (
                           <div className="border-t border-gray-200 p-3 space-y-2 max-h-[400px] overflow-y-auto">
-                            {Object.entries(weeks).map(([week, subjects]) => (
-                              <div key={week} className="bg-gray-50 rounded p-2">
-                                <div className="text-sm font-semibold text-gray-700 mb-2">{week.replace('week-', 'Week ')}</div>
-                                <div className="space-y-1">
-                                  {Object.entries(subjects).map(([subject, files]) => (
-                                    <div key={subject} className="flex items-center gap-2">
-                                      <span className="text-xs text-gray-600 capitalize w-20">{subject}:</span>
-                                      <div className="flex-1 flex flex-wrap gap-1">
-                                        {files.map((file) => {
-                                          const status = importStatus[file.relativePath];
-                                          const isSelected = selectedFiles.has(file.relativePath);
-                                          
-                                          return (
-                                            <button
-                                              key={file.relativePath}
-                                              onClick={() => toggleFileSelection(file.relativePath)}
-                                              className={`px-2 py-1 rounded text-xs border transition-all ${
-                                                !file.isValid
-                                                  ? 'bg-red-50 border-red-200 text-red-700'
-                                                  : isSelected
-                                                  ? 'bg-indigo-100 border-indigo-400 text-indigo-700'
-                                                  : status?.status === 'new'
-                                                  ? 'bg-blue-50 border-blue-200 text-blue-700'
-                                                  : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
-                                              }`}
-                                            >
-                                              {file.title || file.relativePath.split('/').pop()}
-                                            </button>
-                                          );
-                                        })}
-                                      </div>
-                                    </div>
-                                  ))}
+                            {Object.entries(subjects).map(([subject, files]) => (
+                              <div key={subject} className="bg-gray-50 rounded p-2">
+                                <div className="text-sm font-semibold text-gray-700 mb-2 capitalize">{subject}</div>
+                                <div className="flex flex-wrap gap-1">
+                                  {files.map((file) => {
+                                    const status = importStatus[file.relativePath];
+                                    const isSelected = selectedFiles.has(file.relativePath);
+                                    
+                                    return (
+                                      <button
+                                        key={file.relativePath}
+                                        onClick={() => toggleFileSelection(file.relativePath)}
+                                        className={`px-2 py-1 rounded text-xs border transition-all ${
+                                          !file.isValid
+                                            ? 'bg-red-50 border-red-200 text-red-700'
+                                            : isSelected
+                                            ? 'bg-indigo-100 border-indigo-400 text-indigo-700'
+                                            : status?.status === 'new'
+                                            ? 'bg-blue-50 border-blue-200 text-blue-700'
+                                            : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
+                                        }`}
+                                      >
+                                        {file.title || file.relativePath.split('/').pop()}
+                                      </button>
+                                    );
+                                  })}
                                 </div>
                               </div>
                             ))}
@@ -839,7 +824,7 @@ export default function AdminTestManagement() {
                         <div className="flex-1 min-w-0">
                           <div className="font-medium text-sm text-gray-900 truncate">{file.relativePath}</div>
                           <div className="text-xs text-gray-600 mt-0.5">
-                            {file.standard} • {file.week} • {file.subject}
+                            {file.standard} • {file.subject}
                           </div>
                           <div className="text-xs text-red-600 mt-1">
                             {file.errors[0]}

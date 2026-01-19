@@ -18,8 +18,8 @@ export interface ScannedTestFile {
   filePath: string;
   relativePath: string;
   standard: string;
-  week: string;
   subject: string;
+  testNumber?: number;
   testData: TestFile;
   isValid: boolean;
   errors: string[];
@@ -55,12 +55,14 @@ export function scanTestFiles(testsDir: string = 'tests'): ScannedTestFile[] {
           const fileContent = fs.readFileSync(fullEntryPath, 'utf-8');
           const testData = JSON.parse(fileContent) as TestFile;
 
-          // Extract standard, week, subject from path
-          // Path format: tests/{standard}/{week}/{subject}/test.json
+          // Extract standard, subject from path
+          // Path format: tests/{standard}/{subject}/test.json
+          // Or: tests/{standard}/{subject}/{testNumber}/test.json for multiple tests
           const pathParts = entryRelativePath.split(path.sep);
           const standard = pathParts[0] || '';
-          const week = pathParts[1] || '';
-          const subject = pathParts[2] || '';
+          const subject = pathParts[1] || '';
+          const testNumberStr = pathParts[2] || '';
+          const testNumber = testNumberStr && !isNaN(Number(testNumberStr)) ? Number(testNumberStr) : undefined;
 
           // Validate test file
           const validation = validateTestFile(testData);
@@ -69,19 +71,19 @@ export function scanTestFiles(testsDir: string = 'tests'): ScannedTestFile[] {
           if (standard && !testData.metadata.standard) {
             testData.metadata.standard = standard;
           }
-          if (week && !testData.metadata.week) {
-            testData.metadata.week = week;
-          }
           if (subject && !testData.metadata.subject) {
             testData.metadata.subject = subject;
+          }
+          if (testNumber && !testData.metadata.testNumber) {
+            testData.metadata.testNumber = testNumber;
           }
 
           scannedFiles.push({
             filePath: fullEntryPath,
             relativePath: entryRelativePath,
             standard,
-            week,
             subject,
+            testNumber,
             testData,
             isValid: validation.valid,
             errors: validation.errors,
@@ -92,7 +94,6 @@ export function scanTestFiles(testsDir: string = 'tests'): ScannedTestFile[] {
             filePath: fullEntryPath,
             relativePath: entryRelativePath,
             standard: '',
-            week: '',
             subject: '',
             testData: {} as TestFile,
             isValid: false,
@@ -108,40 +109,33 @@ export function scanTestFiles(testsDir: string = 'tests'): ScannedTestFile[] {
 }
 
 /**
- * Get test files organized by standard/week/subject
+ * Get test files organized by standard/subject
  */
 export function getOrganizedTestFiles(testsDir: string = 'tests'): {
   [standard: string]: {
-    [week: string]: {
-      [subject: string]: ScannedTestFile[];
-    };
+    [subject: string]: ScannedTestFile[];
   };
 } {
   const scannedFiles = scanTestFiles(testsDir);
   const organized: {
     [standard: string]: {
-      [week: string]: {
-        [subject: string]: ScannedTestFile[];
-      };
+      [subject: string]: ScannedTestFile[];
     };
   } = {};
 
   scannedFiles.forEach((file) => {
     if (!file.isValid) return; // Skip invalid files
 
-    const { standard, week, subject } = file;
+    const { standard, subject } = file;
 
     if (!organized[standard]) {
       organized[standard] = {};
     }
-    if (!organized[standard][week]) {
-      organized[standard][week] = {};
-    }
-    if (!organized[standard][week][subject]) {
-      organized[standard][week][subject] = [];
+    if (!organized[standard][subject]) {
+      organized[standard][subject] = [];
     }
 
-    organized[standard][week][subject].push(file);
+    organized[standard][subject].push(file);
   });
 
   return organized;
@@ -155,7 +149,6 @@ export function getTestFileStats(testsDir: string = 'tests'): {
   validFiles: number;
   invalidFiles: number;
   byStandard: { [standard: string]: number };
-  byWeek: { [week: string]: number };
   bySubject: { [subject: string]: number };
 } {
   const scannedFiles = scanTestFiles(testsDir);
@@ -165,16 +158,12 @@ export function getTestFileStats(testsDir: string = 'tests'): {
     validFiles: scannedFiles.filter(f => f.isValid).length,
     invalidFiles: scannedFiles.filter(f => !f.isValid).length,
     byStandard: {} as { [standard: string]: number },
-    byWeek: {} as { [week: string]: number },
     bySubject: {} as { [subject: string]: number },
   };
 
   scannedFiles.forEach((file) => {
     if (file.standard) {
       stats.byStandard[file.standard] = (stats.byStandard[file.standard] || 0) + 1;
-    }
-    if (file.week) {
-      stats.byWeek[file.week] = (stats.byWeek[file.week] || 0) + 1;
     }
     if (file.subject) {
       stats.bySubject[file.subject] = (stats.bySubject[file.subject] || 0) + 1;

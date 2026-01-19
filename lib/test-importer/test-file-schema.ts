@@ -7,11 +7,11 @@ export interface TestFileMetadata {
   title: string;
   description: string;
   standard: string; // "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"
-  week: string; // "week-1", "week-2", etc.
   subject: string; // "reading", "writing", "math", etc.
   difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
   version?: string;
   tags?: string[];
+  testNumber?: number; // Optional number for multiple tests per subject (1, 2, 3, etc.)
 }
 
 export interface TestFileQuestionOption {
