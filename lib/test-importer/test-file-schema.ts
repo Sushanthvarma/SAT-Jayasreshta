@@ -6,7 +6,7 @@
 export interface TestFileMetadata {
   title: string;
   description: string;
-  standard: string; // "9th", "10th", "11th", "12th"
+  standard: string; // "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"
   week: string; // "week-1", "week-2", etc.
   subject: string; // "reading", "writing", "math", etc.
   difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
@@ -72,9 +72,10 @@ export function validateTestFile(data: any): { valid: boolean; errors: string[] 
     if (!metadata.subject) errors.push('Missing metadata.subject');
     if (!metadata.difficulty) errors.push('Missing metadata.difficulty');
     
-    // Validate standard format
-    if (metadata.standard && !['9th', '10th', '11th', '12th'].includes(metadata.standard)) {
-      errors.push(`Invalid standard: ${metadata.standard}. Must be 9th, 10th, 11th, or 12th`);
+    // Validate standard format (4th through 12th grade)
+    const validStandards = ['4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th'];
+    if (metadata.standard && !validStandards.includes(metadata.standard)) {
+      errors.push(`Invalid standard: ${metadata.standard}. Must be one of: ${validStandards.join(', ')}`);
     }
     
     // Validate week format

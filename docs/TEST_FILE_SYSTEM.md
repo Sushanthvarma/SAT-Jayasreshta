@@ -8,7 +8,7 @@ A plug-and-play file-based test system that automatically scans and imports test
 
 ```
 tests/
-├── {standard}/           # Grade level: 9th, 10th, 11th, 12th
+├── {standard}/           # Grade level: 4th, 5th, 6th, 7th, 8th, 9th, 10th, 11th, 12th
 │   ├── {week}/          # Week: week-1, week-2, week-3, etc.
 │   │   ├── {subject}/  # Subject: reading, writing, math, etc.
 │   │   │   └── test.json
@@ -159,7 +159,7 @@ GET /api/admin/tests/scan?mode=stats
 ### Required Fields
 - `metadata.title`
 - `metadata.description`
-- `metadata.standard` (must be: 9th, 10th, 11th, 12th)
+- `metadata.standard` (must be: 4th, 5th, 6th, 7th, 8th, 9th, 10th, 11th, 12th)
 - `metadata.week` (must match: week-1, week-2, etc.)
 - `metadata.subject`
 - `metadata.difficulty`
