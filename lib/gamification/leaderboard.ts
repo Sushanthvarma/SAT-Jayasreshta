@@ -10,23 +10,32 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
   
   try {
     // Try to query with orderBy first (requires index)
+    // With Blaze plan, we can use proper indexes for better performance
     usersSnapshot = await adminDb
       .collection('users')
+      .where('role', '==', 'student') // Filter out admins at query level
       .orderBy('totalXP', 'desc')
       .limit(limit)
       .get();
   } catch (error: any) {
-    // If index doesn't exist or query fails, fetch all and sort in memory
-    console.warn('⚠️ Leaderboard orderBy query failed, fetching all and sorting in memory:', error.message);
+    // If index doesn't exist, fetch all students and sort in memory
+    // With Blaze plan, we can fetch more users if needed
+    console.warn('⚠️ Leaderboard orderBy query failed (index may be missing), fetching all and sorting in memory:', error.message);
     try {
-      const allUsersSnapshot = await adminDb.collection('users').limit(500).get();
+      // Fetch all users (Blaze plan supports this)
+      const allUsersSnapshot = await adminDb.collection('users').get();
       
-      // Sort in memory by totalXP
-      const sortedDocs = allUsersSnapshot.docs.sort((a, b) => {
-        const aXP = a.data().totalXP || 0;
-        const bXP = b.data().totalXP || 0;
-        return bXP - aXP; // Descending
-      });
+      // Filter students and sort in memory by totalXP
+      const sortedDocs = allUsersSnapshot.docs
+        .filter(doc => {
+          const data = doc.data();
+          return data.role !== 'admin'; // Filter out admins
+        })
+        .sort((a, b) => {
+          const aXP = a.data().totalXP || 0;
+          const bXP = b.data().totalXP || 0;
+          return bXP - aXP; // Descending
+        });
       
       // Create a mock snapshot with sorted docs
       usersSnapshot = {
@@ -50,7 +59,7 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
     const data = doc.data();
     const isCurrentUser = !!(userId && doc.id === userId);
     
-    // Only include students (not admins) and users with some activity
+    // Admins are already filtered at query level, but double-check for safety
     if (data.role === 'admin') return;
     
     if (isCurrentUser) {
@@ -79,21 +88,22 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
         const userData = userDoc.data()!;
         const userXP = userData.totalXP || 0;
         
-        // Try to count users above, with fallback
+        // Count users above (with Blaze plan, we can query all users)
         try {
           const usersAbove = await adminDb
             .collection('users')
+            .where('role', '==', 'student')
             .where('totalXP', '>', userXP)
             .count()
             .get();
           
           currentUserRank = usersAbove.data().count + 1;
         } catch (countError: any) {
-          // Fallback: fetch all and count in memory
-          const allUsers = await adminDb.collection('users').limit(500).get();
+          // Fallback: fetch all students and count in memory
+          const allUsers = await adminDb.collection('users').get();
           const usersAbove = allUsers.docs.filter(doc => {
             const data = doc.data();
-            return data.role !== 'admin' && (data.totalXP || 0) > userXP;
+            return data.role === 'student' && (data.totalXP || 0) > userXP;
           });
           currentUserRank = usersAbove.length + 1;
         }
@@ -132,18 +142,41 @@ export async function getUserStats(userId: string): Promise<UserStats | null> {
   const userData = userDoc.data()!;
   const totalXP = userData.totalXP || 0;
   
-  // Calculate rank
-  const usersAbove = await adminDb
-    .collection('users')
-    .where('totalXP', '>', totalXP)
-    .count()
-    .get();
+  // Calculate rank (only count students, not admins)
+  let rank = 1;
+  try {
+    const usersAbove = await adminDb
+      .collection('users')
+      .where('role', '==', 'student')
+      .where('totalXP', '>', totalXP)
+      .count()
+      .get();
+    
+    rank = usersAbove.data().count + 1;
+  } catch (error: any) {
+    // Fallback: fetch all and count in memory
+    const allUsers = await adminDb.collection('users').get();
+    const studentsAbove = allUsers.docs.filter(doc => {
+      const data = doc.data();
+      return data.role === 'student' && (data.totalXP || 0) > totalXP;
+    });
+    rank = studentsAbove.length + 1;
+  }
   
-  const rank = usersAbove.data().count + 1;
-  
-  // Calculate total users
-  const totalUsersSnapshot = await adminDb.collection('users').count().get();
-  const totalUsers = totalUsersSnapshot.data().count;
+  // Calculate total students (not admins)
+  let totalUsers = 0;
+  try {
+    const totalUsersSnapshot = await adminDb
+      .collection('users')
+      .where('role', '==', 'student')
+      .count()
+      .get();
+    totalUsers = totalUsersSnapshot.data().count;
+  } catch (error: any) {
+    // Fallback: count in memory
+    const allUsers = await adminDb.collection('users').get();
+    totalUsers = allUsers.docs.filter(doc => doc.data().role === 'student').length;
+  }
   
   // Calculate percentile
   const percentile = totalUsers > 0 ? ((totalUsers - rank) / totalUsers) * 100 : 0;
@@ -232,27 +265,44 @@ export async function getSocialComparison(userId: string): Promise<{
     throw new Error('User not found');
   }
 
-  // Get platform averages - limit to avoid quota issues
+  // Get platform averages (Blaze plan allows fetching all users)
   let totalScore = 0;
   let usersWithScores = 0;
   let totalUsers = 0;
   
   try {
-    const allUsersSnapshot = await adminDb.collection('users').limit(500).get();
+    // Fetch all students for accurate platform averages
+    const allUsersSnapshot = await adminDb
+      .collection('users')
+      .where('role', '==', 'student')
+      .get();
+    
     totalUsers = allUsersSnapshot.size;
     
     allUsersSnapshot.forEach((doc) => {
       const data = doc.data();
-      // Only count students, not admins
-      if (data.role !== 'admin' && data.averageScore && data.averageScore > 0) {
+      if (data.averageScore && data.averageScore > 0) {
         totalScore += data.averageScore;
         usersWithScores++;
       }
     });
   } catch (error: any) {
     console.warn('⚠️ Could not fetch all users for comparison:', error.message);
-    // Use userStats data as fallback
-    totalUsers = userStats.rank; // Approximate
+    // Fallback: fetch all and filter
+    try {
+      const allUsers = await adminDb.collection('users').get();
+      totalUsers = allUsers.docs.filter(doc => doc.data().role === 'student').length;
+      allUsers.docs.forEach((doc) => {
+        const data = doc.data();
+        if (data.role === 'student' && data.averageScore && data.averageScore > 0) {
+          totalScore += data.averageScore;
+          usersWithScores++;
+        }
+      });
+    } catch (fallbackError: any) {
+      console.error('❌ Failed to fetch users for comparison:', fallbackError);
+      totalUsers = userStats.rank; // Approximate fallback
+    }
   }
   
   const averageScore = usersWithScores > 0 ? totalScore / usersWithScores : 0;

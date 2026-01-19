@@ -32,13 +32,12 @@ export async function GET(req: NextRequest) {
     // Scan all test files
     const scannedFiles = scanTestFiles();
     
-    // Get all existing tests from Firestore - fetch minimal data to reduce reads
-    // Note: Admin SDK doesn't support .select(), so we fetch full docs but limit count
-    let testsMap: Map<string, { version?: string; status?: string; isActive?: boolean }> = new Map();
+    // Get all existing tests from Firestore
+    // With Blaze plan, we can fetch all tests without quota concerns
+    let testsMap: Map<string, { version?: string; status?: string; isActive?: boolean; publishedAt?: any; createdAt?: any }> = new Map();
     try {
-      // Fetch limited number of tests to avoid quota
-      // Reduced limit significantly to prevent quota errors
-      const testsSnapshot = await adminDb.collection('tests').limit(200).get();
+      // Fetch all tests (Blaze plan supports unlimited reads)
+      const testsSnapshot = await adminDb.collection('tests').get();
       
       testsSnapshot.docs.forEach(doc => {
         const data = doc.data();
@@ -46,27 +45,14 @@ export async function GET(req: NextRequest) {
           version: data.version,
           status: data.status,
           isActive: data.isActive,
+          publishedAt: data.publishedAt,
+          createdAt: data.createdAt,
         });
       });
+      
+      console.log(`✅ Fetched ${testsSnapshot.size} tests from Firestore for status check`);
     } catch (error: any) {
-      // If quota exceeded, return error with helpful message
-      if (error.message?.includes('RESOURCE_EXHAUSTED') || error.message?.includes('quota')) {
-        console.warn('⚠️ Could not fetch tests from Firestore (quota exceeded):', error.message);
-        return NextResponse.json({
-          success: false,
-          error: 'Firestore quota exceeded. Status check unavailable. You can still import tests - they will be checked during import.',
-          partial: true,
-          statusMap: {},
-          stats: {
-            total: scannedFiles.length,
-            valid: scannedFiles.filter(f => f.isValid).length,
-            invalid: scannedFiles.filter(f => !f.isValid).length,
-            new: scannedFiles.filter(f => f.isValid).length,
-            imported: 0,
-            updated: 0,
-          },
-        }, { status: 429 });
-      }
+      console.error('❌ Error fetching tests from Firestore:', error);
       throw error;
     }
     
@@ -100,9 +86,8 @@ export async function GET(req: NextRequest) {
           exists: true,
           isPublished: testData?.status === 'published',
           isActive: testData?.isActive === true,
-          // Don't include dates if we don't have them (minimal fetch)
-          publishedAt: undefined,
-          createdAt: undefined,
+          publishedAt: testData?.publishedAt?.toDate ? testData.publishedAt.toDate() : undefined,
+          createdAt: testData?.createdAt?.toDate ? testData.createdAt.toDate() : undefined,
         };
       } else {
         statusMap[file.relativePath] = {

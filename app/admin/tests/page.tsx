@@ -120,20 +120,49 @@ export default function AdminTestManagement() {
         setStats(statsData.stats || null);
       }
 
-      // Don't check status by default to avoid quota issues
-      // User can manually trigger status check if needed
-      // Set all valid files as "new" as default
-      const defaultStatus: { [key: string]: any } = {};
-      listData.files?.forEach((file: ScannedFile) => {
-        if (file.isValid) {
-          defaultStatus[file.relativePath] = {
-            testId: `${file.standard}-${file.week}-${file.subject}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
-            status: 'new',
-            exists: false,
-          };
+      // With Blaze plan, we can check status automatically
+      // Load status check automatically (no quota concerns)
+      try {
+        const statusRes = await fetch('/api/admin/tests/status', {
+          headers: { 'Authorization': `Bearer ${idToken}` },
+        });
+        const statusData = await statusRes.json();
+        
+        if (statusData.success) {
+          setImportStatus(statusData.statusMap || {});
+          if (statusData.stats) {
+            setStats((prev: any) => ({ ...prev, ...statusData.stats }));
+          }
+        } else {
+          console.error('Status check failed:', statusData.error);
+          // Fallback: set all as new
+          const defaultStatus: { [key: string]: any } = {};
+          listData.files?.forEach((file: ScannedFile) => {
+            if (file.isValid) {
+              defaultStatus[file.relativePath] = {
+                testId: `${file.standard}-${file.week}-${file.subject}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+                status: 'new',
+                exists: false,
+              };
+            }
+          });
+          setImportStatus(defaultStatus);
         }
-      });
-      setImportStatus(defaultStatus);
+      } catch (error) {
+        console.error('Error checking status:', error);
+        // Fallback: set all as new
+        const defaultStatus: { [key: string]: any } = {};
+        listData.files?.forEach((file: ScannedFile) => {
+          if (file.isValid) {
+            defaultStatus[file.relativePath] = {
+              testId: `${file.standard}-${file.week}-${file.subject}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+              status: 'new',
+              exists: false,
+            };
+          }
+        });
+        setImportStatus(defaultStatus);
+      }
     } catch (error) {
       console.error('Error loading data:', error);
       toast.error('Failed to load test data');
