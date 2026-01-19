@@ -39,10 +39,10 @@ export async function GET(req: NextRequest) {
     
     try {
       // Try with orderBy first (if index exists)
+      // With Blaze plan, we can fetch all results without limits
       const resultsQuery = resultsRef
         .where('userId', '==', userId)
-        .orderBy('completedAt', 'desc')
-        .limit(50);
+        .orderBy('completedAt', 'desc');
       snapshot = await resultsQuery.get();
     } catch (error: any) {
       // If index doesn't exist, fetch all and sort in memory
@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
         return bTime - aTime; // Descending
       });
       snapshot = {
-        docs: sortedDocs.slice(0, 50),
+        docs: sortedDocs,
         empty: sortedDocs.length === 0,
       } as any;
     }
