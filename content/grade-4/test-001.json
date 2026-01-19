@@ -1,0 +1,883 @@
+{
+  "metadata": {
+    "test_id": "grade-4-test-001",
+    "grade": 4,
+    "test_number": 1,
+    "estimated_time_minutes": 12,
+    "mastery_threshold": 0.70,
+    "difficulty_tier": "bridge",
+    "adaptive_recommendation": {
+      "min_score_for_next": 0.70,
+      "recommended_starting_test": null
+    }
+  },
+  "reading_writing_count": 11,
+  "math_count": 9,
+  "total_questions": 20,
+  "questions": [
+    {
+      "question_id": "g4-t001-q01",
+      "type": "reading_comprehension",
+      "sub_type": "main_idea",
+      "difficulty": "easy",
+      "bloom_level": 2,
+      "passage": "The ocean is home to many amazing creatures. Dolphins are smart animals that live in groups called pods. They communicate with clicks and whistles. Whales are the largest animals in the ocean. Some whales can grow as long as a school bus!",
+      "stem": "What is the main idea of this passage?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Dolphins are smarter than whales",
+          "correct": false,
+          "distractor_type": "too_specific"
+        },
+        {
+          "id": "B",
+          "text": "The ocean contains many interesting animals",
+          "correct": true
+        },
+        {
+          "id": "C",
+          "text": "Whales are very large",
+          "correct": false,
+          "distractor_type": "too_specific"
+        },
+        {
+          "id": "D",
+          "text": "Animals live in groups",
+          "correct": false,
+          "distractor_type": "too_broad"
+        }
+      ],
+      "explanation": "The correct answer is B because the passage discusses multiple ocean animals (dolphins and whales) and their characteristics, making 'many interesting animals' the main idea.",
+      "standards_alignment": [
+        "CCSS.ELA-LITERACY.RI.4.2",
+        "Cambridge-Stage4-Reading"
+      ],
+      "spiral_sequence": {
+        "concept_id": "main_idea",
+        "previous_appearance": null,
+        "next_appearance": "g4-t012-q05",
+        "appearance_number": 1,
+        "complexity_level": 1
+      },
+      "time_estimate_seconds": 60,
+      "prerequisite_skills": ["basic_reading_comprehension"],
+      "subject": "reading",
+      "section": 1
+    },
+    {
+      "question_id": "g4-t001-q02",
+      "type": "reading_comprehension",
+      "sub_type": "inference",
+      "difficulty": "easy",
+      "bloom_level": 3,
+      "passage": "Maria looked at the dark clouds gathering in the sky. She ran back inside to grab her umbrella. Her mom smiled and said, 'Good thinking!'",
+      "stem": "Why did Maria grab her umbrella?",
+      "options": [
+        {
+          "id": "A",
+          "text": "She saw dark clouds and thought it might rain",
+          "correct": true
+        },
+        {
+          "id": "B",
+          "text": "Her mom told her to get it",
+          "correct": false,
+          "distractor_type": "opposite_meaning"
+        },
+        {
+          "id": "C",
+          "text": "It was already raining",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        },
+        {
+          "id": "D",
+          "text": "She wanted to play outside",
+          "correct": false,
+          "distractor_type": "too_broad"
+        }
+      ],
+      "explanation": "The correct answer is A because Maria saw dark clouds (a sign of rain) and decided to get her umbrella, showing she inferred that rain was coming.",
+      "standards_alignment": [
+        "CCSS.ELA-LITERACY.RL.4.1"
+      ],
+      "time_estimate_seconds": 60,
+      "prerequisite_skills": ["inference"],
+      "subject": "reading",
+      "section": 1
+    },
+    {
+      "question_id": "g4-t001-q03",
+      "type": "vocabulary",
+      "sub_type": "context_clues",
+      "difficulty": "easy",
+      "bloom_level": 2,
+      "passage": "The ancient castle stood on the hill for hundreds of years. Many visitors came to see its old walls and towers.",
+      "stem": "What does the word 'ancient' mean in this passage?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Very old",
+          "correct": true
+        },
+        {
+          "id": "B",
+          "text": "Very new",
+          "correct": false,
+          "distractor_type": "opposite_meaning"
+        },
+        {
+          "id": "C",
+          "text": "Very large",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        },
+        {
+          "id": "D",
+          "text": "Very beautiful",
+          "correct": false,
+          "distractor_type": "partial_answer"
+        }
+      ],
+      "explanation": "The correct answer is A because the context clues 'hundreds of years' and 'old walls' indicate that 'ancient' means very old.",
+      "standards_alignment": [
+        "CCSS.ELA-LITERACY.L.4.4.A"
+      ],
+      "time_estimate_seconds": 45,
+      "prerequisite_skills": ["vocabulary_context"],
+      "subject": "reading",
+      "section": 1
+    },
+    {
+      "question_id": "g4-t001-q04",
+      "type": "grammar",
+      "sub_type": "comma_usage",
+      "difficulty": "easy",
+      "bloom_level": 2,
+      "stem": "Which sentence uses commas correctly?",
+      "options": [
+        {
+          "id": "A",
+          "text": "I need to buy apples, bananas, and oranges.",
+          "correct": true
+        },
+        {
+          "id": "B",
+          "text": "I need to buy apples, bananas and oranges.",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        },
+        {
+          "id": "C",
+          "text": "I need, to buy apples bananas and oranges.",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "D",
+          "text": "I need to buy, apples bananas, and oranges.",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        }
+      ],
+      "explanation": "The correct answer is A because in a list of three or more items, commas should separate each item, including before 'and' (Oxford comma).",
+      "standards_alignment": [
+        "CCSS.ELA-LITERACY.L.4.2.C"
+      ],
+      "spiral_sequence": {
+        "concept_id": "comma_usage",
+        "previous_appearance": null,
+        "next_appearance": "g4-t008-q03",
+        "appearance_number": 1,
+        "complexity_level": 1
+      },
+      "time_estimate_seconds": 45,
+      "prerequisite_skills": ["punctuation"],
+      "subject": "writing",
+      "section": 1
+    },
+    {
+      "question_id": "g4-t001-q05",
+      "type": "math_procedural",
+      "sub_type": "fractions",
+      "difficulty": "easy",
+      "bloom_level": 2,
+      "stem": "What is 3/4 + 1/4?",
+      "options": [
+        {
+          "id": "A",
+          "text": "4/8",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "B",
+          "text": "1",
+          "correct": true
+        },
+        {
+          "id": "C",
+          "text": "4/4",
+          "correct": false,
+          "distractor_type": "partial_answer"
+        },
+        {
+          "id": "D",
+          "text": "2/4",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        }
+      ],
+      "explanation": "The correct answer is B (or 1) because when adding fractions with the same denominator, you add the numerators: 3/4 + 1/4 = 4/4 = 1.",
+      "standards_alignment": [
+        "CCSS.MATH.CONTENT.4.NF.B.3.A"
+      ],
+      "spiral_sequence": {
+        "concept_id": "fractions",
+        "previous_appearance": null,
+        "next_appearance": "g4-t005-q08",
+        "appearance_number": 1,
+        "complexity_level": 1
+      },
+      "time_estimate_seconds": 60,
+      "prerequisite_skills": ["fraction_addition"],
+      "subject": "math",
+      "section": 2
+    },
+    {
+      "question_id": "g4-t001-q06",
+      "type": "math_word_problem",
+      "sub_type": "fractions",
+      "difficulty": "medium",
+      "bloom_level": 3,
+      "stem": "A recipe uses 3/4 cup of sugar. If you double the recipe, how much sugar do you need?",
+      "options": [
+        {
+          "id": "A",
+          "text": "6/4 cups",
+          "correct": false,
+          "distractor_type": "partial_answer"
+        },
+        {
+          "id": "B",
+          "text": "1 1/2 cups",
+          "correct": true
+        },
+        {
+          "id": "C",
+          "text": "3/8 cups",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "D",
+          "text": "6/8 cups",
+          "correct": false,
+          "distractor_type": "partial_answer"
+        }
+      ],
+      "explanation": "The correct answer is B (1 1/2 cups) because doubling 3/4 means multiplying by 2: 3/4 × 2 = 6/4 = 1 2/4 = 1 1/2.",
+      "standards_alignment": [
+        "CCSS.MATH.CONTENT.4.NF.B.4.C"
+      ],
+      "time_estimate_seconds": 90,
+      "prerequisite_skills": ["fraction_multiplication", "fraction_simplification"],
+      "subject": "math",
+      "section": 2
+    },
+    {
+      "question_id": "g4-t001-q07",
+      "type": "math_geometry",
+      "sub_type": "area",
+      "difficulty": "easy",
+      "bloom_level": 2,
+      "stem": "A rectangle is 5 inches long and 3 inches wide. What is its area?",
+      "options": [
+        {
+          "id": "A",
+          "text": "8 square inches",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "B",
+          "text": "15 square inches",
+          "correct": true
+        },
+        {
+          "id": "C",
+          "text": "16 square inches",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "D",
+          "text": "30 square inches",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        }
+      ],
+      "explanation": "The correct answer is B because the area of a rectangle is length × width: 5 × 3 = 15 square inches.",
+      "standards_alignment": [
+        "CCSS.MATH.CONTENT.4.MD.A.3"
+      ],
+      "spiral_sequence": {
+        "concept_id": "geometry_basics",
+        "previous_appearance": null,
+        "next_appearance": "g4-t006-q10",
+        "appearance_number": 1,
+        "complexity_level": 1
+      },
+      "time_estimate_seconds": 60,
+      "prerequisite_skills": ["area_rectangle"],
+      "subject": "math",
+      "section": 2
+    },
+    {
+      "question_id": "g4-t001-q08",
+      "type": "reading_comprehension",
+      "sub_type": "detail",
+      "difficulty": "easy",
+      "bloom_level": 1,
+      "passage": "The library has many books. There are storybooks, science books, and history books. Students can borrow up to 5 books at a time.",
+      "stem": "How many books can a student borrow at one time?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        },
+        {
+          "id": "B",
+          "text": "5",
+          "correct": true
+        },
+        {
+          "id": "C",
+          "text": "10",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "D",
+          "text": "Unlimited",
+          "correct": false,
+          "distractor_type": "opposite_meaning"
+        }
+      ],
+      "explanation": "The correct answer is B because the passage directly states 'Students can borrow up to 5 books at a time.'",
+      "standards_alignment": [
+        "CCSS.ELA-LITERACY.RI.4.1"
+      ],
+      "time_estimate_seconds": 45,
+      "prerequisite_skills": ["literal_comprehension"],
+      "subject": "reading",
+      "section": 1
+    },
+    {
+      "question_id": "g4-t001-q09",
+      "type": "grammar",
+      "sub_type": "sentence_structure",
+      "difficulty": "easy",
+      "bloom_level": 2,
+      "stem": "Which sentence is complete and correct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Running in the park.",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        },
+        {
+          "id": "B",
+          "text": "The dog running in the park.",
+          "correct": false,
+          "distractor_type": "partial_answer"
+        },
+        {
+          "id": "C",
+          "text": "The dog is running in the park.",
+          "correct": true
+        },
+        {
+          "id": "D",
+          "text": "The dog running.",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        }
+      ],
+      "explanation": "The correct answer is C because it has a complete subject ('The dog') and a complete predicate ('is running in the park').",
+      "standards_alignment": [
+        "CCSS.ELA-LITERACY.L.4.1.F"
+      ],
+      "time_estimate_seconds": 45,
+      "prerequisite_skills": ["sentence_structure"],
+      "subject": "writing",
+      "section": 1
+    },
+    {
+      "question_id": "g4-t001-q10",
+      "type": "math_procedural",
+      "sub_type": "multiplication",
+      "difficulty": "easy",
+      "bloom_level": 2,
+      "stem": "What is 7 × 8?",
+      "options": [
+        {
+          "id": "A",
+          "text": "54",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "B",
+          "text": "56",
+          "correct": true
+        },
+        {
+          "id": "C",
+          "text": "63",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "D",
+          "text": "64",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        }
+      ],
+      "explanation": "The correct answer is B because 7 × 8 = 56.",
+      "standards_alignment": [
+        "CCSS.MATH.CONTENT.4.NBT.B.5"
+      ],
+      "time_estimate_seconds": 30,
+      "prerequisite_skills": ["multiplication_facts"],
+      "subject": "math",
+      "section": 2
+    },
+    {
+      "question_id": "g4-t001-q11",
+      "type": "math_data_analysis",
+      "sub_type": "reading_tables",
+      "difficulty": "easy",
+      "bloom_level": 2,
+      "stem": "The table shows the number of books read by students in one month:\n\nStudent | Books\n--------|------\nAnna    | 8\nBen     | 5\nCara    | 12\nDavid   | 7\n\nHow many books did Anna and Ben read together?",
+      "options": [
+        {
+          "id": "A",
+          "text": "10",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "B",
+          "text": "13",
+          "correct": true
+        },
+        {
+          "id": "C",
+          "text": "15",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "D",
+          "text": "20",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        }
+      ],
+      "explanation": "The correct answer is B because Anna read 8 books and Ben read 5 books: 8 + 5 = 13 books total.",
+      "standards_alignment": [
+        "CCSS.MATH.CONTENT.4.MD.B.4"
+      ],
+      "spiral_sequence": {
+        "concept_id": "data_analysis",
+        "previous_appearance": null,
+        "next_appearance": "g4-t011-q15",
+        "appearance_number": 1,
+        "complexity_level": 1
+      },
+      "time_estimate_seconds": 75,
+      "prerequisite_skills": ["reading_tables", "addition"],
+      "subject": "math",
+      "section": 2
+    },
+    {
+      "question_id": "g4-t001-q12",
+      "type": "reading_comprehension",
+      "sub_type": "sequence",
+      "difficulty": "easy",
+      "bloom_level": 2,
+      "passage": "First, mix the flour and sugar. Next, add the eggs. Then, pour the mixture into a pan. Finally, bake for 30 minutes.",
+      "stem": "What should you do after adding the eggs?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Mix flour and sugar",
+          "correct": false,
+          "distractor_type": "opposite_meaning"
+        },
+        {
+          "id": "B",
+          "text": "Add the eggs",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        },
+        {
+          "id": "C",
+          "text": "Pour into a pan",
+          "correct": true
+        },
+        {
+          "id": "D",
+          "text": "Bake for 30 minutes",
+          "correct": false,
+          "distractor_type": "partial_answer"
+        }
+      ],
+      "explanation": "The correct answer is C because the passage uses sequence words: 'Next, add the eggs. Then, pour the mixture into a pan.' So after adding eggs, you pour into a pan.",
+      "standards_alignment": [
+        "CCSS.ELA-LITERACY.RI.4.3"
+      ],
+      "time_estimate_seconds": 60,
+      "prerequisite_skills": ["sequence_understanding"],
+      "subject": "reading",
+      "section": 1
+    },
+    {
+      "question_id": "g4-t001-q13",
+      "type": "vocabulary",
+      "sub_type": "context_clues",
+      "difficulty": "medium",
+      "bloom_level": 3,
+      "passage": "The explorer was determined to reach the mountain peak. Despite the difficult climb, she never gave up.",
+      "stem": "What does 'determined' mean in this passage?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Confused",
+          "correct": false,
+          "distractor_type": "opposite_meaning"
+        },
+        {
+          "id": "B",
+          "text": "Willing to keep trying",
+          "correct": true
+        },
+        {
+          "id": "C",
+          "text": "Tired",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        },
+        {
+          "id": "D",
+          "text": "Lost",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        }
+      ],
+      "explanation": "The correct answer is B because the context clue 'she never gave up' shows that 'determined' means having a strong will to keep trying.",
+      "standards_alignment": [
+        "CCSS.ELA-LITERACY.L.4.4.A"
+      ],
+      "time_estimate_seconds": 60,
+      "prerequisite_skills": ["vocabulary_context"],
+      "subject": "reading",
+      "section": 1
+    },
+    {
+      "question_id": "g4-t001-q14",
+      "type": "grammar",
+      "sub_type": "verb_tense",
+      "difficulty": "easy",
+      "bloom_level": 2,
+      "stem": "Which sentence uses the correct verb tense?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Yesterday, I go to the store.",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        },
+        {
+          "id": "B",
+          "text": "Yesterday, I went to the store.",
+          "correct": true
+        },
+        {
+          "id": "C",
+          "text": "Yesterday, I will go to the store.",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        },
+        {
+          "id": "D",
+          "text": "Yesterday, I going to the store.",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        }
+      ],
+      "explanation": "The correct answer is B because 'yesterday' indicates past tense, so 'went' (past tense of 'go') is correct.",
+      "standards_alignment": [
+        "CCSS.ELA-LITERACY.L.4.1.B"
+      ],
+      "time_estimate_seconds": 45,
+      "prerequisite_skills": ["verb_tense"],
+      "subject": "writing",
+      "section": 1
+    },
+    {
+      "question_id": "g4-t001-q15",
+      "type": "math_word_problem",
+      "sub_type": "multiplication",
+      "difficulty": "medium",
+      "bloom_level": 3,
+      "stem": "A box contains 6 packs of markers. Each pack has 8 markers. How many markers are in the box?",
+      "options": [
+        {
+          "id": "A",
+          "text": "14",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "B",
+          "text": "48",
+          "correct": true
+        },
+        {
+          "id": "C",
+          "text": "56",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "D",
+          "text": "64",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        }
+      ],
+      "explanation": "The correct answer is B because 6 packs × 8 markers per pack = 48 markers total.",
+      "standards_alignment": [
+        "CCSS.MATH.CONTENT.4.OA.A.2"
+      ],
+      "time_estimate_seconds": 75,
+      "prerequisite_skills": ["multiplication", "word_problems"],
+      "subject": "math",
+      "section": 2
+    },
+    {
+      "question_id": "g4-t001-q16",
+      "type": "reading_comprehension",
+      "sub_type": "author_purpose",
+      "difficulty": "medium",
+      "bloom_level": 3,
+      "passage": "Did you know that recycling one aluminum can saves enough energy to power a TV for 3 hours? Recycling helps protect our planet. Start recycling today!",
+      "stem": "What is the author's main purpose in writing this passage?",
+      "options": [
+        {
+          "id": "A",
+          "text": "To explain how recycling works",
+          "correct": false,
+          "distractor_type": "too_specific"
+        },
+        {
+          "id": "B",
+          "text": "To persuade readers to recycle",
+          "correct": true
+        },
+        {
+          "id": "C",
+          "text": "To tell a story about recycling",
+          "correct": false,
+          "distractor_type": "too_broad"
+        },
+        {
+          "id": "D",
+          "text": "To describe different types of recycling",
+          "correct": false,
+          "distractor_type": "too_specific"
+        }
+      ],
+      "explanation": "The correct answer is B because the passage uses persuasive language like 'Start recycling today!' and provides reasons to convince readers to recycle.",
+      "standards_alignment": [
+        "CCSS.ELA-LITERACY.RI.4.8"
+      ],
+      "time_estimate_seconds": 75,
+      "prerequisite_skills": ["author_purpose"],
+      "subject": "reading",
+      "section": 1
+    },
+    {
+      "question_id": "g4-t001-q17",
+      "type": "math_procedural",
+      "sub_type": "division",
+      "difficulty": "easy",
+      "bloom_level": 2,
+      "stem": "What is 48 ÷ 6?",
+      "options": [
+        {
+          "id": "A",
+          "text": "6",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "B",
+          "text": "7",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "C",
+          "text": "8",
+          "correct": true
+        },
+        {
+          "id": "D",
+          "text": "9",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        }
+      ],
+      "explanation": "The correct answer is C because 48 ÷ 6 = 8 (or 6 × 8 = 48).",
+      "standards_alignment": [
+        "CCSS.MATH.CONTENT.4.NBT.B.6"
+      ],
+      "time_estimate_seconds": 45,
+      "prerequisite_skills": ["division"],
+      "subject": "math",
+      "section": 2
+    },
+    {
+      "question_id": "g4-t001-q18",
+      "type": "grammar",
+      "sub_type": "pronouns",
+      "difficulty": "easy",
+      "bloom_level": 2,
+      "stem": "Which sentence uses the correct pronoun?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Me and Sarah went to the park.",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        },
+        {
+          "id": "B",
+          "text": "Sarah and I went to the park.",
+          "correct": true
+        },
+        {
+          "id": "C",
+          "text": "Sarah and me went to the park.",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        },
+        {
+          "id": "D",
+          "text": "I and Sarah went to the park.",
+          "correct": false,
+          "distractor_type": "conceptual_misunderstanding"
+        }
+      ],
+      "explanation": "The correct answer is B because when a pronoun is part of a compound subject, use the subject form 'I', and it's polite to put the other person first.",
+      "standards_alignment": [
+        "CCSS.ELA-LITERACY.L.4.1.A"
+      ],
+      "time_estimate_seconds": 45,
+      "prerequisite_skills": ["pronouns"],
+      "subject": "writing",
+      "section": 1
+    },
+    {
+      "question_id": "g4-t001-q19",
+      "type": "math_geometry",
+      "sub_type": "perimeter",
+      "difficulty": "medium",
+      "bloom_level": 3,
+      "stem": "A square has sides that are 4 inches long. What is its perimeter?",
+      "options": [
+        {
+          "id": "A",
+          "text": "8 inches",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "B",
+          "text": "12 inches",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        },
+        {
+          "id": "C",
+          "text": "16 inches",
+          "correct": true
+        },
+        {
+          "id": "D",
+          "text": "20 inches",
+          "correct": false,
+          "distractor_type": "calculation_error"
+        }
+      ],
+      "explanation": "The correct answer is C because the perimeter of a square is 4 × side length: 4 × 4 = 16 inches.",
+      "standards_alignment": [
+        "CCSS.MATH.CONTENT.4.MD.A.3"
+      ],
+      "time_estimate_seconds": 60,
+      "prerequisite_skills": ["perimeter"],
+      "subject": "math",
+      "section": 2
+    },
+    {
+      "question_id": "g4-t001-q20",
+      "type": "reading_comprehension",
+      "sub_type": "compare_contrast",
+      "difficulty": "medium",
+      "bloom_level": 3,
+      "passage": "Dogs and cats are both popular pets. Dogs need daily walks and lots of attention. Cats are more independent and can be left alone longer. Both make great companions!",
+      "stem": "How are dogs and cats different?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Dogs need more attention than cats",
+          "correct": true
+        },
+        {
+          "id": "B",
+          "text": "Cats are not popular pets",
+          "correct": false,
+          "distractor_type": "opposite_meaning"
+        },
+        {
+          "id": "C",
+          "text": "Dogs cannot be left alone",
+          "correct": false,
+          "distractor_type": "too_broad"
+        },
+        {
+          "id": "D",
+          "text": "Cats don't make good companions",
+          "correct": false,
+          "distractor_type": "opposite_meaning"
+        }
+      ],
+      "explanation": "The correct answer is A because the passage states 'Dogs need daily walks and lots of attention' while 'Cats are more independent,' showing dogs need more attention.",
+      "standards_alignment": [
+        "CCSS.ELA-LITERACY.RI.4.6"
+      ],
+      "time_estimate_seconds": 75,
+      "prerequisite_skills": ["compare_contrast"],
+      "subject": "reading",
+      "section": 1
+    }
+  ]
+}
