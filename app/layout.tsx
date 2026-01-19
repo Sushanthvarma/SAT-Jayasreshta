@@ -10,8 +10,10 @@ export const metadata = {
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  maximumScale: 5,
+  userScalable: true,
   themeColor: '#3B82F6',
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -22,15 +24,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <Toaster 
             position="top-center"
+            containerClassName="!top-16 sm:!top-20"
             toastOptions={{
               duration: 3000,
               style: {
                 background: '#fff',
                 color: '#111827',
-                fontSize: '16px',
-                padding: '16px',
+                fontSize: '14px',
+                padding: '12px 16px',
                 borderRadius: '12px',
                 boxShadow: '0 10px 15px rgba(0, 0, 0, 0.1)',
+                maxWidth: '90vw',
+                margin: '0 auto',
               },
             }}
           />

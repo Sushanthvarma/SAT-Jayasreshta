@@ -11,6 +11,7 @@ import toast from 'react-hot-toast';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import ReviewModal from '@/components/test/ReviewModal';
+import { playSound } from '@/lib/audio';
 
 export default function TestTakingPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const { user, loading: authLoading } = useAuth();
@@ -276,6 +277,7 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
   const currentQuestion = currentSectionQuestions[validQuestionIndex];
 
   const handleAnswerChange = useCallback((questionId: string, answer: string | number | null) => {
+    playSound('click');
     setAnswers(prev => {
       const newMap = new Map(prev);
       const existing = newMap.get(questionId);
@@ -293,6 +295,7 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
   }, []);
 
   const handleNext = () => {
+    playSound('click');
     if (currentQuestionIndex < currentSectionQuestions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else if (currentSection < (test?.sections.length || 0)) {
@@ -302,6 +305,7 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
   };
 
   const handlePrevious = () => {
+    playSound('click');
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
     } else if (currentSection > 1) {
@@ -312,6 +316,7 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
   };
 
   const handleReviewClick = () => {
+    playSound('click');
     setShowReviewModal(true);
   };
 
@@ -341,6 +346,7 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
     if (!attempt || !test) return;
     
     if (isSubmitting) return;
+    playSound('submit');
     setIsSubmitting(true);
 
     try {
@@ -388,6 +394,7 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
       const data = await response.json();
       
       if (data.success) {
+        playSound('success');
         console.log(`✅ Test submitted successfully! Result ID: ${data.result?.id}`);
         console.log(`   Attempt ID: ${attempt.id}`);
         console.log(`   Result attemptId: ${data.result?.attemptId}`);
@@ -528,25 +535,25 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       <Header />
 
-      {/* Timer Bar */}
-      <div className="bg-white border-b-2 border-gray-200 shadow-sm sticky top-20 z-40">
-        <div className="mx-auto max-w-7xl px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{test.title}</h1>
-              <p className="text-sm text-gray-600 mt-1">
+      {/* Timer Bar - Mobile Responsive */}
+      <div className="bg-white border-b-2 border-gray-200 shadow-sm sticky top-16 sm:top-20 z-40">
+        <div className="mx-auto max-w-7xl px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">{test.title}</h1>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">
                 Section {currentSection} of {test.sections.length} • {test.sections[currentSection - 1]?.name}
               </p>
             </div>
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
               <div className="text-center">
-                <div className={`text-3xl font-bold ${timeRemaining < 300 ? 'text-red-600 animate-pulse' : 'text-gray-900'}`}>
+                <div className={`text-xl sm:text-2xl lg:text-3xl font-bold ${timeRemaining < 300 ? 'text-red-600 animate-pulse' : 'text-gray-900'}`}>
                   {formatTime(timeRemaining)}
                 </div>
                 <div className="text-xs text-gray-600 font-medium">Time Remaining</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-indigo-600">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-indigo-600">
                   {answeredCount}/{totalQuestions}
                 </div>
                 <div className="text-xs text-gray-600 font-medium">Answered</div>
@@ -556,10 +563,10 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Question Navigation Sidebar */}
-          <div className="lg:col-span-1">
+      <div className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+          {/* Question Navigation Sidebar - Hidden on mobile, shown on desktop */}
+          <div className="hidden lg:block lg:col-span-1">
             <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sticky top-32">
               <h3 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">Question Navigation</h3>
               <div className="space-y-2 max-h-[calc(100vh-250px)] overflow-y-auto">
@@ -571,13 +578,16 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
                   return (
                     <button
                       key={q.id}
-                      onClick={() => setCurrentQuestionIndex(idx)}
-                      className={`w-full p-3 rounded-lg text-left text-sm font-medium transition-all ${
+                      onClick={() => {
+                        playSound('click');
+                        setCurrentQuestionIndex(idx);
+                      }}
+                      className={`w-full p-3 rounded-lg text-left text-sm font-medium transition-all min-h-[44px] ${
                         isCurrent
                           ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md scale-105'
                           : isAnswered
-                          ? 'bg-green-50 text-green-800 border-2 border-green-200 hover:bg-green-100'
-                          : 'bg-gray-50 text-gray-700 border-2 border-gray-200 hover:bg-gray-100'
+                          ? 'bg-green-50 text-green-800 border-2 border-green-200 hover:bg-green-100 active:scale-95'
+                          : 'bg-gray-50 text-gray-700 border-2 border-gray-200 hover:bg-gray-100 active:scale-95'
                       }`}
                     >
                       <span className="font-semibold">Q{q.questionNumber}</span>
@@ -588,17 +598,51 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
               </div>
             </div>
           </div>
+          
+          {/* Mobile Question Navigation - Horizontal Scroll */}
+          <div className="lg:hidden mb-4">
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-3">
+              <h3 className="font-bold text-gray-900 mb-3 text-xs uppercase tracking-wide">Questions</h3>
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                {currentSectionQuestions.map((q, idx) => {
+                  const answer = answers.get(q.id);
+                  const isAnswered = answer && answer.answer !== null && !answer.skipped;
+                  const isCurrent = idx === currentQuestionIndex;
+                  
+                  return (
+                    <button
+                      key={q.id}
+                      onClick={() => {
+                        playSound('click');
+                        setCurrentQuestionIndex(idx);
+                      }}
+                      className={`flex-shrink-0 px-3 py-2 rounded-lg text-xs font-medium transition-all min-w-[60px] min-h-[44px] ${
+                        isCurrent
+                          ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md scale-105'
+                          : isAnswered
+                          ? 'bg-green-50 text-green-800 border-2 border-green-200'
+                          : 'bg-gray-50 text-gray-700 border-2 border-gray-200'
+                      }`}
+                    >
+                      <span className="font-semibold">Q{q.questionNumber}</span>
+                      {isAnswered && !isCurrent && <span className="ml-1">✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
 
           {/* Main Question Area */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-8 mb-6">
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6">
               {/* Question Header */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-semibold">
+              <div className="mb-4 sm:mb-6">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <span className="px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-100 text-indigo-700 rounded-lg text-xs sm:text-sm font-semibold">
                     Question {currentQuestion.questionNumber} of {currentSectionQuestions.length}
                   </span>
-                  <span className={`px-4 py-2 rounded-lg text-sm font-semibold ${
+                  <span className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold ${
                     currentQuestion.difficulty === 'easy' ? 'bg-green-100 text-green-700' :
                     currentQuestion.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' :
                     'bg-red-100 text-red-700'
@@ -608,24 +652,24 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
                 </div>
                 
                 {currentQuestion.passageText && (
-                  <div className="mb-6 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border-l-4 border-indigo-500">
-                    <p className="text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">{currentQuestion.passageText}</p>
+                  <div className="mb-4 sm:mb-6 p-4 sm:p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border-l-4 border-indigo-500">
+                    <p className="text-sm sm:text-base text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">{currentQuestion.passageText}</p>
                   </div>
                 )}
               </div>
 
               {/* Question Text */}
-              <div className="mb-8">
-                <p className="text-xl text-gray-900 font-semibold leading-relaxed">{currentQuestion.questionText}</p>
+              <div className="mb-6 sm:mb-8">
+                <p className="text-lg sm:text-xl text-gray-900 font-semibold leading-relaxed">{currentQuestion.questionText}</p>
               </div>
 
               {/* Answer Options */}
               {currentQuestion.type === 'multiple-choice' && currentQuestion.options && (
-                <div className="space-y-4 mb-8">
+                <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
                   {currentQuestion.options.map((option) => (
                     <label
                       key={option.id}
-                      className={`flex items-start p-5 rounded-xl border-2 cursor-pointer transition-all ${
+                      className={`flex items-start p-3 sm:p-4 lg:p-5 rounded-xl border-2 cursor-pointer transition-all min-h-[44px] active:scale-[0.98] ${
                         currentAnswer?.answer === option.id
                           ? 'border-indigo-600 bg-indigo-50 shadow-md'
                           : 'border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/50'
@@ -637,11 +681,11 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
                         value={option.id}
                         checked={currentAnswer?.answer === option.id}
                         onChange={() => handleAnswerChange(currentQuestion.id, option.id)}
-                        className="mt-1 mr-4 h-5 w-5 text-indigo-600 focus:ring-indigo-500"
+                        className="mt-1 mr-3 sm:mr-4 h-5 w-5 sm:h-6 sm:w-6 text-indigo-600 focus:ring-indigo-500 flex-shrink-0"
                       />
-                      <div className="flex-1">
-                        <span className="font-bold text-indigo-600 mr-3 text-lg">{option.id}.</span>
-                        <span className="text-gray-900 text-lg">{option.text}</span>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-bold text-indigo-600 mr-2 sm:mr-3 text-base sm:text-lg">{option.id}.</span>
+                        <span className="text-gray-900 text-base sm:text-lg">{option.text}</span>
                       </div>
                     </label>
                   ))}
@@ -649,7 +693,7 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
               )}
 
               {currentQuestion.type === 'grid-in' && (
-                <div className="mb-8">
+                <div className="mb-6 sm:mb-8">
                   <input
                     type="number"
                     step="any"
@@ -658,41 +702,41 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
                       const value = e.target.value === '' ? null : parseFloat(e.target.value);
                       handleAnswerChange(currentQuestion.id, value);
                     }}
-                    className="w-full px-6 py-4 border-2 border-gray-300 rounded-xl text-xl focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 focus:outline-none transition-all"
+                    className="w-full px-4 sm:px-6 py-3 sm:py-4 border-2 border-gray-300 rounded-xl text-lg sm:text-xl focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 focus:outline-none transition-all min-h-[44px]"
                     placeholder="Enter your answer"
                   />
                 </div>
               )}
 
-              {/* Navigation Buttons */}
-              <div className="flex justify-between items-center pt-6 border-t-2 border-gray-100">
+              {/* Navigation Buttons - Mobile Responsive */}
+              <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-0 pt-4 sm:pt-6 border-t-2 border-gray-100">
                 <button
                   onClick={handlePrevious}
                   disabled={currentQuestionIndex === 0 && currentSection === 1}
-                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all min-h-[44px]"
+                  className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all min-h-[44px] text-sm sm:text-base"
                 >
                   ← Previous
                 </button>
                 
                 <button
                   onClick={() => handleAnswerChange(currentQuestion.id, null)}
-                  className="px-6 py-3 bg-yellow-100 text-yellow-800 rounded-xl font-semibold hover:bg-yellow-200 transition-all min-h-[44px]"
+                  className="px-4 sm:px-6 py-2.5 sm:py-3 bg-yellow-100 text-yellow-800 rounded-xl font-semibold hover:bg-yellow-200 active:scale-95 transition-all min-h-[44px] text-sm sm:text-base"
                 >
                   Skip Question
                 </button>
 
                 {currentQuestionIndex === currentSectionQuestions.length - 1 && currentSection === test.sections.length ? (
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={handleReviewClick}
-                      className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all min-h-[44px]"
+                      className="px-4 sm:px-6 py-2.5 sm:py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 shadow-md hover:shadow-lg active:scale-95 transition-all min-h-[44px] text-sm sm:text-base"
                     >
                       Review Answers
                     </button>
                     <button
                       onClick={handleSubmit}
                       disabled={isSubmitting}
-                      className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 shadow-lg hover:shadow-xl transition-all min-h-[44px]"
+                      className="px-6 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 shadow-lg hover:shadow-xl active:scale-95 transition-all min-h-[44px] text-sm sm:text-base"
                     >
                       {isSubmitting ? 'Submitting...' : 'Submit Test ✓'}
                     </button>
@@ -700,7 +744,7 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
                 ) : (
                   <button
                     onClick={handleNext}
-                    className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all min-h-[44px]"
+                    className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 shadow-md hover:shadow-lg active:scale-95 transition-all min-h-[44px] text-sm sm:text-base"
                   >
                     Next →
                   </button>

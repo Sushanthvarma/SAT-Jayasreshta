@@ -18,6 +18,7 @@ import DailyChallenges from '@/components/dashboard/DailyChallenges';
 import SkillTree from '@/components/dashboard/SkillTree';
 import { getAuthInstance } from '@/lib/firebase';
 import { getIdToken } from 'firebase/auth';
+import { playSound } from '@/lib/audio';
 
 export default function StudentDashboard() {
   const { user, userData, loading: authLoading, signOut, refreshProfile } = useAuth();
@@ -270,10 +271,12 @@ export default function StudentDashboard() {
   // Save grade preference to user profile
   const handleGradeSelect = async (grade: string) => {
     try {
+      playSound('click');
       setSavingGrade(true);
       
       // Check if user is authenticated
       if (!user) {
+        playSound('error');
         toast.error('Please sign in to save your grade preference');
         setSavingGrade(false);
         return;
@@ -316,6 +319,7 @@ export default function StudentDashboard() {
 
       const data = await response.json();
       if (data.success) {
+        playSound('success');
         setSelectedGrade(grade);
         setShowGradeModal(false);
         toast.success(`Grade set to ${grade.charAt(0).toUpperCase() + grade.slice(1)} Grade`);
@@ -323,10 +327,12 @@ export default function StudentDashboard() {
         await refreshProfile();
         // The useEffect will automatically pick up the updated grade from userData
       } else {
+        playSound('error');
         console.error('Profile update failed:', data);
         toast.error(data.error || 'Failed to save grade preference');
       }
     } catch (error: any) {
+      playSound('error');
       console.error('Error saving grade:', error);
       toast.error(error.message || 'Failed to save grade preference. Please try again.');
     } finally {
@@ -402,11 +408,11 @@ export default function StudentDashboard() {
       <Header />
 
       {/* Main Content */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Welcome Section - Simplified */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
+      <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
+        {/* Welcome Section - Mobile Responsive */}
+        <div className="mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               {/* Profile Picture */}
               <div className="relative flex-shrink-0">
                 {(userData?.photoURL || user?.photoURL) && !imageError ? (
@@ -414,13 +420,13 @@ export default function StudentDashboard() {
                     <img
                       src={userData?.photoURL || user?.photoURL || ''}
                       alt={userData?.displayName || user?.displayName || 'Student'}
-                      className="w-16 h-16 rounded-full object-cover border-3 border-white shadow-lg ring-2 ring-indigo-200"
+                      className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-2 sm:border-3 border-white shadow-lg ring-2 ring-indigo-200"
                       onError={() => setImageError(true)}
                     />
-                    <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full shadow-md"></div>
+                    <div className="absolute bottom-0 right-0 w-3 h-3 sm:w-4 sm:h-4 bg-green-500 border-2 border-white rounded-full shadow-md"></div>
                   </div>
                 ) : (
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white text-xl font-bold shadow-lg ring-2 ring-indigo-200">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white text-base sm:text-xl font-bold shadow-lg ring-2 ring-indigo-200">
                     {(userData?.displayName || user?.displayName || user?.email?.split('@')[0] || 'S')
                       .split(' ')
                       .map(n => n[0])
@@ -432,28 +438,28 @@ export default function StudentDashboard() {
               </div>
               
               {/* Welcome Text */}
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">
                   Welcome back, {userData?.displayName?.split(' ')[0] || user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || 'Student'}! 👋
                 </h1>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs sm:text-sm text-gray-600">
                   Ready to practice? Select your grade and start testing!
                 </p>
               </div>
             </div>
             
             {/* Quick Stats - Compact */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               {(userData?.streak || 0) > 0 && (
-                <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
-                  <span className="text-xl">🔥</span>
-                  <span className="font-bold text-orange-700 text-sm">{userData?.streak || 0} day streak</span>
+                <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
+                  <span className="text-base sm:text-xl">🔥</span>
+                  <span className="font-bold text-orange-700 text-xs sm:text-sm whitespace-nowrap">{userData?.streak || 0} day streak</span>
                 </div>
               )}
               {userStats?.stats && (
                 <div className="text-right">
                   <div className="text-xs text-gray-600">Level</div>
-                  <div className="text-lg font-bold text-indigo-600">{userStats.stats.level || 1}</div>
+                  <div className="text-base sm:text-lg font-bold text-indigo-600">{userStats.stats.level || 1}</div>
                 </div>
               )}
             </div>
@@ -461,15 +467,18 @@ export default function StudentDashboard() {
           
           {/* Grade Selector - Compact */}
           {selectedGrade && (
-            <div className="mb-4 flex items-center gap-3">
-              <span className="text-sm text-gray-600">Grade:</span>
+            <div className="mb-4 flex flex-wrap items-center gap-2 sm:gap-3">
+              <span className="text-xs sm:text-sm text-gray-600">Grade:</span>
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg font-semibold text-sm">
+                <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-indigo-100 text-indigo-700 rounded-lg font-semibold text-xs sm:text-sm">
                   {selectedGrade.charAt(0).toUpperCase() + selectedGrade.slice(1)} Grade
                 </span>
                 <button
-                  onClick={() => setShowGradeModal(true)}
-                  className="text-xs text-indigo-600 hover:text-indigo-700 font-medium underline"
+                  onClick={() => {
+                    playSound('click');
+                    setShowGradeModal(true);
+                  }}
+                  className="text-xs text-indigo-600 hover:text-indigo-700 font-medium underline min-h-[44px] px-2"
                 >
                   Change
                 </button>
@@ -480,21 +489,38 @@ export default function StudentDashboard() {
 
         {/* Grade Selection Modal */}
         {showGradeModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Select Your Grade</h3>
-              <p className="text-gray-600 mb-6">Choose your grade to see personalized practice tests</p>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => {
+            playSound('click');
+            setShowGradeModal(false);
+          }}>
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-4 sm:p-6 animate-in fade-in zoom-in" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Select Your Grade</h3>
+                <button
+                  onClick={() => {
+                    playSound('click');
+                    setShowGradeModal(false);
+                  }}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  aria-label="Close"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">Choose your grade to see personalized practice tests</p>
               
-              <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
                 {availableGrades.map((grade) => (
                   <button
                     key={grade}
                     onClick={() => handleGradeSelect(grade)}
                     disabled={savingGrade}
-                    className={`px-4 py-4 rounded-xl font-semibold transition-all ${
+                    className={`px-3 sm:px-4 py-3 sm:py-4 rounded-xl font-semibold transition-all text-sm sm:text-base min-h-[44px] ${
                       selectedGrade === grade
                         ? 'bg-indigo-600 text-white shadow-lg scale-105'
-                        : 'bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 hover:scale-105'
+                        : 'bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 active:scale-95'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {grade.charAt(0).toUpperCase() + grade.slice(1)} Grade
@@ -511,35 +537,44 @@ export default function StudentDashboard() {
           </div>
         )}
 
-        {/* Tabs Navigation */}
-        <div className="mb-6 border-b border-gray-200">
-          <nav className="flex gap-4">
+        {/* Tabs Navigation - Mobile Responsive */}
+        <div className="mb-4 sm:mb-6 border-b border-gray-200 overflow-x-auto">
+          <nav className="flex gap-2 sm:gap-4 min-w-max sm:min-w-0">
             <button
-              onClick={() => setActiveTab('tests')}
-              className={`px-4 py-2 font-semibold border-b-2 transition-colors ${
+              onClick={() => {
+                playSound('click');
+                setActiveTab('tests');
+              }}
+              className={`px-3 sm:px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap text-sm sm:text-base min-h-[44px] ${
                 activeTab === 'tests'
                   ? 'border-indigo-600 text-indigo-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  : 'border-transparent text-gray-600 hover:text-gray-900 active:text-indigo-600'
               }`}
             >
               Practice Tests
             </button>
             <button
-              onClick={() => setActiveTab('progress')}
-              className={`px-4 py-2 font-semibold border-b-2 transition-colors ${
+              onClick={() => {
+                playSound('click');
+                setActiveTab('progress');
+              }}
+              className={`px-3 sm:px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap text-sm sm:text-base min-h-[44px] ${
                 activeTab === 'progress'
                   ? 'border-indigo-600 text-indigo-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  : 'border-transparent text-gray-600 hover:text-gray-900 active:text-indigo-600'
               }`}
             >
               My Progress
             </button>
             <button
-              onClick={() => setActiveTab('challenges')}
-              className={`px-4 py-2 font-semibold border-b-2 transition-colors ${
+              onClick={() => {
+                playSound('click');
+                setActiveTab('challenges');
+              }}
+              className={`px-3 sm:px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap text-sm sm:text-base min-h-[44px] ${
                 activeTab === 'challenges'
                   ? 'border-indigo-600 text-indigo-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  : 'border-transparent text-gray-600 hover:text-gray-900 active:text-indigo-600'
               }`}
             >
               Daily Challenges
@@ -551,21 +586,25 @@ export default function StudentDashboard() {
         {activeTab === 'tests' && (
           <>
             {/* Quick Stats - Compact Row */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 text-center">
-                <div className="text-2xl font-bold text-indigo-600">{completedTests}</div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-4 text-center">
+                <div className="text-xl sm:text-2xl font-bold text-indigo-600">{completedTests}</div>
                 <div className="text-xs text-gray-600 mt-1">Completed</div>
               </div>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 text-center">
-                <div className="text-2xl font-bold text-yellow-600">{inProgressTests}</div>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-4 text-center">
+                <div className="text-xl sm:text-2xl font-bold text-yellow-600">{inProgressTests}</div>
                 <div className="text-xs text-gray-600 mt-1">In Progress</div>
               </div>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 text-center">
-                <div className="text-2xl font-bold text-orange-600">{userData?.streak || 0}</div>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-4 text-center">
+                <div className="text-xl sm:text-2xl font-bold text-orange-600">{userData?.streak || 0}</div>
                 <div className="text-xs text-gray-600 mt-1">Day Streak</div>
               </div>
-              <Link href="/student/badges" className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 text-center hover:shadow-md transition-shadow">
-                <div className="text-2xl font-bold text-purple-600">{userData?.badges?.length || 0}</div>
+              <Link 
+                href="/student/badges" 
+                onClick={() => playSound('click')}
+                className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-4 text-center hover:shadow-md active:scale-95 transition-all min-h-[44px] flex flex-col items-center justify-center"
+              >
+                <div className="text-xl sm:text-2xl font-bold text-purple-600">{userData?.badges?.length || 0}</div>
                 <div className="text-xs text-gray-600 mt-1">Badges</div>
               </Link>
             </div>
@@ -598,8 +637,11 @@ export default function StudentDashboard() {
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">Select Your Grade</h3>
                   <p className="text-gray-600 mb-4">Please select your grade to see available practice tests</p>
                   <button
-                    onClick={() => setShowGradeModal(true)}
-                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
+                    onClick={() => {
+                      playSound('click');
+                      setShowGradeModal(true);
+                    }}
+                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 active:scale-95 transition-all font-semibold min-h-[44px]"
                   >
                     Choose Grade
                   </button>
@@ -612,8 +654,11 @@ export default function StudentDashboard() {
                   </h3>
                   <p className="text-gray-600 mb-4">Check back soon for new tests!</p>
                   <button
-                    onClick={() => setShowGradeModal(true)}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    onClick={() => {
+                      playSound('click');
+                      setShowGradeModal(true);
+                    }}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 active:scale-95 transition-all min-h-[44px]"
                   >
                     Change Grade
                   </button>
@@ -626,8 +671,11 @@ export default function StudentDashboard() {
                   </h3>
                   <p className="text-gray-600 mb-4">Congratulations! You've completed all {allGradeTests.length} available tests for your grade.</p>
                   <button
-                    onClick={() => setShowGradeModal(true)}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    onClick={() => {
+                      playSound('click');
+                      setShowGradeModal(true);
+                    }}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 active:scale-95 transition-all min-h-[44px]"
                   >
                     Change Grade
                   </button>
@@ -640,8 +688,11 @@ export default function StudentDashboard() {
                   </h3>
                   <p className="text-gray-600 mb-4">Check back soon for new tests!</p>
                   <button
-                    onClick={() => setShowGradeModal(true)}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    onClick={() => {
+                      playSound('click');
+                      setShowGradeModal(true);
+                    }}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 active:scale-95 transition-all min-h-[44px]"
                   >
                     Change Grade
                   </button>
