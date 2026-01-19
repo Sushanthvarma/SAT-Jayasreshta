@@ -310,7 +310,10 @@ export async function POST(
     // PRODUCTION-GRADE: Use Firestore transaction for atomic operations
     // This ensures: result saved, attempt updated, user stats updated - all or nothing
     // Transaction prevents race conditions and ensures data consistency
+    // IMPORTANT: All reads must be executed before all writes in Firestore transactions
     const result = await adminDb.runTransaction(async (transaction) => {
+      // ========== PHASE 1: ALL READS FIRST ==========
+      
       // Re-check attempt status within transaction (prevent race condition)
       const attemptDoc = await transaction.get(attemptRef);
       const currentAttemptData = attemptDoc.data();
@@ -320,18 +323,6 @@ export async function POST(
       }
       
       if (currentAttemptData.status === 'submitted') {
-        throw new Error('ALREADY_SUBMITTED');
-      }
-      
-      // Check if result already exists for this attempt (prevent duplicate count)
-      const existingResultQuery = await adminDb
-        .collection('testResults')
-        .where('attemptId', '==', attemptId)
-        .limit(1)
-        .get();
-      
-      if (!existingResultQuery.empty) {
-        // Result already exists, don't increment count
         throw new Error('ALREADY_SUBMITTED');
       }
       
@@ -345,26 +336,12 @@ export async function POST(
       
       const userData = userDoc.data()!;
       
-      // Create result document
-      const resultRef = adminDb.collection('testResults').doc();
-      transaction.set(resultRef, {
-        ...resultData,
-        createdAt: Timestamp.now(),
-        completedAt: Timestamp.fromDate(
-          resultData.completedAt instanceof Date ? resultData.completedAt : new Date(resultData.completedAt as any)
-        ),
-        submittedAt: Timestamp.fromDate(
-          resultData.submittedAt instanceof Date ? resultData.submittedAt : new Date(resultData.submittedAt as any)
-        ),
-      });
+      // Get daily goal document (must read before writes)
+      const today = new Date().toISOString().split('T')[0];
+      const dailyGoalRef = adminDb.collection('dailyGoals').doc(`${userId}_${today}`);
+      const dailyGoalDoc = await transaction.get(dailyGoalRef);
       
-      // Update attempt status atomically
-      transaction.update(attemptRef, {
-        status: 'submitted',
-        submittedAt: Timestamp.now(),
-        totalTimeSpent: calculatedTotalTimeSpent,
-        answers: validatedAnswers,
-      });
+      // ========== PHASE 2: CALCULATIONS (no Firestore operations) ==========
       
       // Calculate gamification updates
       const { checkBadges } = await import('@/lib/gamification/badges');
@@ -407,6 +384,52 @@ export async function POST(
       const newTotalScore = totalScore + resultData.totalScore;
       const newAverageScore = Math.round(newTotalScore / (totalTestsCompleted + 1));
       
+      // Prepare daily goal update
+      let dailyGoalUpdate: any = null;
+      if (dailyGoalDoc.exists) {
+        const goalData = dailyGoalDoc.data()!;
+        const newCurrentXP = (goalData.currentXP || 0) + xpGained;
+        dailyGoalUpdate = {
+          currentXP: newCurrentXP,
+          completed: newCurrentXP >= (goalData.targetXP || 100),
+          updatedAt: FieldValue.serverTimestamp(),
+        };
+      } else {
+        // Create daily goal if doesn't exist
+        dailyGoalUpdate = {
+          userId,
+          date: today,
+          targetXP: 100,
+          currentXP: xpGained,
+          completed: xpGained >= 100,
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        };
+      }
+      
+      // ========== PHASE 3: ALL WRITES AFTER ALL READS ==========
+      
+      // Create result document
+      const resultRef = adminDb.collection('testResults').doc();
+      transaction.set(resultRef, {
+        ...resultData,
+        createdAt: Timestamp.now(),
+        completedAt: Timestamp.fromDate(
+          resultData.completedAt instanceof Date ? resultData.completedAt : new Date(resultData.completedAt as any)
+        ),
+        submittedAt: Timestamp.fromDate(
+          resultData.submittedAt instanceof Date ? resultData.submittedAt : new Date(resultData.submittedAt as any)
+        ),
+      });
+      
+      // Update attempt status atomically
+      transaction.update(attemptRef, {
+        status: 'submitted',
+        submittedAt: Timestamp.now(),
+        totalTimeSpent: calculatedTotalTimeSpent,
+        answers: validatedAnswers,
+      });
+      
       // Update user document atomically using FieldValue.increment for counters
       const userUpdates: any = {
         totalTestsCompleted: FieldValue.increment(1), // Atomic increment
@@ -426,30 +449,11 @@ export async function POST(
       
       transaction.update(userRef, userUpdates);
       
-      // Update daily goal (separate collection, but log for tracking)
-      const today = new Date().toISOString().split('T')[0];
-      const dailyGoalRef = adminDb.collection('dailyGoals').doc(`${userId}_${today}`);
-      const dailyGoalDoc = await transaction.get(dailyGoalRef);
-      
+      // Update daily goal (all reads done, now safe to write)
       if (dailyGoalDoc.exists) {
-        const goalData = dailyGoalDoc.data()!;
-        const newCurrentXP = (goalData.currentXP || 0) + xpGained;
-        transaction.update(dailyGoalRef, {
-          currentXP: newCurrentXP,
-          completed: newCurrentXP >= (goalData.targetXP || 100),
-          updatedAt: FieldValue.serverTimestamp(),
-        });
+        transaction.update(dailyGoalRef, dailyGoalUpdate);
       } else {
-        // Create daily goal if doesn't exist
-        transaction.set(dailyGoalRef, {
-          userId,
-          date: today,
-          targetXP: 100,
-          currentXP: xpGained,
-          completed: xpGained >= 100,
-          createdAt: FieldValue.serverTimestamp(),
-          updatedAt: FieldValue.serverTimestamp(),
-        });
+        transaction.set(dailyGoalRef, dailyGoalUpdate);
       }
       
       // Log XP gain (non-critical, can fail without affecting submission)
