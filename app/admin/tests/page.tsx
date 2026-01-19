@@ -557,22 +557,22 @@ export default function AdminTestManagement() {
                   </div>
                 </div>
 
-                {/* Status Summary */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                  <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
-                    <h4 className="text-lg font-bold text-blue-900 mb-2">New Tests</h4>
-                    <p className="text-3xl font-bold text-blue-700 mb-2">{newFiles.length}</p>
-                    <p className="text-sm text-blue-600">Ready to import</p>
+                {/* Status Summary - Compact */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                    <h4 className="text-sm font-bold text-blue-900 mb-1">New Tests</h4>
+                    <p className="text-2xl font-bold text-blue-700 mb-1">{newFiles.length}</p>
+                    <p className="text-xs text-blue-600">Ready to import</p>
                   </div>
-                  <div className="bg-purple-50 rounded-xl p-6 border border-purple-200">
-                    <h4 className="text-lg font-bold text-purple-900 mb-2">Imported Tests</h4>
-                    <p className="text-3xl font-bold text-purple-700 mb-2">{importedFiles.length}</p>
-                    <p className="text-sm text-purple-600">Already in database</p>
+                  <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
+                    <h4 className="text-sm font-bold text-purple-900 mb-1">Imported</h4>
+                    <p className="text-2xl font-bold text-purple-700 mb-1">{importedFiles.length}</p>
+                    <p className="text-xs text-purple-600">In database</p>
                   </div>
-                  <div className="bg-orange-50 rounded-xl p-6 border border-orange-200">
-                    <h4 className="text-lg font-bold text-orange-900 mb-2">Updated Tests</h4>
-                    <p className="text-3xl font-bold text-orange-700 mb-2">{updatedFiles.length}</p>
-                    <p className="text-sm text-orange-600">Need re-import</p>
+                  <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
+                    <h4 className="text-sm font-bold text-orange-900 mb-1">Updated</h4>
+                    <p className="text-2xl font-bold text-orange-700 mb-1">{updatedFiles.length}</p>
+                    <p className="text-xs text-orange-600">Need re-import</p>
                   </div>
                 </div>
               </div>
