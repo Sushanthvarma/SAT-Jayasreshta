@@ -89,14 +89,12 @@ export default function AdminTestManagement() {
       const idToken = await getIdToken(auth.currentUser!);
       
       // Load all data in parallel
-      const [organizedRes, listRes, statusRes, statsRes] = await Promise.all([
+      // Load scan data first (doesn't require Firestore)
+      const [organizedRes, listRes, statsRes] = await Promise.all([
         fetch('/api/admin/tests/scan?mode=organized', {
           headers: { 'Authorization': `Bearer ${idToken}` },
         }),
         fetch('/api/admin/tests/scan?mode=list', {
-          headers: { 'Authorization': `Bearer ${idToken}` },
-        }),
-        fetch('/api/admin/tests/status', {
           headers: { 'Authorization': `Bearer ${idToken}` },
         }),
         fetch('/api/admin/tests/scan?mode=stats', {
@@ -104,10 +102,9 @@ export default function AdminTestManagement() {
         }),
       ]);
 
-      const [organizedData, listData, statusData, statsData] = await Promise.all([
+      const [organizedData, listData, statsData] = await Promise.all([
         organizedRes.json(),
         listRes.json(),
-        statusRes.json(),
         statsRes.json(),
       ]);
 
@@ -117,12 +114,45 @@ export default function AdminTestManagement() {
       if (listData.success) {
         setScannedFiles(listData.files || []);
       }
-      if (statusData.success) {
-        setImportStatus(statusData.statusMap || {});
-        setStats(statusData.stats || null);
-      }
       if (statsData.success) {
-        setStats((prev: any) => ({ ...prev, ...statsData.stats }));
+        setStats(statsData.stats || null);
+      }
+
+      // Load status separately (may fail due to quota)
+      try {
+        const statusRes = await fetch('/api/admin/tests/status', {
+          headers: { 'Authorization': `Bearer ${idToken}` },
+        });
+        const statusData = await statusRes.json();
+        
+        if (statusData.success) {
+          setImportStatus(statusData.statusMap || {});
+          if (statusData.stats) {
+            setStats((prev: any) => ({ ...prev, ...statusData.stats }));
+          }
+        } else if (statusData.error?.includes('quota') || statusRes.status === 429) {
+          // Quota exceeded - show warning but continue
+          toast.error('⚠️ Could not check import status (quota exceeded). Files will show as "New".', { duration: 8000 });
+          // Set all valid files as "new" as fallback
+          const fallbackStatus: { [key: string]: any } = {};
+          listData.files?.forEach((file: ScannedFile) => {
+            if (file.isValid) {
+              fallbackStatus[file.relativePath] = {
+                testId: `${file.standard}-${file.week}-${file.subject}`.toLowerCase(),
+                status: 'new',
+                exists: false,
+              };
+            }
+          });
+          setImportStatus(fallbackStatus);
+        } else {
+          console.error('Status check failed:', statusData.error);
+          toast.error('Could not check import status. Some features may be limited.');
+        }
+      } catch (error) {
+        console.error('Error checking status:', error);
+        // Don't block the UI if status check fails
+        toast.error('Could not check import status. Files will show as "New".', { duration: 5000 });
       }
     } catch (error) {
       console.error('Error loading data:', error);

@@ -32,11 +32,37 @@ export async function GET(req: NextRequest) {
     // Scan all test files
     const scannedFiles = scanTestFiles();
     
-    // Get all existing test IDs from Firestore
-    const testsSnapshot = await adminDb.collection('tests').get();
-    const existingTestIds = new Set(testsSnapshot.docs.map(doc => doc.id));
+    // Get all existing tests from Firestore in a single query
+    // Store both IDs and full data to avoid additional queries
+    let testsMap: Map<string, any> = new Map();
+    try {
+      const testsSnapshot = await adminDb.collection('tests').limit(1000).get();
+      testsSnapshot.docs.forEach(doc => {
+        testsMap.set(doc.id, doc.data());
+      });
+    } catch (error: any) {
+      // If quota exceeded or other error, return partial results
+      console.warn('⚠️ Could not fetch all tests from Firestore:', error.message);
+      if (error.message?.includes('RESOURCE_EXHAUSTED') || error.message?.includes('quota')) {
+        return NextResponse.json({
+          success: false,
+          error: 'Firestore quota exceeded. Please try again later or import tests in smaller batches.',
+          partial: true,
+          statusMap: {},
+          stats: {
+            total: scannedFiles.length,
+            valid: scannedFiles.filter(f => f.isValid).length,
+            invalid: scannedFiles.filter(f => !f.isValid).length,
+            new: 0,
+            imported: 0,
+            updated: 0,
+          },
+        }, { status: 429 });
+      }
+      throw error;
+    }
     
-    // Check status for each scanned file
+    // Check status for each scanned file using the cached data
     const statusMap: { [relativePath: string]: {
       testId: string;
       status: 'new' | 'imported' | 'updated';
@@ -51,13 +77,10 @@ export async function GET(req: NextRequest) {
       if (!file.isValid) continue;
       
       const testId = generateTestId(file.testData.metadata);
-      const exists = existingTestIds.has(testId);
+      const testData = testsMap.get(testId);
+      const exists = !!testData;
       
       if (exists) {
-        // Get test details
-        const testDoc = await adminDb.collection('tests').doc(testId).get();
-        const testData = testDoc.data();
-        
         // Check if file was updated (compare metadata version or timestamp)
         const fileVersion = file.testData.metadata.version || '1.0.0';
         const dbVersion = testData?.version || '1.0.0';
@@ -69,8 +92,8 @@ export async function GET(req: NextRequest) {
           exists: true,
           isPublished: testData?.status === 'published',
           isActive: testData?.isActive === true,
-          publishedAt: testData?.publishedAt?.toDate(),
-          createdAt: testData?.createdAt?.toDate(),
+          publishedAt: testData?.publishedAt?.toDate ? testData.publishedAt.toDate() : undefined,
+          createdAt: testData?.createdAt?.toDate ? testData.createdAt.toDate() : undefined,
         };
       } else {
         statusMap[file.relativePath] = {
