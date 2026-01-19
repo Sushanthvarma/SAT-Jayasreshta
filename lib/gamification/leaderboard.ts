@@ -51,48 +51,61 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
     }
   }
 
-  const entries: LeaderboardEntry[] = [];
-  let rank = 1;
-  let currentUserRank = 0;
-  let previousXP: number | null = null;
-  let rankCounter = 1; // Track actual position for ties
-
+  // PRODUCTION-GRADE: Calculate ranks correctly with ties
+  // First, collect all entries and sort by XP
+  const allEntries: Array<{ doc: any; data: any; xp: number }> = [];
+  
   usersSnapshot.forEach((doc: any) => {
     const data = doc.data();
+    if (data.role === 'admin') return; // Skip admins
+    
+    allEntries.push({
+      doc,
+      data,
+      xp: data.totalXP || 0,
+    });
+  });
+  
+  // Sort by XP descending
+  allEntries.sort((a, b) => b.xp - a.xp);
+  
+  // Calculate ranks: users with same XP get same rank
+  const entries: LeaderboardEntry[] = [];
+  let currentUserRank = 0;
+  let rank = 1;
+  let previousXP: number | null = null;
+  
+  for (let i = 0; i < allEntries.length; i++) {
+    const { doc, data, xp } = allEntries[i];
     const isCurrentUser = !!(userId && doc.id === userId);
     
-    // Admins are already filtered at query level, but double-check for safety
-    if (data.role === 'admin') return;
-    
-    const currentXP = data.totalXP || 0;
-    
-    // Handle ties: if XP is different from previous, update rank
-    // If XP is same, keep same rank (ties)
-    if (previousXP !== null && currentXP < previousXP) {
-      rank = rankCounter; // Update rank when XP decreases
+    // Update rank when XP decreases (handles ties - same XP = same rank)
+    if (previousXP !== null && xp < previousXP) {
+      rank = i + 1; // Rank = position in sorted list
+    } else if (previousXP === null) {
+      rank = 1; // First entry
     }
-    // If first entry or XP is same, rank stays the same (handles ties)
+    // If xp === previousXP, rank stays the same (ties)
     
-    previousXP = currentXP;
-    rankCounter++;
+    previousXP = xp;
     
     if (isCurrentUser) {
       currentUserRank = rank;
     }
-
+    
     entries.push({
       userId: doc.id,
       displayName: data.displayName || data.name || 'Student',
       photoURL: data.photoURL || null,
-      rank: rank, // Use calculated rank (handles ties)
-      xp: currentXP,
+      rank: rank,
+      xp: xp,
       level: data.level || 1,
       streak: data.currentStreak || 0,
       testsCompleted: data.totalTestsCompleted || 0,
       averageScore: data.averageScore || 0,
       isCurrentUser: isCurrentUser,
     });
-  });
+  }
 
   // If current user is not in top results, get their rank separately
   // PRODUCTION-GRADE: Calculate rank correctly accounting for ties

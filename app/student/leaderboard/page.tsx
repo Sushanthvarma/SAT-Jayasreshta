@@ -91,8 +91,21 @@ export default function LeaderboardPage() {
     return null;
   }
 
-  const currentUserEntry = leaderboard.find(entry => entry.isCurrentUser);
-  const topThree = leaderboard.slice(0, 3);
+  // Sort leaderboard by rank, then by XP descending for same rank
+  const sortedLeaderboard = [...leaderboard].sort((a, b) => {
+    if (a.rank !== b.rank) {
+      return a.rank - b.rank; // Lower rank number = better
+    }
+    return b.xp - a.xp; // Higher XP first for same rank
+  });
+  
+  const currentUserEntry = sortedLeaderboard.find(entry => entry.isCurrentUser);
+  // Top 3 should be rank 1, 2, 3 (not just first 3 by XP)
+  // Get rank 1, 2, 3 in correct order
+  const rank1 = sortedLeaderboard.find(e => e.rank === 1);
+  const rank2 = sortedLeaderboard.find(e => e.rank === 2);
+  const rank3 = sortedLeaderboard.find(e => e.rank === 3);
+  const topThree = [rank1, rank2, rank3].filter(Boolean) as LeaderboardEntry[];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
@@ -179,53 +192,59 @@ export default function LeaderboardPage() {
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Top Performers</h2>
             <div className="flex items-end justify-center gap-4 mb-8">
-              {/* 2nd Place */}
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 border-4 border-white shadow-xl mb-4 flex items-center justify-center text-white text-2xl font-bold">
-                  {topThree[1].photoURL ? (
-                    <img src={topThree[1].photoURL} alt={topThree[1].displayName} className="w-full h-full rounded-full object-cover" />
-                  ) : (
-                    topThree[1].displayName.charAt(0).toUpperCase()
-                  )}
+              {/* 2nd Place (Left) */}
+              {rank2 && (
+                <div className="flex flex-col items-center">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 border-4 border-white shadow-xl mb-4 flex items-center justify-center text-white text-2xl font-bold">
+                    {rank2.photoURL ? (
+                      <img src={rank2.photoURL} alt={rank2.displayName} className="w-full h-full rounded-full object-cover" />
+                    ) : (
+                      rank2.displayName.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <div className="bg-white rounded-xl shadow-lg p-4 text-center min-w-[120px]">
+                    <div className="text-3xl mb-2">🥈</div>
+                    <div className="font-bold text-gray-900">{rank2.displayName}</div>
+                    <div className="text-sm text-gray-600">{rank2.xp} XP</div>
+                  </div>
                 </div>
-                <div className="bg-white rounded-xl shadow-lg p-4 text-center min-w-[120px]">
-                  <div className="text-3xl mb-2">🥈</div>
-                  <div className="font-bold text-gray-900">{topThree[1].displayName}</div>
-                  <div className="text-sm text-gray-600">{topThree[1].xp} XP</div>
-                </div>
-              </div>
+              )}
 
-              {/* 1st Place */}
-              <div className="flex flex-col items-center">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 border-4 border-white shadow-2xl mb-4 flex items-center justify-center text-white text-3xl font-bold">
-                  {topThree[0].photoURL ? (
-                    <img src={topThree[0].photoURL} alt={topThree[0].displayName} className="w-full h-full rounded-full object-cover" />
-                  ) : (
-                    topThree[0].displayName.charAt(0).toUpperCase()
-                  )}
+              {/* 1st Place (Center) */}
+              {rank1 && (
+                <div className="flex flex-col items-center">
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 border-4 border-white shadow-2xl mb-4 flex items-center justify-center text-white text-3xl font-bold">
+                    {rank1.photoURL ? (
+                      <img src={rank1.photoURL} alt={rank1.displayName} className="w-full h-full rounded-full object-cover" />
+                    ) : (
+                      rank1.displayName.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl shadow-xl p-4 text-center min-w-[140px] text-white">
+                    <div className="text-4xl mb-2">👑</div>
+                    <div className="font-bold">{rank1.displayName}</div>
+                    <div className="text-sm opacity-90">{rank1.xp} XP</div>
+                  </div>
                 </div>
-                <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl shadow-xl p-4 text-center min-w-[140px] text-white">
-                  <div className="text-4xl mb-2">👑</div>
-                  <div className="font-bold">{topThree[0].displayName}</div>
-                  <div className="text-sm opacity-90">{topThree[0].xp} XP</div>
-                </div>
-              </div>
+              )}
 
-              {/* 3rd Place */}
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-300 to-orange-400 border-4 border-white shadow-xl mb-4 flex items-center justify-center text-white text-2xl font-bold">
-                  {topThree[2].photoURL ? (
-                    <img src={topThree[2].photoURL} alt={topThree[2].displayName} className="w-full h-full rounded-full object-cover" />
-                  ) : (
-                    topThree[2].displayName.charAt(0).toUpperCase()
-                  )}
+              {/* 3rd Place (Right) */}
+              {rank3 && (
+                <div className="flex flex-col items-center">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-300 to-orange-400 border-4 border-white shadow-xl mb-4 flex items-center justify-center text-white text-2xl font-bold">
+                    {rank3.photoURL ? (
+                      <img src={rank3.photoURL} alt={rank3.displayName} className="w-full h-full rounded-full object-cover" />
+                    ) : (
+                      rank3.displayName.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <div className="bg-white rounded-xl shadow-lg p-4 text-center min-w-[120px]">
+                    <div className="text-3xl mb-2">🥉</div>
+                    <div className="font-bold text-gray-900">{rank3.displayName}</div>
+                    <div className="text-sm text-gray-600">{rank3.xp} XP</div>
+                  </div>
                 </div>
-                <div className="bg-white rounded-xl shadow-lg p-4 text-center min-w-[120px]">
-                  <div className="text-3xl mb-2">🥉</div>
-                  <div className="font-bold text-gray-900">{topThree[2].displayName}</div>
-                  <div className="text-sm text-gray-600">{topThree[2].xp} XP</div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         )}
@@ -255,7 +274,7 @@ export default function LeaderboardPage() {
             </div>
           ) : (
             <div className="divide-y divide-gray-100">
-              {leaderboard.map((entry, index) => {
+              {sortedLeaderboard.map((entry, index) => {
               const isTopThree = entry.rank <= 3;
               const isCurrentUser = entry.isCurrentUser;
               

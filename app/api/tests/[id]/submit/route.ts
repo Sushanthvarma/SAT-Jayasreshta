@@ -323,6 +323,18 @@ export async function POST(
         throw new Error('ALREADY_SUBMITTED');
       }
       
+      // Check if result already exists for this attempt (prevent duplicate count)
+      const existingResultQuery = await adminDb
+        .collection('testResults')
+        .where('attemptId', '==', attemptId)
+        .limit(1)
+        .get();
+      
+      if (!existingResultQuery.empty) {
+        // Result already exists, don't increment count
+        throw new Error('ALREADY_SUBMITTED');
+      }
+      
       // Get user document for atomic updates
       const userRef = adminDb.collection('users').doc(userId);
       const userDoc = await transaction.get(userRef);
