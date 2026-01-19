@@ -12,12 +12,25 @@ export async function GET(req: NextRequest) {
   try {
     const testsRef = adminDb.collection('tests');
     
-    // Fetch all tests and filter/sort in memory to avoid index requirement
-    // This works immediately but is less efficient for large datasets
-    // For better performance, create a composite index:
-    // Collection: tests
-    // Fields: isActive (Ascending), status (Ascending), createdAt (Descending)
-    const snapshot = await testsRef.get();
+    // With Blaze plan, we can fetch all tests efficiently
+    // Fetch all tests and filter/sort in memory
+    let snapshot;
+    try {
+      snapshot = await testsRef.get();
+    } catch (error: any) {
+      // Handle quota errors gracefully
+      if (error.message?.includes('RESOURCE_EXHAUSTED') || error.message?.includes('quota')) {
+        console.error('❌ Firestore quota exceeded while fetching tests:', error.message);
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Firestore quota exceeded. Please try again later or contact support.',
+          },
+          { status: 429 }
+        );
+      }
+      throw error;
+    }
     
     const tests: Test[] = snapshot.docs
       .map((doc) => {

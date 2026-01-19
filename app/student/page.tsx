@@ -81,7 +81,10 @@ export default function StudentDashboard() {
             }
           } else {
             console.error('❌ API returned success=false:', data.error);
-            toast.error(data.error || 'Failed to load tests');
+            // Don't show toast for quota errors - they're temporary and will resolve
+            if (!data.error?.includes('quota') && !data.error?.includes('RESOURCE_EXHAUSTED')) {
+              toast.error(data.error || 'Failed to load tests');
+            }
           }
         } catch (error) {
           console.error('❌ Error fetching tests:', error);
@@ -160,6 +163,11 @@ export default function StudentDashboard() {
           const data = await response.json();
           if (data.success) {
             setDailyChallenges(data.challenges || []);
+          } else {
+            // Silently handle quota errors - they're temporary
+            if (!data.error?.includes('quota') && !data.error?.includes('RESOURCE_EXHAUSTED')) {
+              console.error('Error loading daily challenges:', data.error);
+            }
           }
         } catch (error) {
           console.error('Error fetching daily challenges:', error);
@@ -190,6 +198,11 @@ export default function StudentDashboard() {
           const data = await response.json();
           if (data.success) {
             setSkillTree(data.skillTree);
+          } else {
+            // Silently handle quota errors - they're temporary
+            if (!data.error?.includes('quota') && !data.error?.includes('RESOURCE_EXHAUSTED')) {
+              console.error('Error loading skill mastery:', data.error);
+            }
           }
         } catch (error) {
           console.error('Error fetching skill mastery:', error);

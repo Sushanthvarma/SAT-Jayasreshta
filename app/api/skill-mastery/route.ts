@@ -41,6 +41,15 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: any) {
     console.error('Error fetching skill mastery:', error);
+    
+    // Handle quota errors gracefully
+    if (error.message?.includes('RESOURCE_EXHAUSTED') || error.message?.includes('quota')) {
+      return NextResponse.json(
+        { success: false, error: 'Firestore quota exceeded. Please try again later.' },
+        { status: 429 }
+      );
+    }
+    
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to fetch skill mastery' },
       { status: 500 }
