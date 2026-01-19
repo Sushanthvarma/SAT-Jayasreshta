@@ -118,19 +118,32 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
             .sort((a, b) => (b.totalXP || 0) - (a.totalXP || 0));
           
           // Calculate rank: find first user with same or lower XP
+          // For new users (0 XP), they should be ranked after all users with XP > 0
           let calculatedRank = 1;
+          let foundUser = false;
+          
           for (let i = 0; i < sortedStudents.length; i++) {
-            if ((sortedStudents[i].totalXP || 0) > userXP) {
+            const studentXP = sortedStudents[i].totalXP || 0;
+            if (studentXP > userXP) {
               calculatedRank++;
+            } else if (studentXP === userXP) {
+              // Found user or users with same XP - rank is calculatedRank
+              foundUser = true;
+              break;
             } else {
-              // Found user's position or users with same XP
+              // All remaining users have lower XP
               break;
             }
           }
           
-          // If user not found in sorted list, they're last
-          if (calculatedRank > sortedStudents.length) {
-            calculatedRank = sortedStudents.length;
+          // If user not found in sorted list (shouldn't happen), they're last
+          if (!foundUser && calculatedRank <= sortedStudents.length) {
+            // User might be at the end - check if they're in the list
+            const userInList = sortedStudents.find(s => s.id === userId);
+            if (!userInList) {
+              // User not in list, they're last
+              calculatedRank = sortedStudents.length;
+            }
           }
           
           currentUserRank = calculatedRank;
@@ -203,16 +216,30 @@ export async function getUserStats(userId: string): Promise<UserStats | null> {
     
     // Calculate rank: find position in sorted list
     // Rank = number of users with strictly higher XP + 1
+    // For new users (0 XP), they rank after all users with XP > 0
     let usersWithHigherXP = 0;
+    let foundUser = false;
+    
     for (const student of sortedStudents) {
       if (student.totalXP > totalXP) {
         usersWithHigherXP++;
+      } else if (student.totalXP === totalXP) {
+        // Found user or users with same XP
+        foundUser = true;
+        break;
       } else {
-        break; // No more users with higher XP
+        // All remaining users have lower XP
+        break;
       }
     }
     
+    // Rank = users with higher XP + 1
+    // If user has 0 XP and there are users with XP > 0, they rank after all of them
     rank = usersWithHigherXP + 1;
+    
+    // Ensure rank is at least 1 and not greater than total students
+    if (rank < 1) rank = 1;
+    if (rank > sortedStudents.length) rank = sortedStudents.length;
   } catch (error: any) {
     // Fallback: fetch all and count in memory
     const allUsers = await adminDb.collection('users').get();

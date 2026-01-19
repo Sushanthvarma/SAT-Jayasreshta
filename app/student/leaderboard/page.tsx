@@ -147,19 +147,27 @@ export default function LeaderboardPage() {
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-8 text-white mb-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="text-center">
-                <div className="text-5xl font-bold mb-2">#{stats.rank}</div>
+                <div className="text-5xl font-bold mb-2">
+                  {stats.rank && stats.rank > 0 ? `#${stats.rank}` : '—'}
+                </div>
                 <div className="text-sm opacity-90">Your Rank</div>
               </div>
               <div className="text-center">
-                <div className="text-5xl font-bold mb-2">{stats.percentile}%</div>
+                <div className="text-5xl font-bold mb-2">
+                  {stats.percentile !== undefined && stats.percentile !== null ? `${Math.round(stats.percentile)}%` : '—'}
+                </div>
                 <div className="text-sm opacity-90">Better Than</div>
               </div>
               <div className="text-center">
-                <div className="text-5xl font-bold mb-2">{stats.averageScore}%</div>
+                <div className="text-5xl font-bold mb-2">
+                  {stats.averageScore !== undefined && stats.averageScore !== null ? `${stats.averageScore}%` : '—'}
+                </div>
                 <div className="text-sm opacity-90">Your Average</div>
               </div>
               <div className="text-center">
-                <div className="text-5xl font-bold mb-2">{comparison.averageScore}%</div>
+                <div className="text-5xl font-bold mb-2">
+                  {comparison.averageScore !== undefined && comparison.averageScore !== null ? `${comparison.averageScore}%` : '—'}
+                </div>
                 <div className="text-sm opacity-90">Platform Average</div>
               </div>
             </div>
