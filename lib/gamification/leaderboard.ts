@@ -54,6 +54,8 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
   const entries: LeaderboardEntry[] = [];
   let rank = 1;
   let currentUserRank = 0;
+  let previousXP: number | null = null;
+  let rankCounter = 1; // Track actual position for ties
 
   usersSnapshot.forEach((doc: any) => {
     const data = doc.data();
@@ -61,6 +63,18 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
     
     // Admins are already filtered at query level, but double-check for safety
     if (data.role === 'admin') return;
+    
+    const currentXP = data.totalXP || 0;
+    
+    // Handle ties: if XP is different from previous, update rank
+    // If XP is same, keep same rank (ties)
+    if (previousXP !== null && currentXP < previousXP) {
+      rank = rankCounter; // Update rank when XP decreases
+    }
+    // If first entry or XP is same, rank stays the same (handles ties)
+    
+    previousXP = currentXP;
+    rankCounter++;
     
     if (isCurrentUser) {
       currentUserRank = rank;
@@ -70,8 +84,8 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
       userId: doc.id,
       displayName: data.displayName || data.name || 'Student',
       photoURL: data.photoURL || null,
-      rank: rank++,
-      xp: data.totalXP || 0,
+      rank: rank, // Use calculated rank (handles ties)
+      xp: currentXP,
       level: data.level || 1,
       streak: data.currentStreak || 0,
       testsCompleted: data.totalTestsCompleted || 0,
@@ -81,6 +95,7 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
   });
 
   // If current user is not in top results, get their rank separately
+  // PRODUCTION-GRADE: Calculate rank correctly accounting for ties
   if (userId && currentUserRank === 0) {
     try {
       const userDoc = await adminDb.collection('users').doc(userId).get();
@@ -88,18 +103,40 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
         const userData = userDoc.data()!;
         const userXP = userData.totalXP || 0;
         
-        // Count users above (with Blaze plan, we can query all users)
+        // Calculate rank: count users with higher XP + 1
+        // This handles ties correctly (users with same XP get same rank)
         try {
-          const usersAbove = await adminDb
+          // Fetch all students to calculate rank with ties
+          const allStudents = await adminDb
             .collection('users')
             .where('role', '==', 'student')
-            .where('totalXP', '>', userXP)
-            .count()
             .get();
           
-          currentUserRank = usersAbove.data().count + 1;
+          // Sort by XP descending
+          const sortedStudents = allStudents.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => (b.totalXP || 0) - (a.totalXP || 0));
+          
+          // Calculate rank: find first user with same or lower XP
+          let calculatedRank = 1;
+          for (let i = 0; i < sortedStudents.length; i++) {
+            if ((sortedStudents[i].totalXP || 0) > userXP) {
+              calculatedRank++;
+            } else {
+              // Found user's position or users with same XP
+              break;
+            }
+          }
+          
+          // If user not found in sorted list, they're last
+          if (calculatedRank > sortedStudents.length) {
+            calculatedRank = sortedStudents.length;
+          }
+          
+          currentUserRank = calculatedRank;
         } catch (countError: any) {
-          // Fallback: fetch all students and count in memory
+          console.error('Error calculating rank, using fallback:', countError);
+          // Fallback: simple count
           const allUsers = await adminDb.collection('users').get();
           const usersAbove = allUsers.docs.filter(doc => {
             const data = doc.data();
@@ -126,7 +163,13 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
     }
   }
 
-  return entries.sort((a, b) => a.rank - b.rank);
+  // Sort by rank, then by XP descending for same rank
+  return entries.sort((a, b) => {
+    if (a.rank !== b.rank) {
+      return a.rank - b.rank;
+    }
+    return b.xp - a.xp; // Higher XP first for same rank
+  });
 }
 
 /**
@@ -142,17 +185,34 @@ export async function getUserStats(userId: string): Promise<UserStats | null> {
   const userData = userDoc.data()!;
   const totalXP = userData.totalXP || 0;
   
-  // Calculate rank (only count students, not admins)
+  // PRODUCTION-GRADE: Calculate rank correctly accounting for ties
+  // Rank = number of users with higher XP + 1
+  // Users with same XP get the same rank
   let rank = 1;
   try {
-    const usersAbove = await adminDb
+    // Fetch all students to calculate rank with ties
+    const allStudents = await adminDb
       .collection('users')
       .where('role', '==', 'student')
-      .where('totalXP', '>', totalXP)
-      .count()
       .get();
     
-    rank = usersAbove.data().count + 1;
+    // Sort by XP descending
+    const sortedStudents = allStudents.docs
+      .map(doc => ({ id: doc.id, totalXP: doc.data().totalXP || 0 }))
+      .sort((a, b) => b.totalXP - a.totalXP);
+    
+    // Calculate rank: find position in sorted list
+    // Rank = number of users with strictly higher XP + 1
+    let usersWithHigherXP = 0;
+    for (const student of sortedStudents) {
+      if (student.totalXP > totalXP) {
+        usersWithHigherXP++;
+      } else {
+        break; // No more users with higher XP
+      }
+    }
+    
+    rank = usersWithHigherXP + 1;
   } catch (error: any) {
     // Fallback: fetch all and count in memory
     const allUsers = await adminDb.collection('users').get();
