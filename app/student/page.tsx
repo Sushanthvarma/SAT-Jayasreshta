@@ -287,13 +287,13 @@ export default function StudentDashboard() {
       // Filter by difficulty
       if (selectedDifficulty !== 'all') {
         // Map user-friendly difficulty to test difficulty
-        const difficultyMap: Record<string, string> = {
-          'easy': 'beginner',
-          'medium': 'intermediate',
-          'hard': 'advanced',
+        const difficultyMap: Record<string, string[]> = {
+          'easy': ['beginner'],
+          'medium': ['intermediate'],
+          'hard': ['advanced', 'expert'],
         };
-        const testDifficulty = difficultyMap[selectedDifficulty] || selectedDifficulty;
-        if (test.difficulty !== testDifficulty && test.difficulty !== selectedDifficulty) {
+        const testDifficulties = difficultyMap[selectedDifficulty] || [selectedDifficulty];
+        if (!testDifficulties.includes(test.difficulty)) {
           return false;
         }
       }
