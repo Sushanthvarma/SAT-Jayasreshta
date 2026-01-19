@@ -122,9 +122,49 @@ export async function GET(
       createdAt: (resultData.createdAt as any)?.toDate() || new Date(),
     } as TestResult;
     
+    // PRODUCTION-GRADE: Fetch questions and answers for detailed review
+    let questions: any[] = [];
+    let studentAnswers: any[] = [];
+    
+    try {
+      // Get test ID from result
+      const testId = result.testId;
+      
+      // Fetch questions
+      const questionsRef = adminDb.collection('tests').doc(testId).collection('questions');
+      const questionsSnapshot = await questionsRef.get();
+      
+      questions = questionsSnapshot.docs.map(doc => {
+        const qData = doc.data();
+        return {
+          id: doc.id,
+          ...qData,
+          createdAt: (qData.createdAt as any)?.toDate() || new Date(),
+          updatedAt: (qData.updatedAt as any)?.toDate() || new Date(),
+        };
+      });
+      
+      // Sort questions by section and question number
+      questions.sort((a, b) => {
+        const sectionDiff = (a.sectionNumber || 0) - (b.sectionNumber || 0);
+        if (sectionDiff !== 0) return sectionDiff;
+        return (a.questionNumber || 0) - (b.questionNumber || 0);
+      });
+      
+      // Get student answers from attempt
+      studentAnswers = attemptData.answers || [];
+      
+      console.log(`✅ Fetched ${questions.length} questions and ${studentAnswers.length} answers for review`);
+    } catch (error: any) {
+      console.error('⚠️ Error fetching questions/answers for review:', error);
+      // Continue without questions - review section won't show
+    }
+    
     return NextResponse.json({
       success: true,
       result,
+      questions, // Include questions for review
+      studentAnswers, // Include student answers for review
     });
   } catch (error: any) {
     console.error('Error fetching test result:', error);

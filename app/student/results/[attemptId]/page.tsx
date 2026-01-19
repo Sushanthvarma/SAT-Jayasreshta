@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { TestResult } from '@/lib/types/test';
+import { TestResult, Question, StudentAnswer } from '@/lib/types/test';
 import { getAuthInstance } from '@/lib/firebase';
 import { getIdToken } from 'firebase/auth';
 import toast from 'react-hot-toast';
@@ -15,9 +15,12 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [result, setResult] = useState<TestResult | null>(null);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [studentAnswers, setStudentAnswers] = useState<StudentAnswer[]>([]);
   const [loading, setLoading] = useState(true);
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [paramsResolved, setParamsResolved] = useState(false);
+  const [showReview, setShowReview] = useState(false);
 
   // Handle both Promise and direct params (Next.js 15/16 compatibility)
   useEffect(() => {
@@ -78,6 +81,8 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
         
         if (data.success) {
           setResult(data.result);
+          setQuestions(data.questions || []);
+          setStudentAnswers(data.studentAnswers || []);
           // Play success sound when results load
           playSound('success', 0.4);
         } else {
@@ -288,6 +293,196 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {/* Detailed Review Section */}
+        {questions.length > 0 && (
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Review Answers</h2>
+              <button
+                onClick={() => {
+                  setShowReview(!showReview);
+                  playSound('click');
+                }}
+                className="px-4 sm:px-6 py-2 sm:py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 active:scale-95 transition-all min-h-[44px] flex items-center gap-2 text-sm sm:text-base"
+              >
+                {showReview ? 'Hide Review' : 'Show Review'}
+                <span>{showReview ? '▲' : '▼'}</span>
+              </button>
+            </div>
+            
+            {showReview && (
+              <div className="space-y-4 sm:space-y-6">
+                {questions.map((question, index) => {
+                  const studentAnswer = studentAnswers.find(a => a.questionId === question.id);
+                  const isAnswered = studentAnswer && studentAnswer.answer !== null && !studentAnswer.skipped;
+                  const isCorrect = studentAnswer?.isCorrect || false;
+                  
+                  // Get answer indices
+                  const studentAnswerIndex = typeof studentAnswer?.answer === 'number' 
+                    ? studentAnswer.answer 
+                    : typeof studentAnswer?.answer === 'string'
+                    ? studentAnswer.answer.toUpperCase().charCodeAt(0) - 65
+                    : null;
+                  
+                  const correctAnswerIndex = typeof question.correctAnswer === 'number'
+                    ? question.correctAnswer
+                    : typeof question.correctAnswer === 'string'
+                    ? question.correctAnswer.toUpperCase().charCodeAt(0) - 65
+                    : -1;
+                  
+                  // Get answer text
+                  let studentAnswerText = 'Not answered';
+                  let correctAnswerText = '';
+                  
+                  if (question.type === 'multiple-choice') {
+                    if (studentAnswerIndex !== null && question.options && question.options[studentAnswerIndex]) {
+                      studentAnswerText = `${String.fromCharCode(65 + studentAnswerIndex)}. ${question.options[studentAnswerIndex].text}`;
+                    } else if (studentAnswer?.answer !== null) {
+                      studentAnswerText = `Answer: ${studentAnswer.answer}`;
+                    }
+                    
+                    if (correctAnswerIndex >= 0 && question.options && question.options[correctAnswerIndex]) {
+                      correctAnswerText = `${String.fromCharCode(65 + correctAnswerIndex)}. ${question.options[correctAnswerIndex].text}`;
+                    } else {
+                      correctAnswerText = `Answer: ${question.correctAnswer}`;
+                    }
+                  } else if (question.type === 'grid-in') {
+                    studentAnswerText = studentAnswer?.answer !== null ? `Answer: ${studentAnswer.answer}` : 'Not answered';
+                    correctAnswerText = `Answer: ${question.correctAnswer}`;
+                  }
+                  
+                  return (
+                    <div
+                      key={question.id}
+                      className={`bg-white rounded-xl shadow-md p-4 sm:p-6 border-2 ${
+                        isCorrect ? 'border-green-300 bg-green-50' : 
+                        isAnswered ? 'border-red-300 bg-red-50' : 
+                        'border-yellow-300 bg-yellow-50'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between mb-3 sm:mb-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                            <span className="text-lg sm:text-xl font-bold text-gray-700">
+                              Question {index + 1}
+                            </span>
+                            <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${
+                              isCorrect ? 'bg-green-200 text-green-800' :
+                              isAnswered ? 'bg-red-200 text-red-800' :
+                              'bg-yellow-200 text-yellow-800'
+                            }`}>
+                              {isCorrect ? '✓ Correct' : isAnswered ? '✗ Incorrect' : '⊘ Skipped'}
+                            </span>
+                          </div>
+                          <p className="text-sm sm:text-base text-gray-600 mb-2">
+                            Section {question.sectionNumber} • {question.subject}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Passage Text */}
+                      {question.passageText && (
+                        <div className="mb-4 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
+                          <p className="text-sm sm:text-base text-gray-700 whitespace-pre-wrap">{question.passageText}</p>
+                        </div>
+                      )}
+                      
+                      <div className="mb-4">
+                        <p className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+                          {question.questionText}
+                        </p>
+                        
+                        {/* Options */}
+                        {question.options && question.options.length > 0 && (
+                          <div className="space-y-2 sm:space-y-3 mb-4">
+                            {question.options.map((option, optIndex) => {
+                              const optionLetter = String.fromCharCode(65 + optIndex);
+                              const isStudentAnswer = studentAnswerIndex !== null && optIndex === studentAnswerIndex;
+                              const isCorrectOption = correctAnswerIndex >= 0 && optIndex === correctAnswerIndex;
+                              
+                              return (
+                                <div
+                                  key={optIndex}
+                                  className={`p-3 sm:p-4 rounded-lg border-2 ${
+                                    isCorrectOption ? 'border-green-500 bg-green-100' :
+                                    isStudentAnswer && !isCorrect ? 'border-red-500 bg-red-100' :
+                                    'border-gray-200 bg-white'
+                                  }`}
+                                >
+                                  <div className="flex items-start gap-2 sm:gap-3">
+                                    <span className={`font-bold text-base sm:text-lg ${
+                                      isCorrectOption ? 'text-green-700' :
+                                      isStudentAnswer && !isCorrect ? 'text-red-700' :
+                                      'text-gray-700'
+                                    }`}>
+                                      {optionLetter}.
+                                    </span>
+                                    <span className={`flex-1 text-sm sm:text-base ${
+                                      isCorrectOption ? 'text-green-800 font-semibold' :
+                                      isStudentAnswer && !isCorrect ? 'text-red-800 font-semibold' :
+                                      'text-gray-700'
+                                    }`}>
+                                      {option.text}
+                                    </span>
+                                    {isCorrectOption && (
+                                      <span className="text-green-600 text-lg sm:text-xl">✓</span>
+                                    )}
+                                    {isStudentAnswer && !isCorrect && (
+                                      <span className="text-red-600 text-lg sm:text-xl">✗</span>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Answer Summary */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
+                        <div className={`p-3 sm:p-4 rounded-lg ${
+                          isCorrect ? 'bg-green-100 border-2 border-green-300' :
+                          isAnswered ? 'bg-red-100 border-2 border-red-300' :
+                          'bg-yellow-100 border-2 border-yellow-300'
+                        }`}>
+                          <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1">Your Answer</p>
+                          <p className={`text-sm sm:text-base font-bold ${
+                            isCorrect ? 'text-green-800' :
+                            isAnswered ? 'text-red-800' :
+                            'text-yellow-800'
+                          }`}>
+                            {isAnswered ? studentAnswerText : 'Skipped'}
+                          </p>
+                        </div>
+                        {!isCorrect && (
+                          <div className="p-3 sm:p-4 rounded-lg bg-green-100 border-2 border-green-300">
+                            <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1">Correct Answer</p>
+                            <p className="text-sm sm:text-base font-bold text-green-800">
+                              {correctAnswerText}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Explanation */}
+                      {question.explanation && (
+                        <div className="mt-4 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
+                          <p className="text-xs sm:text-sm font-semibold text-blue-900 mb-2">Explanation</p>
+                          <p className="text-sm sm:text-base text-blue-800">
+                            {typeof question.explanation === 'string' 
+                              ? question.explanation 
+                              : question.explanation.correct || 'No explanation available'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
