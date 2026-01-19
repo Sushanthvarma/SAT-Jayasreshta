@@ -6,19 +6,52 @@ import { FieldValue } from 'firebase-admin/firestore';
  * Get leaderboard entries
  */
 export async function getLeaderboard(limit: number = 100, userId?: string): Promise<LeaderboardEntry[]> {
-  const usersSnapshot = await adminDb
-    .collection('users')
-    .orderBy('totalXP', 'desc')
-    .limit(limit)
-    .get();
+  let usersSnapshot;
+  
+  try {
+    // Try to query with orderBy first (requires index)
+    usersSnapshot = await adminDb
+      .collection('users')
+      .orderBy('totalXP', 'desc')
+      .limit(limit)
+      .get();
+  } catch (error: any) {
+    // If index doesn't exist or query fails, fetch all and sort in memory
+    console.warn('⚠️ Leaderboard orderBy query failed, fetching all and sorting in memory:', error.message);
+    try {
+      const allUsersSnapshot = await adminDb.collection('users').limit(500).get();
+      
+      // Sort in memory by totalXP
+      const sortedDocs = allUsersSnapshot.docs.sort((a, b) => {
+        const aXP = a.data().totalXP || 0;
+        const bXP = b.data().totalXP || 0;
+        return bXP - aXP; // Descending
+      });
+      
+      // Create a mock snapshot with sorted docs
+      usersSnapshot = {
+        docs: sortedDocs.slice(0, limit),
+        empty: sortedDocs.length === 0,
+        forEach: (callback: any) => {
+          sortedDocs.slice(0, limit).forEach(callback);
+        },
+      } as any;
+    } catch (fallbackError: any) {
+      console.error('❌ Failed to fetch users for leaderboard:', fallbackError);
+      return []; // Return empty array if everything fails
+    }
+  }
 
   const entries: LeaderboardEntry[] = [];
   let rank = 1;
   let currentUserRank = 0;
 
-  usersSnapshot.forEach((doc) => {
+  usersSnapshot.forEach((doc: any) => {
     const data = doc.data();
     const isCurrentUser = !!(userId && doc.id === userId);
+    
+    // Only include students (not admins) and users with some activity
+    if (data.role === 'admin') return;
     
     if (isCurrentUser) {
       currentUserRank = rank;
@@ -26,7 +59,7 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
 
     entries.push({
       userId: doc.id,
-      displayName: data.displayName || 'Student',
+      displayName: data.displayName || data.name || 'Student',
       photoURL: data.photoURL || null,
       rank: rank++,
       xp: data.totalXP || 0,
@@ -38,31 +71,48 @@ export async function getLeaderboard(limit: number = 100, userId?: string): Prom
     });
   });
 
-  // If current user is not in top 100, get their rank separately
+  // If current user is not in top results, get their rank separately
   if (userId && currentUserRank === 0) {
-    const userDoc = await adminDb.collection('users').doc(userId).get();
-    if (userDoc.exists) {
-      const userData = userDoc.data()!;
-      const usersAbove = await adminDb
-        .collection('users')
-        .where('totalXP', '>', userData.totalXP || 0)
-        .count()
-        .get();
-      
-      currentUserRank = usersAbove.data().count + 1;
-      
-      entries.push({
-        userId: userId,
-        displayName: userData.displayName || 'Student',
-        photoURL: userData.photoURL || null,
-        rank: currentUserRank,
-        xp: userData.totalXP || 0,
-        level: userData.level || 1,
-        streak: userData.currentStreak || 0,
-        testsCompleted: userData.totalTestsCompleted || 0,
-        averageScore: userData.averageScore || 0,
-        isCurrentUser: true,
-      });
+    try {
+      const userDoc = await adminDb.collection('users').doc(userId).get();
+      if (userDoc.exists) {
+        const userData = userDoc.data()!;
+        const userXP = userData.totalXP || 0;
+        
+        // Try to count users above, with fallback
+        try {
+          const usersAbove = await adminDb
+            .collection('users')
+            .where('totalXP', '>', userXP)
+            .count()
+            .get();
+          
+          currentUserRank = usersAbove.data().count + 1;
+        } catch (countError: any) {
+          // Fallback: fetch all and count in memory
+          const allUsers = await adminDb.collection('users').limit(500).get();
+          const usersAbove = allUsers.docs.filter(doc => {
+            const data = doc.data();
+            return data.role !== 'admin' && (data.totalXP || 0) > userXP;
+          });
+          currentUserRank = usersAbove.length + 1;
+        }
+        
+        entries.push({
+          userId: userId,
+          displayName: userData.displayName || userData.name || 'Student',
+          photoURL: userData.photoURL || null,
+          rank: currentUserRank,
+          xp: userXP,
+          level: userData.level || 1,
+          streak: userData.currentStreak || 0,
+          testsCompleted: userData.totalTestsCompleted || 0,
+          averageScore: userData.averageScore || 0,
+          isCurrentUser: true,
+        });
+      }
+    } catch (error: any) {
+      console.error('Error fetching current user rank:', error);
     }
   }
 
@@ -182,24 +232,34 @@ export async function getSocialComparison(userId: string): Promise<{
     throw new Error('User not found');
   }
 
-  // Get platform averages
-  const allUsersSnapshot = await adminDb.collection('users').get();
+  // Get platform averages - limit to avoid quota issues
   let totalScore = 0;
   let usersWithScores = 0;
+  let totalUsers = 0;
   
-  allUsersSnapshot.forEach((doc) => {
-    const data = doc.data();
-    if (data.averageScore && data.averageScore > 0) {
-      totalScore += data.averageScore;
-      usersWithScores++;
-    }
-  });
+  try {
+    const allUsersSnapshot = await adminDb.collection('users').limit(500).get();
+    totalUsers = allUsersSnapshot.size;
+    
+    allUsersSnapshot.forEach((doc) => {
+      const data = doc.data();
+      // Only count students, not admins
+      if (data.role !== 'admin' && data.averageScore && data.averageScore > 0) {
+        totalScore += data.averageScore;
+        usersWithScores++;
+      }
+    });
+  } catch (error: any) {
+    console.warn('⚠️ Could not fetch all users for comparison:', error.message);
+    // Use userStats data as fallback
+    totalUsers = userStats.rank; // Approximate
+  }
   
   const averageScore = usersWithScores > 0 ? totalScore / usersWithScores : 0;
   
   return {
     userRank: userStats.rank,
-    totalUsers: allUsersSnapshot.size,
+    totalUsers: totalUsers || userStats.rank,
     percentile: userStats.percentile,
     betterThan: userStats.percentile,
     averageScore: Math.round(averageScore),

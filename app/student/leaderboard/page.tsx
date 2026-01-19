@@ -47,10 +47,20 @@ export default function LeaderboardPage() {
         setLeaderboard(data.leaderboard || []);
         setStats(data.stats || null);
         setComparison(data.comparison || null);
+        
+        if (!data.leaderboard || data.leaderboard.length === 0) {
+          toast('No leaderboard data yet. Complete tests to earn XP and appear on the leaderboard!', { 
+            icon: 'ℹ️',
+            duration: 5000 
+          });
+        }
+      } else {
+        console.error('Leaderboard API error:', data.error);
+        toast.error(data.error || 'Failed to load leaderboard');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching leaderboard:', error);
-      toast.error('Failed to load leaderboard');
+      toast.error('Failed to load leaderboard. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -168,10 +178,28 @@ export default function LeaderboardPage() {
         <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
           <div className="p-6 border-b border-gray-200">
             <h2 className="text-2xl font-bold text-gray-900">Full Rankings</h2>
+            {leaderboard.length === 0 && (
+              <p className="text-sm text-gray-600 mt-2">No rankings yet. Complete tests to earn XP!</p>
+            )}
           </div>
           
-          <div className="divide-y divide-gray-100">
-            {leaderboard.map((entry, index) => {
+          {leaderboard.length === 0 ? (
+            <div className="p-12 text-center">
+              <div className="text-6xl mb-4">🏆</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Leaderboard Data Yet</h3>
+              <p className="text-gray-600 mb-4">
+                Start taking tests to earn XP and appear on the leaderboard!
+              </p>
+              <button
+                onClick={() => router.push('/student')}
+                className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors min-h-[44px]"
+              >
+                Go to Dashboard
+              </button>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {leaderboard.map((entry, index) => {
               const isTopThree = entry.rank <= 3;
               const isCurrentUser = entry.isCurrentUser;
               
@@ -247,7 +275,8 @@ export default function LeaderboardPage() {
                 </div>
               );
             })}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
