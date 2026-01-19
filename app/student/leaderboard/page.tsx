@@ -164,6 +164,13 @@ export default function LeaderboardPage() {
                   {stats.rank && stats.rank > 0 ? `#${stats.rank}` : '—'}
                 </div>
                 <div className="text-sm opacity-90">Your Rank</div>
+                {comparison.rankChange !== 0 && (
+                  <div className={`text-xs mt-1 font-semibold ${
+                    comparison.rankChange > 0 ? 'text-green-200' : 'text-red-200'
+                  }`}>
+                    {comparison.rankChange > 0 ? '↑' : '↓'} {Math.abs(comparison.rankChange)} {Math.abs(comparison.rankChange) === 1 ? 'rank' : 'ranks'}
+                  </div>
+                )}
               </div>
               <div className="text-center">
                 <div className="text-5xl font-bold mb-2">
