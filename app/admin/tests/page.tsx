@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { getAuthInstance } from '@/lib/firebase';
@@ -8,7 +8,7 @@ import { getIdToken } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import Header from '@/components/layout/Header';
 import RefreshRoleButton from '@/components/admin/RefreshRoleButton';
-import ImportErrorDisplay from '@/components/admin/ImportErrorDisplay';
+import { playSound } from '@/lib/audio';
 
 interface ScannedFile {
   filePath: string;
@@ -21,6 +21,16 @@ interface ScannedFile {
   title?: string;
 }
 
+interface ImportStatus {
+  testId: string;
+  status: 'new' | 'imported' | 'updated';
+  exists: boolean;
+  isPublished?: boolean;
+  isActive?: boolean;
+  publishedAt?: string;
+  createdAt?: string;
+}
+
 interface OrganizedTests {
   [standard: string]: {
     [week: string]: {
@@ -29,22 +39,33 @@ interface OrganizedTests {
   };
 }
 
+type Tab = 'overview' | 'files' | 'organized' | 'invalid';
+
 export default function AdminTestManagement() {
   const { user, userData, loading: authLoading } = useAuth();
   const router = useRouter();
   const [scannedFiles, setScannedFiles] = useState<ScannedFile[]>([]);
   const [organized, setOrganized] = useState<OrganizedTests>({});
+  const [importStatus, setImportStatus] = useState<{ [key: string]: ImportStatus }>({});
+  const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [importOptions, setImportOptions] = useState({
-    publish: false,
-    activate: false,
+    publish: true,
+    activate: true,
     overwrite: false,
     skipInvalid: true,
   });
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [lastImportResults, setLastImportResults] = useState<any>(null);
+  
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterGrade, setFilterGrade] = useState<string>('all');
+  const [filterSubject, setFilterSubject] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -56,42 +77,56 @@ export default function AdminTestManagement() {
 
   useEffect(() => {
     if (user && userData?.role === 'admin') {
-      scanTestFiles();
+      loadAllData();
     }
   }, [user, userData]);
 
-  const scanTestFiles = async () => {
+  const loadAllData = async () => {
     try {
+      setLoading(true);
       setScanning(true);
       const auth = getAuthInstance();
       const idToken = await getIdToken(auth.currentUser!);
       
-      // Get organized view
-      const organizedResponse = await fetch('/api/admin/tests/scan?mode=organized', {
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-        },
-      });
-      const organizedData = await organizedResponse.json();
-      
+      // Load all data in parallel
+      const [organizedRes, listRes, statusRes, statsRes] = await Promise.all([
+        fetch('/api/admin/tests/scan?mode=organized', {
+          headers: { 'Authorization': `Bearer ${idToken}` },
+        }),
+        fetch('/api/admin/tests/scan?mode=list', {
+          headers: { 'Authorization': `Bearer ${idToken}` },
+        }),
+        fetch('/api/admin/tests/status', {
+          headers: { 'Authorization': `Bearer ${idToken}` },
+        }),
+        fetch('/api/admin/tests/scan?mode=stats', {
+          headers: { 'Authorization': `Bearer ${idToken}` },
+        }),
+      ]);
+
+      const [organizedData, listData, statusData, statsData] = await Promise.all([
+        organizedRes.json(),
+        listRes.json(),
+        statusRes.json(),
+        statsRes.json(),
+      ]);
+
       if (organizedData.success) {
         setOrganized(organizedData.organized || {});
       }
-
-      // Get list view
-      const listResponse = await fetch('/api/admin/tests/scan?mode=list', {
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-        },
-      });
-      const listData = await listResponse.json();
-      
       if (listData.success) {
         setScannedFiles(listData.files || []);
       }
+      if (statusData.success) {
+        setImportStatus(statusData.statusMap || {});
+        setStats(statusData.stats || null);
+      }
+      if (statsData.success) {
+        setStats((prev: any) => ({ ...prev, ...statsData.stats }));
+      }
     } catch (error) {
-      console.error('Error scanning test files:', error);
-      toast.error('Failed to scan test files');
+      console.error('Error loading data:', error);
+      toast.error('Failed to load test data');
     } finally {
       setScanning(false);
       setLoading(false);
@@ -101,6 +136,7 @@ export default function AdminTestManagement() {
   const handleImport = async (filePaths?: string[]) => {
     try {
       setImporting(true);
+      playSound('click');
       const auth = getAuthInstance();
       const idToken = await getIdToken(auth.currentUser!);
       
@@ -117,60 +153,34 @@ export default function AdminTestManagement() {
       });
 
       const data = await response.json();
-      
-      // Store results for error display
       setLastImportResults(data);
       
       if (data.success) {
         if (data.imported > 0) {
-          toast.success(`Imported ${data.imported} test(s) successfully!`);
+          playSound('success');
+          toast.success(`✅ Imported ${data.imported} test(s) successfully!`);
         } else {
+          playSound('error');
           toast.error(`No tests were imported. ${data.failed || 0} failed.`);
         }
         
         if (data.failed > 0) {
           const failedResults = data.results?.filter((r: any) => !r.success) || [];
-          console.error('❌ Failed imports:', failedResults);
-          
-          // Group errors by message to find common issues
-          const errorGroups: { [key: string]: number } = {};
-          failedResults.forEach((r: any) => {
-            const msg = r.message || 'Unknown error';
-            errorGroups[msg] = (errorGroups[msg] || 0) + 1;
-          });
-          
-          console.error('📊 Error breakdown:', errorGroups);
-          
-          // Show most common error
-          const mostCommonError = Object.entries(errorGroups)
-            .sort((a, b) => b[1] - a[1])[0];
-          
-          if (mostCommonError) {
-            const [errorMsg, count] = mostCommonError;
-            toast.error(
-              `${data.failed} failed. Most common: "${errorMsg}" (${count} times). See details below.`,
-              { duration: 10000 }
-            );
-            
-            // Show first 10 detailed errors in console
-            console.error('📋 First 10 detailed errors:');
-            failedResults.slice(0, 10).forEach((r: any, idx: number) => {
-              console.error(`   ${idx + 1}. ${r.file}: ${r.message}`);
-            });
-          } else {
-            toast.error(`${data.failed} test(s) failed to import`);
+          if (failedResults.length > 0) {
+            const errorMsg = failedResults[0].message || 'Unknown error';
+            toast.error(`${data.failed} failed. First error: "${errorMsg}"`, { duration: 8000 });
           }
         }
         
-        // Refresh scan
-        await scanTestFiles();
+        await loadAllData();
         setSelectedFiles(new Set());
       } else {
-        console.error('Import API error:', data);
+        playSound('error');
         toast.error(data.error || 'Failed to import tests');
       }
     } catch (error) {
       console.error('Error importing tests:', error);
+      playSound('error');
       toast.error('Failed to import tests');
     } finally {
       setImporting(false);
@@ -178,6 +188,7 @@ export default function AdminTestManagement() {
   };
 
   const toggleFileSelection = (filePath: string) => {
+    playSound('click');
     const newSelected = new Set(selectedFiles);
     if (newSelected.has(filePath)) {
       newSelected.delete(filePath);
@@ -187,12 +198,70 @@ export default function AdminTestManagement() {
     setSelectedFiles(newSelected);
   };
 
-  const selectAllValid = () => {
-    const validFiles = scannedFiles.filter(f => f.isValid).map(f => f.relativePath);
-    setSelectedFiles(new Set(validFiles));
+  // Filtered files based on search and filters
+  const filteredFiles = useMemo(() => {
+    return scannedFiles.filter(file => {
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch = 
+          file.title?.toLowerCase().includes(query) ||
+          file.relativePath.toLowerCase().includes(query) ||
+          file.standard.toLowerCase().includes(query) ||
+          file.week.toLowerCase().includes(query) ||
+          file.subject.toLowerCase().includes(query);
+        if (!matchesSearch) return false;
+      }
+
+      // Grade filter
+      if (filterGrade !== 'all' && file.standard !== filterGrade) return false;
+
+      // Subject filter
+      if (filterSubject !== 'all' && file.subject !== filterSubject) return false;
+
+      // Status filter
+      if (filterStatus !== 'all') {
+        const status = importStatus[file.relativePath]?.status || (file.isValid ? 'new' : 'invalid');
+        if (filterStatus === 'valid' && !file.isValid) return false;
+        if (filterStatus === 'invalid' && file.isValid) return false;
+        if (filterStatus === 'new' && status !== 'new') return false;
+        if (filterStatus === 'imported' && status !== 'imported') return false;
+        if (filterStatus === 'updated' && status !== 'updated') return false;
+      }
+
+      return true;
+    });
+  }, [scannedFiles, searchQuery, filterGrade, filterSubject, filterStatus, importStatus]);
+
+  // Get unique values for filters
+  const uniqueGrades = useMemo(() => {
+    const grades = new Set(scannedFiles.map(f => f.standard).filter(Boolean));
+    return Array.from(grades).sort();
+  }, [scannedFiles]);
+
+  const uniqueSubjects = useMemo(() => {
+    const subjects = new Set(scannedFiles.map(f => f.subject).filter(Boolean));
+    return Array.from(subjects).sort();
+  }, [scannedFiles]);
+
+  const selectAllFiltered = () => {
+    playSound('click');
+    const validFiltered = filteredFiles.filter(f => f.isValid).map(f => f.relativePath);
+    setSelectedFiles(new Set(validFiltered));
+  };
+
+  const selectByStatus = (status: 'new' | 'imported' | 'updated') => {
+    playSound('click');
+    const matching = filteredFiles.filter(f => {
+      if (!f.isValid) return false;
+      const fileStatus = importStatus[f.relativePath]?.status || 'new';
+      return fileStatus === status;
+    }).map(f => f.relativePath);
+    setSelectedFiles(new Set(matching));
   };
 
   const clearSelection = () => {
+    playSound('click');
     setSelectedFiles(new Set());
   };
 
@@ -201,7 +270,7 @@ export default function AdminTestManagement() {
       <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
         <div className="text-center">
           <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
-          <p className="text-lg font-semibold text-gray-700">Loading...</p>
+          <p className="text-lg font-semibold text-gray-700">Loading test management...</p>
         </div>
       </div>
     );
@@ -213,280 +282,478 @@ export default function AdminTestManagement() {
 
   const validFiles = scannedFiles.filter(f => f.isValid);
   const invalidFiles = scannedFiles.filter(f => !f.isValid);
+  const newFiles = validFiles.filter(f => importStatus[f.relativePath]?.status === 'new');
+  const importedFiles = validFiles.filter(f => importStatus[f.relativePath]?.status === 'imported');
+  const updatedFiles = validFiles.filter(f => importStatus[f.relativePath]?.status === 'updated');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       <Header />
 
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">Test Management</h1>
-              <p className="text-lg text-gray-600">Import tests from files organized by Standard/Week/Subject</p>
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Test Management</h1>
+              <p className="text-base sm:text-lg text-gray-600">Import and manage test files from the tests/ directory</p>
             </div>
-            <div className="flex items-center gap-4">
-              {userData?.role !== 'admin' && (
-                <div className="text-right">
-                  <p className="text-sm text-red-600 font-semibold mb-1">Current Role: {userData?.role || 'student'}</p>
-                  <p className="text-xs text-gray-500">Updated role in Firestore? Refresh below</p>
-                </div>
-              )}
-              <RefreshRoleButton />
+            <div className="flex items-center gap-3">
+              {userData?.role !== 'admin' && <RefreshRoleButton />}
+              <button
+                onClick={() => {
+                  playSound('click');
+                  loadAllData();
+                }}
+                disabled={scanning}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 min-h-[44px] flex items-center gap-2"
+              >
+                {scanning ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Scanning...
+                  </>
+                ) : (
+                  <>
+                    <span>🔄</span>
+                    Rescan
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Action Bar */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Import Options</h2>
-              <p className="text-sm text-gray-600">Configure how tests are imported</p>
+        {/* Statistics Dashboard */}
+        {stats && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4">
+              <div className="text-2xl font-bold text-gray-900">{stats.total || scannedFiles.length}</div>
+              <div className="text-xs sm:text-sm text-gray-600 mt-1">Total Files</div>
             </div>
-            <button
-              onClick={scanTestFiles}
-              disabled={scanning}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 min-h-[44px]"
-            >
-              {scanning ? 'Scanning...' : '🔄 Rescan Files'}
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-              <input
-                type="checkbox"
-                checked={importOptions.publish}
-                onChange={(e) => setImportOptions({ ...importOptions, publish: e.target.checked })}
-                className="w-5 h-5 text-indigo-600"
-              />
-              <div>
-                <div className="font-semibold text-gray-900">Publish</div>
-                <div className="text-xs text-gray-600">Make tests immediately available</div>
-              </div>
-            </label>
-            <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-              <input
-                type="checkbox"
-                checked={importOptions.activate}
-                onChange={(e) => setImportOptions({ ...importOptions, activate: e.target.checked })}
-                className="w-5 h-5 text-indigo-600"
-              />
-              <div>
-                <div className="font-semibold text-gray-900">Activate</div>
-                <div className="text-xs text-gray-600">Enable tests for students</div>
-              </div>
-            </label>
-            <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-              <input
-                type="checkbox"
-                checked={importOptions.overwrite}
-                onChange={(e) => setImportOptions({ ...importOptions, overwrite: e.target.checked })}
-                className="w-5 h-5 text-indigo-600"
-              />
-              <div>
-                <div className="font-semibold text-gray-900">Overwrite</div>
-                <div className="text-xs text-gray-600">Replace existing tests</div>
-              </div>
-            </label>
-            <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-              <input
-                type="checkbox"
-                checked={importOptions.skipInvalid}
-                onChange={(e) => setImportOptions({ ...importOptions, skipInvalid: e.target.checked })}
-                className="w-5 h-5 text-indigo-600"
-              />
-              <div>
-                <div className="font-semibold text-gray-900">Skip Invalid</div>
-                <div className="text-xs text-gray-600">Skip files with errors</div>
-              </div>
-            </label>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button
-              onClick={selectAllValid}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-            >
-              Select All Valid
-            </button>
-            <button
-              onClick={clearSelection}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-            >
-              Clear Selection
-            </button>
-            <div className="flex-1"></div>
-            <button
-              onClick={() => handleImport()}
-              disabled={importing || selectedFiles.size === 0}
-              className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
-            >
-              {importing ? 'Importing...' : `Import Selected (${selectedFiles.size})`}
-            </button>
-          </div>
-          
-          {/* Error Display */}
-          {lastImportResults && lastImportResults.failed > 0 && (
-            <ImportErrorDisplay
-              results={lastImportResults.results || []}
-              failed={lastImportResults.failed}
-            />
-          )}
-        </div>
-
-        {/* Organized View */}
-        {Object.keys(organized).length > 0 && (
-          <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Tests by Standard/Week/Subject</h2>
-            <div className="space-y-6">
-              {Object.entries(organized).map(([standard, weeks]) => (
-                <div key={standard} className="border-l-4 border-indigo-500 pl-4">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">{standard} Grade</h3>
-                  {Object.entries(weeks).map(([week, subjects]) => (
-                    <div key={week} className="ml-4 mb-4">
-                      <h4 className="text-lg font-semibold text-gray-700 mb-3">{week.replace('week-', 'Week ')}</h4>
-                      {Object.entries(subjects).map(([subject, files]) => (
-                        <div key={subject} className="ml-4 mb-3">
-                          <h5 className="text-md font-medium text-gray-600 mb-2 capitalize">{subject}</h5>
-                          <div className="space-y-2">
-                            {files.map((file) => (
-                              <div
-                                key={file.relativePath}
-                                className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
-                                  file.isValid
-                                    ? selectedFiles.has(file.relativePath)
-                                      ? 'border-indigo-600 bg-indigo-50'
-                                      : 'border-green-200 bg-green-50 hover:border-green-300'
-                                    : 'border-red-200 bg-red-50'
-                                }`}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={selectedFiles.has(file.relativePath)}
-                                  onChange={() => toggleFileSelection(file.relativePath)}
-                                  disabled={!file.isValid}
-                                  className="w-5 h-5 text-indigo-600"
-                                />
-                                <div className="flex-1">
-                                  <div className="font-medium text-gray-900">{file.title || file.relativePath}</div>
-                                  <div className="text-xs text-gray-600">{file.relativePath}</div>
-                                  {!file.isValid && file.errors.length > 0 && (
-                                    <div className="text-xs text-red-600 mt-1">
-                                      Errors: {file.errors.join(', ')}
-                                    </div>
-                                  )}
-                                </div>
-                                {file.isValid ? (
-                                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                                    ✓ Valid
-                                  </span>
-                                ) : (
-                                  <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
-                                    ✗ Invalid
-                                  </span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              ))}
+            <div className="bg-green-50 rounded-xl shadow-md border border-green-200 p-4">
+              <div className="text-2xl font-bold text-green-700">{stats.valid || validFiles.length}</div>
+              <div className="text-xs sm:text-sm text-green-600 mt-1">Valid</div>
+            </div>
+            <div className="bg-red-50 rounded-xl shadow-md border border-red-200 p-4">
+              <div className="text-2xl font-bold text-red-700">{stats.invalid || invalidFiles.length}</div>
+              <div className="text-xs sm:text-sm text-red-600 mt-1">Invalid</div>
+            </div>
+            <div className="bg-blue-50 rounded-xl shadow-md border border-blue-200 p-4">
+              <div className="text-2xl font-bold text-blue-700">{stats.new || newFiles.length}</div>
+              <div className="text-xs sm:text-sm text-blue-600 mt-1">New</div>
+            </div>
+            <div className="bg-purple-50 rounded-xl shadow-md border border-purple-200 p-4">
+              <div className="text-2xl font-bold text-purple-700">{stats.imported || importedFiles.length}</div>
+              <div className="text-xs sm:text-sm text-purple-600 mt-1">Imported</div>
+            </div>
+            <div className="bg-orange-50 rounded-xl shadow-md border border-orange-200 p-4">
+              <div className="text-2xl font-bold text-orange-700">{stats.updated || updatedFiles.length}</div>
+              <div className="text-xs sm:text-sm text-orange-600 mt-1">Updated</div>
             </div>
           </div>
         )}
 
-        {/* File List View */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">All Test Files</h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  {validFiles.length} valid, {invalidFiles.length} invalid
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {scannedFiles.length === 0 ? (
-            <div className="p-12 text-center">
-              <div className="text-6xl mb-4">📁</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Test Files Found</h3>
-              <p className="text-gray-600 mb-4">
-                Create test files in the <code className="bg-gray-100 px-2 py-1 rounded">tests/</code> directory
-              </p>
-              <p className="text-sm text-gray-500">
-                Structure: <code className="bg-gray-100 px-2 py-1 rounded">tests/&#123;standard&#125;/&#123;week&#125;/&#123;subject&#125;/test.json</code>
-              </p>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-100">
-              {scannedFiles.map((file) => (
-                <div
-                  key={file.relativePath}
-                  className={`p-4 hover:bg-gray-50 transition-colors ${
-                    !file.isValid ? 'bg-red-50' : ''
+        {/* Tabs */}
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="flex overflow-x-auto -mb-px">
+              {(['overview', 'files', 'organized', 'invalid'] as Tab[]).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    playSound('click');
+                    setActiveTab(tab);
+                  }}
+                  className={`px-4 sm:px-6 py-3 text-sm sm:text-base font-semibold border-b-2 transition-colors whitespace-nowrap ${
+                    activeTab === tab
+                      ? 'border-indigo-600 text-indigo-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedFiles.has(file.relativePath)}
-                      onChange={() => toggleFileSelection(file.relativePath)}
-                      disabled={!file.isValid}
-                      className="w-5 h-5 text-indigo-600"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-1">
-                        <span className="font-semibold text-gray-900">{file.title || file.relativePath}</span>
-                        <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-semibold">
-                          {file.standard}
-                        </span>
-                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold">
-                          {file.week}
-                        </span>
-                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold capitalize">
-                          {file.subject}
-                        </span>
-                      </div>
-                      <div className="text-sm text-gray-600">{file.relativePath}</div>
-                      {!file.isValid && file.errors.length > 0 && (
-                        <div className="mt-2 text-sm text-red-600">
-                          <strong>Errors:</strong> {file.errors.join(', ')}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {file.isValid ? (
-                        <>
-                          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                            ✓ Valid
-                          </span>
-                          <button
-                            onClick={() => handleImport([file.relativePath])}
-                            disabled={importing}
-                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50"
-                          >
-                            Import
-                          </button>
-                        </>
-                      ) : (
-                        <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
-                          ✗ Invalid
-                        </span>
-                      )}
-                    </div>
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {tab === 'invalid' && invalidFiles.length > 0 && (
+                    <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs">
+                      {invalidFiles.length}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          {/* Tab Content */}
+          <div className="p-4 sm:p-6">
+            {/* Overview Tab */}
+            {activeTab === 'overview' && (
+              <div className="space-y-6">
+                {/* Quick Actions */}
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <button
+                      onClick={() => {
+                        playSound('click');
+                        selectByStatus('new');
+                        setActiveTab('files');
+                      }}
+                      className="px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors min-h-[44px]"
+                    >
+                      Select All New ({newFiles.length})
+                    </button>
+                    <button
+                      onClick={() => {
+                        playSound('click');
+                        selectByStatus('updated');
+                        setActiveTab('files');
+                      }}
+                      className="px-4 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700 transition-colors min-h-[44px]"
+                    >
+                      Select Updated ({updatedFiles.length})
+                    </button>
+                    <button
+                      onClick={() => {
+                        playSound('click');
+                        selectAllFiltered();
+                        setActiveTab('files');
+                      }}
+                      className="px-4 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors min-h-[44px]"
+                    >
+                      Select All Valid ({validFiles.length})
+                    </button>
+                    <button
+                      onClick={() => {
+                        playSound('click');
+                        handleImport();
+                      }}
+                      disabled={importing || selectedFiles.size === 0}
+                      className="px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+                    >
+                      {importing ? 'Importing...' : `Import Selected (${selectedFiles.size})`}
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+
+                {/* Import Options */}
+                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">Import Options</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[
+                      { key: 'publish', label: 'Publish', desc: 'Make tests immediately available' },
+                      { key: 'activate', label: 'Activate', desc: 'Enable tests for students' },
+                      { key: 'overwrite', label: 'Overwrite', desc: 'Replace existing tests' },
+                      { key: 'skipInvalid', label: 'Skip Invalid', desc: 'Skip files with errors' },
+                    ].map((option) => (
+                      <label key={option.key} className="flex items-start gap-3 p-4 bg-white rounded-lg border-2 border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={importOptions[option.key as keyof typeof importOptions]}
+                          onChange={(e) => {
+                            playSound('click');
+                            setImportOptions({ ...importOptions, [option.key]: e.target.checked });
+                          }}
+                          className="w-5 h-5 text-indigo-600 mt-0.5"
+                        />
+                        <div>
+                          <div className="font-semibold text-gray-900">{option.label}</div>
+                          <div className="text-xs text-gray-600 mt-1">{option.desc}</div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Status Summary */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
+                    <h4 className="text-lg font-bold text-blue-900 mb-2">New Tests</h4>
+                    <p className="text-3xl font-bold text-blue-700 mb-2">{newFiles.length}</p>
+                    <p className="text-sm text-blue-600">Ready to import</p>
+                  </div>
+                  <div className="bg-purple-50 rounded-xl p-6 border border-purple-200">
+                    <h4 className="text-lg font-bold text-purple-900 mb-2">Imported Tests</h4>
+                    <p className="text-3xl font-bold text-purple-700 mb-2">{importedFiles.length}</p>
+                    <p className="text-sm text-purple-600">Already in database</p>
+                  </div>
+                  <div className="bg-orange-50 rounded-xl p-6 border border-orange-200">
+                    <h4 className="text-lg font-bold text-orange-900 mb-2">Updated Tests</h4>
+                    <p className="text-3xl font-bold text-orange-700 mb-2">{updatedFiles.length}</p>
+                    <p className="text-sm text-orange-600">Need re-import</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Files Tab */}
+            {activeTab === 'files' && (
+              <div className="space-y-4">
+                {/* Filters */}
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <input
+                      type="text"
+                      placeholder="Search tests..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[44px]"
+                    />
+                    <select
+                      value={filterGrade}
+                      onChange={(e) => setFilterGrade(e.target.value)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[44px]"
+                    >
+                      <option value="all">All Grades</option>
+                      {uniqueGrades.map(grade => (
+                        <option key={grade} value={grade}>{grade}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={filterSubject}
+                      onChange={(e) => setFilterSubject(e.target.value)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[44px]"
+                    >
+                      <option value="all">All Subjects</option>
+                      {uniqueSubjects.map(subject => (
+                        <option key={subject} value={subject}>{subject}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[44px]"
+                    >
+                      <option value="all">All Status</option>
+                      <option value="new">New</option>
+                      <option value="imported">Imported</option>
+                      <option value="updated">Updated</option>
+                      <option value="valid">Valid</option>
+                      <option value="invalid">Invalid</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-3 mt-3">
+                    <button
+                      onClick={selectAllFiltered}
+                      className="px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors min-h-[36px]"
+                    >
+                      Select All Filtered
+                    </button>
+                    <button
+                      onClick={clearSelection}
+                      className="px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors min-h-[36px]"
+                    >
+                      Clear
+                    </button>
+                    <div className="flex-1"></div>
+                    <span className="text-sm text-gray-600">
+                      Showing {filteredFiles.length} of {scannedFiles.length} files
+                    </span>
+                  </div>
+                </div>
+
+                {/* File List */}
+                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  {filteredFiles.length === 0 ? (
+                    <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+                      <p className="text-gray-600">No files match your filters</p>
+                    </div>
+                  ) : (
+                    filteredFiles.map((file) => {
+                      const status = importStatus[file.relativePath];
+                      const isSelected = selectedFiles.has(file.relativePath);
+                      
+                      return (
+                        <div
+                          key={file.relativePath}
+                          className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all ${
+                            !file.isValid
+                              ? 'bg-red-50 border-red-200'
+                              : isSelected
+                              ? 'bg-indigo-50 border-indigo-500'
+                              : status?.status === 'new'
+                              ? 'bg-blue-50 border-blue-200 hover:border-blue-300'
+                              : status?.status === 'updated'
+                              ? 'bg-orange-50 border-orange-200 hover:border-orange-300'
+                              : 'bg-green-50 border-green-200 hover:border-green-300'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleFileSelection(file.relativePath)}
+                            disabled={!file.isValid}
+                            className="w-5 h-5 text-indigo-600"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <span className="font-semibold text-gray-900 truncate">{file.title || file.relativePath}</span>
+                              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                                file.standard === '4th' || file.standard === '5th' || file.standard === '6th'
+                                  ? 'bg-blue-100 text-blue-700'
+                                  : file.standard === '7th' || file.standard === '8th'
+                                  ? 'bg-purple-100 text-purple-700'
+                                  : 'bg-indigo-100 text-indigo-700'
+                              }`}>
+                                {file.standard}
+                              </span>
+                              <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-semibold">
+                                {file.week}
+                              </span>
+                              <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-semibold capitalize">
+                                {file.subject}
+                              </span>
+                              {status && (
+                                <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                                  status.status === 'new'
+                                    ? 'bg-blue-100 text-blue-700'
+                                    : status.status === 'updated'
+                                    ? 'bg-orange-100 text-orange-700'
+                                    : 'bg-purple-100 text-purple-700'
+                                }`}>
+                                  {status.status === 'new' ? '🆕 New' : status.status === 'updated' ? '🔄 Updated' : '✅ Imported'}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-600 truncate">{file.relativePath}</div>
+                            {!file.isValid && file.errors.length > 0 && (
+                              <div className="mt-1 text-xs text-red-600">
+                                Errors: {file.errors.join(', ')}
+                              </div>
+                            )}
+                            {status?.isPublished && (
+                              <div className="mt-1 text-xs text-green-600">✓ Published</div>
+                            )}
+                          </div>
+                          {file.isValid && (
+                            <button
+                              onClick={() => handleImport([file.relativePath])}
+                              disabled={importing}
+                              className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 min-h-[36px] whitespace-nowrap"
+                            >
+                              Import
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Organized Tab */}
+            {activeTab === 'organized' && (
+              <div className="space-y-6">
+                {Object.keys(organized).length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-600">No organized tests found</p>
+                  </div>
+                ) : (
+                  Object.entries(organized).map(([standard, weeks]) => (
+                    <div key={standard} className="border-l-4 border-indigo-500 pl-4">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">{standard} Grade</h3>
+                      {Object.entries(weeks).map(([week, subjects]) => (
+                        <div key={week} className="ml-4 mb-4">
+                          <h4 className="text-lg font-semibold text-gray-700 mb-3">{week.replace('week-', 'Week ')}</h4>
+                          {Object.entries(subjects).map(([subject, files]) => (
+                            <div key={subject} className="ml-4 mb-3">
+                              <h5 className="text-md font-medium text-gray-600 mb-2 capitalize">{subject}</h5>
+                              <div className="space-y-2">
+                                {files.map((file) => {
+                                  const status = importStatus[file.relativePath];
+                                  const isSelected = selectedFiles.has(file.relativePath);
+                                  
+                                  return (
+                                    <div
+                                      key={file.relativePath}
+                                      className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
+                                        !file.isValid
+                                          ? 'bg-red-50 border-red-200'
+                                          : isSelected
+                                          ? 'bg-indigo-50 border-indigo-500'
+                                          : 'bg-white border-gray-200 hover:border-gray-300'
+                                      }`}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        onChange={() => toggleFileSelection(file.relativePath)}
+                                        disabled={!file.isValid}
+                                        className="w-4 h-4 text-indigo-600"
+                                      />
+                                      <div className="flex-1">
+                                        <div className="font-medium text-gray-900">{file.title || file.relativePath}</div>
+                                        {status && (
+                                          <span className={`text-xs px-2 py-0.5 rounded ${
+                                            status.status === 'new'
+                                              ? 'bg-blue-100 text-blue-700'
+                                              : status.status === 'updated'
+                                              ? 'bg-orange-100 text-orange-700'
+                                              : 'bg-green-100 text-green-700'
+                                          }`}>
+                                            {status.status}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Invalid Tab */}
+            {activeTab === 'invalid' && (
+              <div className="space-y-2">
+                {invalidFiles.length === 0 ? (
+                  <div className="text-center py-12 bg-green-50 rounded-lg border border-green-200">
+                    <p className="text-green-700 font-semibold">✅ All files are valid!</p>
+                  </div>
+                ) : (
+                  invalidFiles.map((file) => (
+                    <div key={file.relativePath} className="p-4 bg-red-50 rounded-lg border-2 border-red-200">
+                      <div className="flex items-start gap-3">
+                        <span className="text-red-600 font-bold">✗</span>
+                        <div className="flex-1">
+                          <div className="font-semibold text-gray-900 mb-1">{file.relativePath}</div>
+                          <div className="text-sm text-gray-600 mb-2">
+                            {file.standard} • {file.week} • {file.subject}
+                          </div>
+                          <div className="text-sm text-red-600">
+                            <strong>Errors:</strong> {file.errors.join(', ')}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Import Results */}
+        {lastImportResults && lastImportResults.failed > 0 && (
+          <div className="bg-red-50 rounded-xl shadow-md border border-red-200 p-6 mt-6">
+            <h3 className="text-lg font-bold text-red-900 mb-3">Import Errors</h3>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {lastImportResults.results
+                ?.filter((r: any) => !r.success)
+                .slice(0, 10)
+                .map((result: any, idx: number) => (
+                  <div key={idx} className="text-sm text-red-700">
+                    <strong>{result.file}:</strong> {result.message}
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
