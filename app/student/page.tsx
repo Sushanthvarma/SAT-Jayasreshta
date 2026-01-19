@@ -204,28 +204,34 @@ export default function StudentDashboard() {
 
   // Set initial grade from user profile when userData loads
   useEffect(() => {
-    // Only run when userData is ready, and we don't have a selected grade yet
-    if (userData && selectedGrade === null && !gradeInitialized.current) {
-      gradeInitialized.current = true; // Mark as initialized to prevent re-running
-      
-      const userGrade = userData.grade;
-      
-      if (userGrade) {
-        // Extract grade number (e.g., "4th Grade" -> "4th", "9th Grade" -> "9th")
-        const gradeMatch = userGrade.match(/(\d+)(th|st|nd|rd)/i);
-        if (gradeMatch) {
-          const extractedGrade = gradeMatch[0].toLowerCase();
-          // Always set the grade from profile, even if no tests exist yet
-          setSelectedGrade(extractedGrade);
-          setShowGradeModal(false); // Ensure modal is closed
-          return;
-        }
-      }
-      
-      // If no grade in profile, show modal (only once)
-      setShowGradeModal(true);
+    // Only process when userData is available
+    if (!userData) {
+      return;
     }
-  }, [userData, selectedGrade]); // Watch for userData and selectedGrade changes
+    
+    const userGrade = userData.grade;
+    
+    if (userGrade) {
+      // Extract grade number (e.g., "4th Grade" -> "4th", "9th Grade" -> "9th")
+      const gradeMatch = userGrade.match(/(\d+)(th|st|nd|rd)/i);
+      if (gradeMatch) {
+        const extractedGrade = gradeMatch[0].toLowerCase();
+        // Always set the grade from profile if it exists
+        if (selectedGrade !== extractedGrade) {
+          setSelectedGrade(extractedGrade);
+        }
+        setShowGradeModal(false); // Ensure modal is closed
+        gradeInitialized.current = true;
+        return;
+      }
+    }
+    
+    // If no grade in profile and we haven't initialized yet, show modal
+    if (!gradeInitialized.current) {
+      setShowGradeModal(true);
+      gradeInitialized.current = true; // Mark as initialized to prevent showing modal again on re-renders
+    }
+  }, [userData]); // Only watch userData - don't include selectedGrade to avoid loops
 
   // Filter and find next pending test - sequential completion
   useEffect(() => {
@@ -323,9 +329,10 @@ export default function StudentDashboard() {
         setSelectedGrade(grade);
         setShowGradeModal(false);
         toast.success(`Grade set to ${grade.charAt(0).toUpperCase() + grade.slice(1)} Grade`);
-        // Refresh user data to get updated grade without reloading the page
+        // Refresh user data to get updated grade
         await refreshProfile();
-        // The useEffect will automatically pick up the updated grade from userData
+        // Reset initialization flag so grade is loaded from refreshed userData
+        gradeInitialized.current = false;
       } else {
         playSound('error');
         console.error('Profile update failed:', data);
