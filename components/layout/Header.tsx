@@ -24,33 +24,57 @@ export default function Header() {
     setMobileMenuOpen(false);
   };
 
+  // Determine active link based on pathname
+  const isActive = (href: string) => {
+    if (href === '/student' || href === '/admin/dashboard') {
+      return pathname === href || pathname === `${href}/`;
+    }
+    return pathname.startsWith(href);
+  };
+
   const navLinks = userData?.role === 'admin' ? (
     <>
       <Link
         href="/admin/dashboard"
         onClick={handleLinkClick}
-        className="block px-4 py-3 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 font-medium transition-colors rounded-lg"
+        className={`block px-4 py-3 font-semibold transition-all duration-200 rounded-lg ${
+          isActive('/admin/dashboard')
+            ? 'text-indigo-600 bg-indigo-50'
+            : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+        }`}
       >
         Executive Dashboard
       </Link>
       <Link
         href="/admin/analytics"
         onClick={handleLinkClick}
-        className="block px-4 py-3 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 font-medium transition-colors rounded-lg"
+        className={`block px-4 py-3 font-semibold transition-all duration-200 rounded-lg ${
+          isActive('/admin/analytics')
+            ? 'text-indigo-600 bg-indigo-50'
+            : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+        }`}
       >
         Analytics
       </Link>
       <Link
         href="/admin/email"
         onClick={handleLinkClick}
-        className="block px-4 py-3 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 font-medium transition-colors rounded-lg"
+        className={`block px-4 py-3 font-semibold transition-all duration-200 rounded-lg ${
+          isActive('/admin/email')
+            ? 'text-indigo-600 bg-indigo-50'
+            : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+        }`}
       >
         Email Management
       </Link>
       <Link
         href="/admin/tests"
         onClick={handleLinkClick}
-        className="block px-4 py-3 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 font-medium transition-colors rounded-lg"
+        className={`block px-4 py-3 font-semibold transition-all duration-200 rounded-lg ${
+          isActive('/admin/tests')
+            ? 'text-indigo-600 bg-indigo-50'
+            : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+        }`}
       >
         Test Management
       </Link>
@@ -60,28 +84,44 @@ export default function Header() {
       <Link
         href="/student"
         onClick={handleLinkClick}
-        className="block px-4 py-3 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 font-medium transition-colors rounded-lg"
+        className={`block px-4 py-3 font-semibold transition-all duration-200 rounded-lg ${
+          isActive('/student')
+            ? 'text-indigo-600 bg-indigo-50'
+            : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+        }`}
       >
         Dashboard
       </Link>
       <Link
         href="/student/progress"
         onClick={handleLinkClick}
-        className="block px-4 py-3 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 font-medium transition-colors rounded-lg"
+        className={`block px-4 py-3 font-semibold transition-all duration-200 rounded-lg ${
+          isActive('/student/progress')
+            ? 'text-indigo-600 bg-indigo-50'
+            : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+        }`}
       >
         Progress
       </Link>
       <Link
         href="/student/badges"
         onClick={handleLinkClick}
-        className="block px-4 py-3 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 font-medium transition-colors rounded-lg"
+        className={`block px-4 py-3 font-semibold transition-all duration-200 rounded-lg ${
+          isActive('/student/badges')
+            ? 'text-indigo-600 bg-indigo-50'
+            : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+        }`}
       >
         Badges
       </Link>
       <Link
         href="/student/leaderboard"
         onClick={handleLinkClick}
-        className="block px-4 py-3 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 font-medium transition-colors rounded-lg"
+        className={`block px-4 py-3 font-semibold transition-all duration-200 rounded-lg ${
+          isActive('/student/leaderboard')
+            ? 'text-indigo-600 bg-indigo-50'
+            : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+        }`}
       >
         Leaderboard
       </Link>
@@ -89,7 +129,7 @@ export default function Header() {
   );
 
   return (
-    <header className="bg-white border-b-2 border-gray-200 shadow-sm sticky top-0 z-50">
+    <header className="bg-white border-b-2 border-gray-200 shadow-md sticky top-0 z-50 backdrop-blur-sm bg-white/95">
       <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Branding */}
@@ -105,28 +145,44 @@ export default function Header() {
                   <Link
                     href="/admin/dashboard"
                     onClick={() => playSound('click')}
-                    className="text-gray-700 hover:text-indigo-600 font-medium transition-colors px-3 py-2 rounded-lg hover:bg-indigo-50 text-sm xl:text-base"
+                    className={`font-semibold transition-all duration-200 px-4 py-2 rounded-lg text-sm xl:text-base ${
+                      isActive('/admin/dashboard')
+                        ? 'text-indigo-600 bg-indigo-50 shadow-sm'
+                        : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+                    }`}
                   >
                     Executive Dashboard
                   </Link>
                   <Link
                     href="/admin/analytics"
                     onClick={() => playSound('click')}
-                    className="text-gray-700 hover:text-indigo-600 font-medium transition-colors px-3 py-2 rounded-lg hover:bg-indigo-50 text-sm xl:text-base"
+                    className={`font-semibold transition-all duration-200 px-4 py-2 rounded-lg text-sm xl:text-base ${
+                      isActive('/admin/analytics')
+                        ? 'text-indigo-600 bg-indigo-50 shadow-sm'
+                        : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+                    }`}
                   >
                     Analytics
                   </Link>
                   <Link
                     href="/admin/email"
                     onClick={() => playSound('click')}
-                    className="text-gray-700 hover:text-indigo-600 font-medium transition-colors px-3 py-2 rounded-lg hover:bg-indigo-50 text-sm xl:text-base"
+                    className={`font-semibold transition-all duration-200 px-4 py-2 rounded-lg text-sm xl:text-base ${
+                      isActive('/admin/email')
+                        ? 'text-indigo-600 bg-indigo-50 shadow-sm'
+                        : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+                    }`}
                   >
                     Email Management
                   </Link>
                   <Link
                     href="/admin/tests"
                     onClick={() => playSound('click')}
-                    className="text-gray-700 hover:text-indigo-600 font-medium transition-colors px-3 py-2 rounded-lg hover:bg-indigo-50 text-sm xl:text-base"
+                    className={`font-semibold transition-all duration-200 px-4 py-2 rounded-lg text-sm xl:text-base ${
+                      isActive('/admin/tests')
+                        ? 'text-indigo-600 bg-indigo-50 shadow-sm'
+                        : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+                    }`}
                   >
                     Test Management
                   </Link>
@@ -136,28 +192,44 @@ export default function Header() {
                   <Link
                     href="/student"
                     onClick={() => playSound('click')}
-                    className="text-gray-700 hover:text-indigo-600 font-medium transition-colors px-3 py-2 rounded-lg hover:bg-indigo-50 text-sm xl:text-base"
+                    className={`font-semibold transition-all duration-200 px-4 py-2 rounded-lg text-sm xl:text-base ${
+                      isActive('/student')
+                        ? 'text-indigo-600 bg-indigo-50 shadow-sm'
+                        : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+                    }`}
                   >
                     Dashboard
                   </Link>
                   <Link
                     href="/student/progress"
                     onClick={() => playSound('click')}
-                    className="text-gray-700 hover:text-indigo-600 font-medium transition-colors px-3 py-2 rounded-lg hover:bg-indigo-50 text-sm xl:text-base"
+                    className={`font-semibold transition-all duration-200 px-4 py-2 rounded-lg text-sm xl:text-base ${
+                      isActive('/student/progress')
+                        ? 'text-indigo-600 bg-indigo-50 shadow-sm'
+                        : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+                    }`}
                   >
                     Progress
                   </Link>
                   <Link
                     href="/student/badges"
                     onClick={() => playSound('click')}
-                    className="text-gray-700 hover:text-indigo-600 font-medium transition-colors px-3 py-2 rounded-lg hover:bg-indigo-50 text-sm xl:text-base"
+                    className={`font-semibold transition-all duration-200 px-4 py-2 rounded-lg text-sm xl:text-base ${
+                      isActive('/student/badges')
+                        ? 'text-indigo-600 bg-indigo-50 shadow-sm'
+                        : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+                    }`}
                   >
                     Badges
                   </Link>
                   <Link
                     href="/student/leaderboard"
                     onClick={() => playSound('click')}
-                    className="text-gray-700 hover:text-indigo-600 font-medium transition-colors px-3 py-2 rounded-lg hover:bg-indigo-50 text-sm xl:text-base"
+                    className={`font-semibold transition-all duration-200 px-4 py-2 rounded-lg text-sm xl:text-base ${
+                      isActive('/student/leaderboard')
+                        ? 'text-indigo-600 bg-indigo-50 shadow-sm'
+                        : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+                    }`}
                   >
                     Leaderboard
                   </Link>

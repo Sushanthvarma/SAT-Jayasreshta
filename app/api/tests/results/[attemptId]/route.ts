@@ -5,7 +5,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
-import { TestResult } from '@/lib/types/test';
+import { TestResult, StudentAnswer, Question } from '@/lib/types/test';
+import { scoreQuestion } from '@/lib/scoring/calculator';
 
 export async function GET(
   req: NextRequest,
@@ -152,9 +153,27 @@ export async function GET(
       });
       
       // Get student answers from attempt
-      studentAnswers = attemptData.answers || [];
+      const rawAnswers = attemptData.answers || [];
+      
+      // PRODUCTION-GRADE: Calculate isCorrect for each answer using the same scoring logic
+      // This ensures consistency between submission and review
+      studentAnswers = rawAnswers.map((answer: StudentAnswer) => {
+        const question = questions.find((q: Question) => q.id === answer.questionId);
+        if (!question) {
+          // Question not found, mark as incorrect
+          return { ...answer, isCorrect: false };
+        }
+        
+        // Use the same scoring function used during submission
+        const score = scoreQuestion(question, answer);
+        return {
+          ...answer,
+          isCorrect: score.isCorrect,
+        };
+      });
       
       console.log(`✅ Fetched ${questions.length} questions and ${studentAnswers.length} answers for review`);
+      console.log(`   Calculated isCorrect for ${studentAnswers.filter(a => a.isCorrect !== undefined).length} answers`);
     } catch (error: any) {
       console.error('⚠️ Error fetching questions/answers for review:', error);
       // Continue without questions - review section won't show

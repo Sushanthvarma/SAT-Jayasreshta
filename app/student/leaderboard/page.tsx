@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { getAuthInstance } from '@/lib/firebase';
@@ -27,10 +27,18 @@ export default function LeaderboardPage() {
   useEffect(() => {
     if (user) {
       fetchLeaderboard();
+      
+      // PRODUCTION-GRADE: Set up periodic refresh to keep leaderboard in sync
+      // Refresh every 30 seconds to catch real-time updates
+      const refreshInterval = setInterval(() => {
+        fetchLeaderboard();
+      }, 30000); // 30 seconds
+      
+      return () => clearInterval(refreshInterval);
     }
   }, [user]);
 
-  const fetchLeaderboard = async () => {
+  const fetchLeaderboard = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -74,7 +82,7 @@ export default function LeaderboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   if (authLoading || loading) {
     return (
@@ -91,21 +99,35 @@ export default function LeaderboardPage() {
     return null;
   }
 
-  // Sort leaderboard by rank, then by XP descending for same rank
-  const sortedLeaderboard = [...leaderboard].sort((a, b) => {
-    if (a.rank !== b.rank) {
-      return a.rank - b.rank; // Lower rank number = better
-    }
-    return b.xp - a.xp; // Higher XP first for same rank
-  });
+  // PRODUCTION-GRADE: Use single source of truth for leaderboard data
+  // API already returns sorted data, but ensure consistency with defensive sorting
+  // Sort by rank first, then by XP descending for same rank (consistent with server)
+  const sortedLeaderboard = React.useMemo(() => {
+    return [...leaderboard].sort((a, b) => {
+      if (a.rank !== b.rank) {
+        return a.rank - b.rank; // Lower rank number = better
+      }
+      return b.xp - a.xp; // Higher XP first for same rank
+    });
+  }, [leaderboard]);
   
-  const currentUserEntry = sortedLeaderboard.find(entry => entry.isCurrentUser);
-  // Top 3 should be rank 1, 2, 3 (not just first 3 by XP)
-  // Get rank 1, 2, 3 in correct order
-  const rank1 = sortedLeaderboard.find(e => e.rank === 1);
-  const rank2 = sortedLeaderboard.find(e => e.rank === 2);
-  const rank3 = sortedLeaderboard.find(e => e.rank === 3);
-  const topThree = [rank1, rank2, rank3].filter(Boolean) as LeaderboardEntry[];
+  // PRODUCTION-GRADE: Extract top 3 from the same sorted data source
+  // This ensures epic view and table view use identical data
+  const { topThree, rank1, rank2, rank3 } = React.useMemo(() => {
+    const r1 = sortedLeaderboard.find(e => e.rank === 1);
+    const r2 = sortedLeaderboard.find(e => e.rank === 2);
+    const r3 = sortedLeaderboard.find(e => e.rank === 3);
+    return {
+      rank1: r1,
+      rank2: r2,
+      rank3: r3,
+      topThree: [r1, r2, r3].filter(Boolean) as LeaderboardEntry[]
+    };
+  }, [sortedLeaderboard]);
+  
+  const currentUserEntry = React.useMemo(() => {
+    return sortedLeaderboard.find(entry => entry.isCurrentUser);
+  }, [sortedLeaderboard]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
@@ -196,59 +218,59 @@ export default function LeaderboardPage() {
 
         {/* Top 3 Podium */}
         {topThree.length >= 3 && (
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Top Performers</h2>
-            <div className="flex items-end justify-center gap-4 mb-8">
+          <div className="mb-8 animate-in">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 text-center">Top Performers</h2>
+            <div className="flex items-end justify-center gap-4 sm:gap-6 mb-8 transition-all duration-300">
               {/* 2nd Place (Left) */}
               {rank2 && (
-                <div className="flex flex-col items-center">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 border-4 border-white shadow-xl mb-4 flex items-center justify-center text-white text-2xl font-bold">
+                <div className="flex flex-col items-center transform transition-all duration-300 hover:scale-105">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 border-4 border-white shadow-xl mb-4 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold transition-all duration-300 hover:shadow-2xl">
                     {rank2.photoURL ? (
                       <img src={rank2.photoURL} alt={rank2.displayName} className="w-full h-full rounded-full object-cover" />
                     ) : (
                       rank2.displayName.charAt(0).toUpperCase()
                     )}
                   </div>
-                  <div className="bg-white rounded-xl shadow-lg p-4 text-center min-w-[120px]">
-                    <div className="text-3xl mb-2">🥈</div>
-                    <div className="font-bold text-gray-900">{rank2.displayName}</div>
-                    <div className="text-sm text-gray-600">{rank2.xp} XP</div>
+                  <div className="bg-white rounded-xl shadow-lg p-4 text-center min-w-[120px] sm:min-w-[140px] border-2 border-gray-200 transition-all duration-300 hover:shadow-xl">
+                    <div className="text-3xl sm:text-4xl mb-2">🥈</div>
+                    <div className="font-bold text-gray-900 text-sm sm:text-base">{rank2.displayName}</div>
+                    <div className="text-sm text-gray-600 font-semibold">{rank2.xp.toLocaleString()} XP</div>
                   </div>
                 </div>
               )}
 
               {/* 1st Place (Center) */}
               {rank1 && (
-                <div className="flex flex-col items-center">
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 border-4 border-white shadow-2xl mb-4 flex items-center justify-center text-white text-3xl font-bold">
+                <div className="flex flex-col items-center transform transition-all duration-300 hover:scale-105">
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 border-4 border-white shadow-2xl mb-4 flex items-center justify-center text-white text-3xl sm:text-4xl font-bold transition-all duration-300 hover:shadow-3xl animate-pulse">
                     {rank1.photoURL ? (
                       <img src={rank1.photoURL} alt={rank1.displayName} className="w-full h-full rounded-full object-cover" />
                     ) : (
                       rank1.displayName.charAt(0).toUpperCase()
                     )}
                   </div>
-                  <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl shadow-xl p-4 text-center min-w-[140px] text-white">
-                    <div className="text-4xl mb-2">👑</div>
-                    <div className="font-bold">{rank1.displayName}</div>
-                    <div className="text-sm opacity-90">{rank1.xp} XP</div>
+                  <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl shadow-xl p-4 sm:p-5 text-center min-w-[140px] sm:min-w-[160px] text-white border-2 border-yellow-300 transition-all duration-300 hover:shadow-2xl">
+                    <div className="text-4xl sm:text-5xl mb-2">👑</div>
+                    <div className="font-bold text-base sm:text-lg">{rank1.displayName}</div>
+                    <div className="text-sm sm:text-base opacity-90 font-semibold">{rank1.xp.toLocaleString()} XP</div>
                   </div>
                 </div>
               )}
 
               {/* 3rd Place (Right) */}
               {rank3 && (
-                <div className="flex flex-col items-center">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-300 to-orange-400 border-4 border-white shadow-xl mb-4 flex items-center justify-center text-white text-2xl font-bold">
+                <div className="flex flex-col items-center transform transition-all duration-300 hover:scale-105">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-orange-300 to-orange-400 border-4 border-white shadow-xl mb-4 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold transition-all duration-300 hover:shadow-2xl">
                     {rank3.photoURL ? (
                       <img src={rank3.photoURL} alt={rank3.displayName} className="w-full h-full rounded-full object-cover" />
                     ) : (
                       rank3.displayName.charAt(0).toUpperCase()
                     )}
                   </div>
-                  <div className="bg-white rounded-xl shadow-lg p-4 text-center min-w-[120px]">
-                    <div className="text-3xl mb-2">🥉</div>
-                    <div className="font-bold text-gray-900">{rank3.displayName}</div>
-                    <div className="text-sm text-gray-600">{rank3.xp} XP</div>
+                  <div className="bg-white rounded-xl shadow-lg p-4 text-center min-w-[120px] sm:min-w-[140px] border-2 border-gray-200 transition-all duration-300 hover:shadow-xl">
+                    <div className="text-3xl sm:text-4xl mb-2">🥉</div>
+                    <div className="font-bold text-gray-900 text-sm sm:text-base">{rank3.displayName}</div>
+                    <div className="text-sm text-gray-600 font-semibold">{rank3.xp.toLocaleString()} XP</div>
                   </div>
                 </div>
               )}
@@ -288,8 +310,10 @@ export default function LeaderboardPage() {
               return (
                 <div
                   key={entry.userId}
-                  className={`p-4 hover:bg-gray-50 transition-colors ${
-                    isCurrentUser ? 'bg-indigo-50 border-l-4 border-indigo-600' : ''
+                  className={`p-4 sm:p-5 hover:bg-gray-50 transition-all duration-200 rounded-lg ${
+                    isCurrentUser 
+                      ? 'bg-gradient-to-r from-indigo-50 to-blue-50 border-l-4 border-indigo-600 shadow-sm' 
+                      : 'hover:shadow-sm'
                   }`}
                 >
                   <div className="flex items-center gap-4">

@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import { playSound } from '@/lib/audio';
+import { scoreQuestion } from '@/lib/scoring/calculator';
 
 export default function ResultsPage({ params }: { params: Promise<{ attemptId: string }> | { attemptId: string } }) {
   const { user, loading: authLoading } = useAuth();
@@ -82,7 +83,26 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
         if (data.success) {
           setResult(data.result);
           setQuestions(data.questions || []);
-          setStudentAnswers(data.studentAnswers || []);
+          
+          // PRODUCTION-GRADE: Ensure isCorrect is calculated for all answers
+          // API should provide this, but calculate as fallback for robustness
+          const answersWithCorrectness = (data.studentAnswers || []).map((answer: StudentAnswer) => {
+            // If isCorrect is already set, use it
+            if (answer.isCorrect !== undefined) {
+              return answer;
+            }
+            
+            // Otherwise, calculate it using the scoring function
+            const question = (data.questions || []).find((q: Question) => q.id === answer.questionId);
+            if (question) {
+              const score = scoreQuestion(question, answer);
+              return { ...answer, isCorrect: score.isCorrect };
+            }
+            
+            return { ...answer, isCorrect: false };
+          });
+          
+          setStudentAnswers(answersWithCorrectness);
           // Play success sound when results load
           playSound('success', 0.4);
         } else {
@@ -357,28 +377,47 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
                   return (
                     <div
                       key={question.id}
-                      className={`bg-white rounded-xl shadow-md p-4 sm:p-6 border-2 ${
-                        isCorrect ? 'border-green-300 bg-green-50' : 
-                        isAnswered ? 'border-red-300 bg-red-50' : 
-                        'border-yellow-300 bg-yellow-50'
+                      className={`bg-white rounded-xl shadow-lg p-4 sm:p-6 border-2 transition-all ${
+                        isCorrect 
+                          ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 shadow-green-100' 
+                          : isAnswered 
+                          ? 'border-red-500 bg-gradient-to-br from-red-50 to-pink-50 shadow-red-100' 
+                          : 'border-yellow-500 bg-gradient-to-br from-yellow-50 to-amber-50 shadow-yellow-100'
                       }`}
                     >
                       <div className="flex items-start justify-between mb-3 sm:mb-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                            <span className="text-lg sm:text-xl font-bold text-gray-700">
+                            <span className="text-lg sm:text-xl font-bold text-gray-900">
                               Question {index + 1}
                             </span>
-                            <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${
-                              isCorrect ? 'bg-green-200 text-green-800' :
-                              isAnswered ? 'bg-red-200 text-red-800' :
-                              'bg-yellow-200 text-yellow-800'
+                            <span className={`px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1.5 ${
+                              isCorrect 
+                                ? 'bg-green-500 text-white shadow-md' 
+                                : isAnswered 
+                                ? 'bg-red-500 text-white shadow-md' 
+                                : 'bg-yellow-500 text-white shadow-md'
                             }`}>
-                              {isCorrect ? '✓ Correct' : isAnswered ? '✗ Incorrect' : '⊘ Skipped'}
+                              {isCorrect ? (
+                                <>
+                                  <span className="text-base">✓</span>
+                                  <span>Correct</span>
+                                </>
+                              ) : isAnswered ? (
+                                <>
+                                  <span className="text-base">✗</span>
+                                  <span>Incorrect</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="text-base">⊘</span>
+                                  <span>Skipped</span>
+                                </>
+                              )}
                             </span>
                           </div>
-                          <p className="text-sm sm:text-base text-gray-600 mb-2">
-                            Section {question.sectionNumber} • {question.subject}
+                          <p className="text-sm sm:text-base text-gray-600 mb-2 font-medium">
+                            Section {question.sectionNumber} • {question.subject.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                           </p>
                         </div>
                       </div>
@@ -406,33 +445,41 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
                               return (
                                 <div
                                   key={optIndex}
-                                  className={`p-3 sm:p-4 rounded-lg border-2 ${
-                                    isCorrectOption ? 'border-green-500 bg-green-100' :
-                                    isStudentAnswer && !isCorrect ? 'border-red-500 bg-red-100' :
-                                    'border-gray-200 bg-white'
+                                  className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${
+                                    isCorrectOption 
+                                      ? 'border-green-500 bg-green-100 shadow-sm' 
+                                      : isStudentAnswer && !isCorrect 
+                                      ? 'border-red-500 bg-red-100 shadow-sm' 
+                                      : 'border-gray-200 bg-white hover:border-gray-300'
                                   }`}
                                 >
                                   <div className="flex items-start gap-2 sm:gap-3">
-                                    <span className={`font-bold text-base sm:text-lg ${
-                                      isCorrectOption ? 'text-green-700' :
-                                      isStudentAnswer && !isCorrect ? 'text-red-700' :
-                                      'text-gray-700'
+                                    <span className={`font-bold text-base sm:text-lg min-w-[24px] ${
+                                      isCorrectOption 
+                                        ? 'text-green-700' 
+                                        : isStudentAnswer && !isCorrect 
+                                        ? 'text-red-700' 
+                                        : 'text-gray-600'
                                     }`}>
                                       {optionLetter}.
                                     </span>
-                                    <span className={`flex-1 text-sm sm:text-base ${
-                                      isCorrectOption ? 'text-green-800 font-semibold' :
-                                      isStudentAnswer && !isCorrect ? 'text-red-800 font-semibold' :
-                                      'text-gray-700'
+                                    <span className={`flex-1 text-sm sm:text-base leading-relaxed ${
+                                      isCorrectOption 
+                                        ? 'text-green-900 font-semibold' 
+                                        : isStudentAnswer && !isCorrect 
+                                        ? 'text-red-900 font-semibold' 
+                                        : 'text-gray-700'
                                     }`}>
                                       {option.text}
                                     </span>
-                                    {isCorrectOption && (
-                                      <span className="text-green-600 text-lg sm:text-xl">✓</span>
-                                    )}
-                                    {isStudentAnswer && !isCorrect && (
-                                      <span className="text-red-600 text-lg sm:text-xl">✗</span>
-                                    )}
+                                    <div className="flex-shrink-0">
+                                      {isCorrectOption && (
+                                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-500 text-white text-sm font-bold">✓</span>
+                                      )}
+                                      {isStudentAnswer && !isCorrect && (
+                                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-500 text-white text-sm font-bold">✗</span>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               );
@@ -443,24 +490,28 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
                       
                       {/* Answer Summary */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
-                        <div className={`p-3 sm:p-4 rounded-lg ${
-                          isCorrect ? 'bg-green-100 border-2 border-green-300' :
-                          isAnswered ? 'bg-red-100 border-2 border-red-300' :
-                          'bg-yellow-100 border-2 border-yellow-300'
+                        <div className={`p-4 sm:p-5 rounded-lg border-2 shadow-sm ${
+                          isCorrect 
+                            ? 'bg-gradient-to-br from-green-100 to-emerald-100 border-green-400' 
+                            : isAnswered 
+                            ? 'bg-gradient-to-br from-red-100 to-pink-100 border-red-400' 
+                            : 'bg-gradient-to-br from-yellow-100 to-amber-100 border-yellow-400'
                         }`}>
-                          <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1">Your Answer</p>
-                          <p className={`text-sm sm:text-base font-bold ${
-                            isCorrect ? 'text-green-800' :
-                            isAnswered ? 'text-red-800' :
-                            'text-yellow-800'
+                          <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">Your Answer</p>
+                          <p className={`text-base sm:text-lg font-bold ${
+                            isCorrect 
+                              ? 'text-green-900' 
+                              : isAnswered 
+                              ? 'text-red-900' 
+                              : 'text-yellow-900'
                           }`}>
-                            {isAnswered ? studentAnswerText : 'Skipped'}
+                            {isAnswered ? studentAnswerText : 'Not Answered'}
                           </p>
                         </div>
                         {!isCorrect && (
-                          <div className="p-3 sm:p-4 rounded-lg bg-green-100 border-2 border-green-300">
-                            <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1">Correct Answer</p>
-                            <p className="text-sm sm:text-base font-bold text-green-800">
+                          <div className="p-4 sm:p-5 rounded-lg bg-gradient-to-br from-green-100 to-emerald-100 border-2 border-green-400 shadow-sm">
+                            <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">Correct Answer</p>
+                            <p className="text-base sm:text-lg font-bold text-green-900">
                               {correctAnswerText}
                             </p>
                           </div>
@@ -469,9 +520,12 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
                       
                       {/* Explanation */}
                       {question.explanation && (
-                        <div className="mt-4 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
-                          <p className="text-xs sm:text-sm font-semibold text-blue-900 mb-2">Explanation</p>
-                          <p className="text-sm sm:text-base text-blue-800">
+                        <div className="mt-4 p-4 sm:p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-300 shadow-sm">
+                          <p className="text-xs sm:text-sm font-bold text-blue-900 mb-2 uppercase tracking-wide flex items-center gap-2">
+                            <span className="text-base">💡</span>
+                            Explanation
+                          </p>
+                          <p className="text-sm sm:text-base text-blue-900 leading-relaxed">
                             {typeof question.explanation === 'string' 
                               ? question.explanation 
                               : question.explanation.correct || 'No explanation available'}

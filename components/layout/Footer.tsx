@@ -12,11 +12,18 @@ export default function Footer() {
             <p className="text-xs text-gray-500 mt-1">
               By Sushanth Varma • Educational Excellence
             </p>
+            <p className="text-xs text-gray-400 mt-1">
+              <a href="mailto:email@sushanthvarma.in" className="hover:text-indigo-600 transition-colors">
+                email@sushanthvarma.in
+              </a>
+            </p>
           </div>
           <div className="flex items-center gap-6 text-sm text-gray-600">
+            <a href="mailto:email@sushanthvarma.in" className="hover:text-indigo-600 transition-colors">
+              Support
+            </a>
             <span className="hover:text-indigo-600 transition-colors cursor-pointer">Privacy</span>
             <span className="hover:text-indigo-600 transition-colors cursor-pointer">Terms</span>
-            <span className="hover:text-indigo-600 transition-colors cursor-pointer">Support</span>
           </div>
         </div>
       </div>
