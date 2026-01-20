@@ -14,11 +14,11 @@ export default function Branding() {
         priority
         className="flex-shrink-0"
       />
-      <div className="flex flex-col justify-center">
-        <h1 className="font-bold text-gray-900 text-sm sm:text-base leading-tight">
+      <div className="flex flex-col justify-center gap-0">
+        <h1 className="font-bold text-gray-900 text-base leading-tight">
           SAT Practice Platform
         </h1>
-        <p className="text-xs text-gray-500 leading-tight hidden sm:block">
+        <p className="text-[11px] text-gray-500 leading-tight hidden sm:block">
           By Sushanth Varma
         </p>
       </div>
