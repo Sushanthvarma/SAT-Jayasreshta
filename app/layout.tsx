@@ -1,6 +1,7 @@
 import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from 'react-hot-toast';
+import Footer from '@/components/layout/Footer';
 
 export const metadata = {
   title: 'SAT Practice Platform | By Sushanth Varma',
@@ -19,9 +20,12 @@ export const viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
+      <body className="flex flex-col min-h-screen">
         <AuthProvider>
-          {children}
+          <div className="flex-1">
+            {children}
+          </div>
+          <Footer />
           <Toaster 
             position="top-center"
             containerClassName="!top-16 sm:!top-20"

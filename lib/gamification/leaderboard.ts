@@ -1,154 +1,19 @@
 import { LeaderboardEntry, UserStats } from '@/lib/types/gamification';
 import { adminDb } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
+import { getLeaderboardData } from '@/lib/leaderboard';
 
 /**
  * Get leaderboard entries
- * PRODUCTION-GRADE: Always fetches ALL students for consistent leaderboard across all users
- * With Blaze plan, we can fetch all students without limits
+ * PRODUCTION-GRADE: Uses single source of truth function
+ * @deprecated Use getLeaderboardData from '@/lib/leaderboard' directly
+ * This function is kept for backward compatibility
  */
 export async function getLeaderboard(limit: number = 100, userId?: string): Promise<LeaderboardEntry[]> {
-  let allStudents: Array<{ doc: any; data: any; xp: number }> = [];
-  
-  try {
-    // PRODUCTION-GRADE: Always fetch ALL students for consistent leaderboard
-    // With Blaze plan, we can fetch all students without worrying about quotas
-    const allUsersSnapshot = await adminDb
-      .collection('users')
-      .where('role', '==', 'student')
-      .get();
-    
-    // Convert to array and sort by XP descending
-    allStudents = allUsersSnapshot.docs
-      .map(doc => {
-        const data = doc.data();
-        return {
-          doc,
-          data,
-          xp: data.totalXP || 0,
-        };
-      })
-      .sort((a, b) => b.xp - a.xp); // Sort by XP descending
-    
-    console.log(`✅ Fetched ${allStudents.length} students for leaderboard`);
-  } catch (error: any) {
-    // Fallback: try without role filter
-    console.warn('⚠️ Leaderboard query with role filter failed, trying fallback:', error.message);
-    try {
-      const allUsersSnapshot = await adminDb.collection('users').get();
-      
-      // Filter students and sort in memory by totalXP
-      allStudents = allUsersSnapshot.docs
-        .filter(doc => {
-          const data = doc.data();
-          return data.role === 'student' || data.role === undefined; // Include students and users without role
-        })
-        .map(doc => {
-          const data = doc.data();
-          return {
-            doc,
-            data,
-            xp: data.totalXP || 0,
-          };
-        })
-        .sort((a, b) => b.xp - a.xp);
-      
-      console.log(`✅ Fetched ${allStudents.length} students (fallback method)`);
-    } catch (fallbackError: any) {
-      console.error('❌ Failed to fetch users for leaderboard:', fallbackError);
-      return []; // Return empty array if everything fails
-    }
-  }
-
-  // PRODUCTION-GRADE: Calculate ranks correctly with ties
-  // All students are already sorted by XP descending
-  const entries: LeaderboardEntry[] = [];
-  let rank = 1;
-  let previousXP: number | null = null;
-  
-  // Calculate ranks for ALL students (consistent across all users)
-  for (let i = 0; i < allStudents.length; i++) {
-    const { doc, data, xp } = allStudents[i];
-    const isCurrentUser = !!(userId && doc.id === userId);
-    
-    // Update rank when XP decreases (handles ties - same XP = same rank)
-    if (previousXP !== null && xp < previousXP) {
-      rank = i + 1; // Rank = position in sorted list
-    } else if (previousXP === null) {
-      rank = 1; // First entry
-    }
-    // If xp === previousXP, rank stays the same (ties)
-    
-    previousXP = xp;
-    
-    // Add entry (we'll filter/limit later if needed)
-    entries.push({
-      userId: doc.id,
-      displayName: data.displayName || data.name || 'Student',
-      photoURL: data.photoURL || null,
-      rank: rank,
-      xp: xp,
-      level: data.level || 1,
-      streak: data.currentStreak || 0,
-      testsCompleted: data.totalTestsCompleted || 0,
-      averageScore: data.averageScore || 0,
-      isCurrentUser: isCurrentUser,
-    });
-  }
-
-  // PRODUCTION-GRADE: Always include current user if they're not in the list
-  // This ensures the current user always sees their own entry
-  if (userId) {
-    const currentUserInList = entries.find(e => e.userId === userId);
-    if (!currentUserInList) {
-      try {
-        const userDoc = await adminDb.collection('users').doc(userId).get();
-        if (userDoc.exists) {
-          const userData = userDoc.data()!;
-          const userXP = userData.totalXP || 0;
-          
-          // Calculate rank: count users with higher XP + 1
-          let calculatedRank = 1;
-          for (const student of allStudents) {
-            if (student.xp > userXP) {
-              calculatedRank++;
-            } else if (student.xp === userXP) {
-              // Found users with same XP - rank is calculatedRank
-              break;
-            } else {
-              // All remaining users have lower XP
-              break;
-            }
-          }
-          
-          entries.push({
-            userId: userId,
-            displayName: userData.displayName || userData.name || 'Student',
-            photoURL: userData.photoURL || null,
-            rank: calculatedRank,
-            xp: userXP,
-            level: userData.level || 1,
-            streak: userData.currentStreak || 0,
-            testsCompleted: userData.totalTestsCompleted || 0,
-            averageScore: userData.averageScore || 0,
-            isCurrentUser: true,
-          });
-        }
-      } catch (error: any) {
-        console.error('Error fetching current user for leaderboard:', error);
-      }
-    }
-  }
-
-  // Sort by rank, then by XP descending for same rank
-  // Return ALL entries (consistent leaderboard for all users)
-  return entries.sort((a, b) => {
-    if (a.rank !== b.rank) {
-      return a.rank - b.rank;
-    }
-    return b.xp - a.xp; // Higher XP first for same rank
-  });
+  // Use single source of truth
+  return getLeaderboardData(limit, userId);
 }
+
 
 /**
  * Get user stats with ranking

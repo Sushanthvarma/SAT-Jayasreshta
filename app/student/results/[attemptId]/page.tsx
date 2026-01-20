@@ -11,6 +11,7 @@ import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import { playSound } from '@/lib/audio';
 import { scoreQuestion } from '@/lib/scoring/calculator';
+import { normalizeAnswer } from '@/lib/answerNormalizer';
 
 export default function ResultsPage({ params }: { params: Promise<{ attemptId: string }> | { attemptId: string } }) {
   const { user, loading: authLoading, refreshProfile } = useAuth();
@@ -529,6 +530,25 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
                           </div>
                         )}
                       </div>
+                      
+                      {/* Debug View - Shows normalized answers for verification */}
+                      {process.env.NODE_ENV === 'development' && (
+                        <div className="mt-4 p-3 bg-gray-100 rounded-lg border border-gray-300">
+                          <p className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Debug Info</p>
+                          <pre className="text-xs text-gray-600 overflow-auto">
+                            {JSON.stringify({
+                              userRaw: studentAnswer?.answer,
+                              correctRaw: question.correctAnswer,
+                              normalized: {
+                                user: normalizeAnswer(studentAnswer?.answer),
+                                correct: normalizeAnswer(question.correctAnswer)
+                              },
+                              match: isCorrect,
+                              questionType: question.type
+                            }, null, 2)}
+                          </pre>
+                        </div>
+                      )}
                       
                       {/* Explanation */}
                       {question.explanation && (

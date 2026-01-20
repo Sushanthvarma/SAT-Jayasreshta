@@ -8,6 +8,8 @@ import { getIdToken } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import Header from '@/components/layout/Header';
 import { LeaderboardEntry, UserStats, SocialComparison } from '@/lib/types/gamification';
+import { LeaderboardEpic } from '@/components/leaderboard/LeaderboardEpic';
+import { LeaderboardTable } from '@/components/leaderboard/LeaderboardTable';
 
 export default function LeaderboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -99,14 +101,22 @@ export default function LeaderboardPage() {
   }, [leaderboard]);
   
   // PRODUCTION-GRADE: Extract top 3 from the same sorted data source
-  // This ensures epic view and table view use identical data
+  // CRITICAL FIX: Get top 3 by XP (not by rank) to ensure consistency
+  // This ensures epic view and table view use IDENTICAL data
   const { topThree, rank1, rank2, rank3 } = useMemo(() => {
     if (!sortedLeaderboard || sortedLeaderboard.length === 0) {
       return { rank1: undefined, rank2: undefined, rank3: undefined, topThree: [] };
     }
-    const r1 = sortedLeaderboard.find(e => e.rank === 1);
-    const r2 = sortedLeaderboard.find(e => e.rank === 2);
-    const r3 = sortedLeaderboard.find(e => e.rank === 3);
+    
+    // Get top 3 entries by XP (already sorted by rank, then XP)
+    // This ensures we get the actual top 3 users, not just first user of each rank
+    const top3ByXP = sortedLeaderboard.slice(0, 3);
+    
+    // Extract by position (0=1st, 1=2nd, 2=3rd)
+    const r1 = top3ByXP[0];
+    const r2 = top3ByXP[1];
+    const r3 = top3ByXP[2];
+    
     return {
       rank1: r1,
       rank2: r2,
@@ -223,174 +233,16 @@ export default function LeaderboardPage() {
           </div>
         )}
 
-        {/* Top 3 Podium */}
+        {/* Top 3 Podium - Uses single source of truth */}
         {topThree.length >= 3 && (
-          <div className="mb-8 animate-in">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 text-center">Top Performers</h2>
-            <div className="flex items-end justify-center gap-4 sm:gap-6 mb-8 transition-all duration-300">
-              {/* 2nd Place (Left) */}
-              {rank2 && (
-                <div className="flex flex-col items-center transform transition-all duration-300 hover:scale-105">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 border-4 border-white shadow-xl mb-4 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold transition-all duration-300 hover:shadow-2xl">
-                    {rank2.photoURL ? (
-                      <img src={rank2.photoURL} alt={rank2.displayName} className="w-full h-full rounded-full object-cover" />
-                    ) : (
-                      rank2.displayName.charAt(0).toUpperCase()
-                    )}
-                  </div>
-                  <div className="bg-white rounded-xl shadow-lg p-4 text-center min-w-[120px] sm:min-w-[140px] border-2 border-gray-200 transition-all duration-300 hover:shadow-xl">
-                    <div className="text-3xl sm:text-4xl mb-2">🥈</div>
-                    <div className="font-bold text-gray-900 text-sm sm:text-base">{rank2.displayName}</div>
-                    <div className="text-sm text-gray-600 font-semibold">{rank2.xp.toLocaleString()} XP</div>
-                  </div>
-                </div>
-              )}
-
-              {/* 1st Place (Center) */}
-              {rank1 && (
-                <div className="flex flex-col items-center transform transition-all duration-300 hover:scale-105">
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 border-4 border-white shadow-2xl mb-4 flex items-center justify-center text-white text-3xl sm:text-4xl font-bold transition-all duration-300 hover:shadow-3xl animate-pulse">
-                    {rank1.photoURL ? (
-                      <img src={rank1.photoURL} alt={rank1.displayName} className="w-full h-full rounded-full object-cover" />
-                    ) : (
-                      rank1.displayName.charAt(0).toUpperCase()
-                    )}
-                  </div>
-                  <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl shadow-xl p-4 sm:p-5 text-center min-w-[140px] sm:min-w-[160px] text-white border-2 border-yellow-300 transition-all duration-300 hover:shadow-2xl">
-                    <div className="text-4xl sm:text-5xl mb-2">👑</div>
-                    <div className="font-bold text-base sm:text-lg">{rank1.displayName}</div>
-                    <div className="text-sm sm:text-base opacity-90 font-semibold">{rank1.xp.toLocaleString()} XP</div>
-                  </div>
-                </div>
-              )}
-
-              {/* 3rd Place (Right) */}
-              {rank3 && (
-                <div className="flex flex-col items-center transform transition-all duration-300 hover:scale-105">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-orange-300 to-orange-400 border-4 border-white shadow-xl mb-4 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold transition-all duration-300 hover:shadow-2xl">
-                    {rank3.photoURL ? (
-                      <img src={rank3.photoURL} alt={rank3.displayName} className="w-full h-full rounded-full object-cover" />
-                    ) : (
-                      rank3.displayName.charAt(0).toUpperCase()
-                    )}
-                  </div>
-                  <div className="bg-white rounded-xl shadow-lg p-4 text-center min-w-[120px] sm:min-w-[140px] border-2 border-gray-200 transition-all duration-300 hover:shadow-xl">
-                    <div className="text-3xl sm:text-4xl mb-2">🥉</div>
-                    <div className="font-bold text-gray-900 text-sm sm:text-base">{rank3.displayName}</div>
-                    <div className="text-sm text-gray-600 font-semibold">{rank3.xp.toLocaleString()} XP</div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <LeaderboardEpic topUsers={topThree} />
         )}
 
-        {/* Full Leaderboard */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-900">Full Rankings</h2>
-            {leaderboard.length === 0 && (
-              <p className="text-sm text-gray-600 mt-2">No rankings yet. Complete tests to earn XP!</p>
-            )}
-          </div>
-          
-          {leaderboard.length === 0 ? (
-            <div className="p-12 text-center">
-              <div className="text-6xl mb-4">🏆</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Leaderboard Data Yet</h3>
-              <p className="text-gray-600 mb-4">
-                Start taking tests to earn XP and appear on the leaderboard!
-              </p>
-              <button
-                onClick={() => router.push('/student')}
-                className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors min-h-[44px]"
-              >
-                Go to Dashboard
-              </button>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-100">
-              {sortedLeaderboard.map((entry, index) => {
-              const isTopThree = entry.rank <= 3;
-              const isCurrentUser = entry.isCurrentUser;
-              
-              return (
-                <div
-                  key={entry.userId}
-                  className={`p-4 sm:p-5 hover:bg-gray-50 transition-all duration-200 rounded-lg ${
-                    isCurrentUser 
-                      ? 'bg-gradient-to-r from-indigo-50 to-blue-50 border-l-4 border-indigo-600 shadow-sm' 
-                      : 'hover:shadow-sm'
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    {/* Rank */}
-                    <div className={`w-12 text-center font-bold text-lg ${
-                      entry.rank === 1 ? 'text-yellow-600' :
-                      entry.rank === 2 ? 'text-gray-500' :
-                      entry.rank === 3 ? 'text-orange-600' :
-                      'text-gray-400'
-                    }`}>
-                      {isTopThree ? (
-                        entry.rank === 1 ? '👑' :
-                        entry.rank === 2 ? '🥈' :
-                        '🥉'
-                      ) : (
-                        `#${entry.rank}`
-                      )}
-                    </div>
-
-                    {/* Avatar */}
-                    <div className="relative">
-                      {entry.photoURL ? (
-                        <img
-                          src={entry.photoURL}
-                          alt={entry.displayName}
-                          className="w-12 h-12 rounded-full border-2 border-white shadow-md object-cover"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-md">
-                          {entry.displayName.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                      {isCurrentUser && (
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-indigo-600 border-2 border-white rounded-full"></div>
-                      )}
-                    </div>
-
-                    {/* User Info */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className={`font-bold ${isCurrentUser ? 'text-indigo-600' : 'text-gray-900'}`}>
-                          {entry.displayName}
-                        </span>
-                        {isCurrentUser && (
-                          <span className="px-2 py-0.5 bg-indigo-600 text-white text-xs font-semibold rounded-full">
-                            You
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                        <span>Level {entry.level}</span>
-                        <span>•</span>
-                        <span>🔥 {entry.streak} day streak</span>
-                        <span>•</span>
-                        <span>{entry.testsCompleted} tests</span>
-                      </div>
-                    </div>
-
-                    {/* XP */}
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-indigo-600">{entry.xp.toLocaleString()}</div>
-                      <div className="text-xs text-gray-500">XP</div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            </div>
-          )}
-        </div>
+        {/* Full Leaderboard Table - Uses single source of truth */}
+        <LeaderboardTable 
+          users={sortedLeaderboard} 
+          currentUserId={user?.uid}
+        />
       </div>
     </div>
   );

@@ -13,6 +13,7 @@ import {
   SkillPerformance,
   StudentAnswer,
 } from '@/lib/types/test';
+import { answersMatch } from '@/lib/answerNormalizer';
 
 // ============================================================================
 // SCORING FUNCTIONS
@@ -35,93 +36,27 @@ export function scoreQuestion(
     };
   }
   
-  // Compare student answer with correct answer
-  // PRODUCTION-GRADE: Normalize both answers to same format before comparison
-  // Handles: student answer as number (0-3) vs correct answer as string ("A"-"D") or number
+  // PRODUCTION-GRADE: Use answer normalization utility for consistent comparison
+  // This handles all edge cases: case sensitivity, whitespace, data types, formats
   let isCorrect = false;
   
   if (question.type === 'multiple-choice') {
-    // Normalize student answer to option ID format ("A", "B", "C", "D")
-    let studentAnswerNormalized: string;
-    if (typeof studentAnswer.answer === 'number') {
-      // Convert number index (0-3) to letter ("A"-"D")
-      studentAnswerNormalized = String.fromCharCode(65 + studentAnswer.answer); // 0->A, 1->B, 2->C, 3->D
-    } else if (typeof studentAnswer.answer === 'string') {
-      // Already a string, normalize it
-      const trimmed = studentAnswer.answer.trim().toUpperCase();
-      // If it's a number string like "0", "1", convert to letter
-      const numValue = parseInt(trimmed, 10);
-      if (!isNaN(numValue) && numValue >= 0 && numValue <= 3) {
-        studentAnswerNormalized = String.fromCharCode(65 + numValue);
-      } else {
-        studentAnswerNormalized = trimmed;
-      }
-    } else {
-      isCorrect = false;
-      return { isCorrect, points: 0 };
-    }
+    // Use normalized comparison utility
+    isCorrect = answersMatch(studentAnswer.answer, question.correctAnswer);
     
-    // Normalize correct answer to option ID format
-    let correctAnswerNormalized: string;
-    if (typeof question.correctAnswer === 'number') {
-      // Convert number index to letter
-      correctAnswerNormalized = String.fromCharCode(65 + question.correctAnswer);
-    } else if (typeof question.correctAnswer === 'string') {
-      const trimmed = question.correctAnswer.trim().toUpperCase();
-      // If it's a number string, convert to letter
-      const numValue = parseInt(trimmed, 10);
-      if (!isNaN(numValue) && numValue >= 0 && numValue <= 3) {
-        correctAnswerNormalized = String.fromCharCode(65 + numValue);
-      } else {
-        correctAnswerNormalized = trimmed;
-      }
-    } else {
-      // Fallback: try to find correct option from options array
-      if (question.options && question.options.length > 0) {
-        const correctOption = question.options.find(opt => opt.isCorrect);
-        if (correctOption) {
-          correctAnswerNormalized = correctOption.id.trim().toUpperCase();
-        } else {
-          isCorrect = false;
-          return { isCorrect, points: 0 };
-        }
-      } else {
-        isCorrect = false;
-        return { isCorrect, points: 0 };
-      }
-    }
-    
-    // Compare normalized answers
-    isCorrect = studentAnswerNormalized === correctAnswerNormalized;
-    
-    // Additional validation: if options array exists, verify the answer matches the correct option ID
+    // Additional validation: if options array exists, verify against correct option
     if (question.options && question.options.length > 0) {
       const correctOption = question.options.find(opt => opt.isCorrect);
-      if (correctOption && correctOption.id.trim().toUpperCase() !== correctAnswerNormalized) {
-        // If correctAnswer field doesn't match the marked correct option, use the option
-        correctAnswerNormalized = correctOption.id.trim().toUpperCase();
-        isCorrect = studentAnswerNormalized === correctAnswerNormalized;
+      if (correctOption) {
+        // Also check against the option ID from the options array
+        const matchesOptionId = answersMatch(studentAnswer.answer, correctOption.id);
+        // Use either match (correctAnswer field OR option ID)
+        isCorrect = isCorrect || matchesOptionId;
       }
     }
   } else if (question.type === 'grid-in') {
-    // For grid-in, compare numeric values (with tolerance for floating point)
-    const studentNum = typeof studentAnswer.answer === 'string' 
-      ? parseFloat(studentAnswer.answer) 
-      : typeof studentAnswer.answer === 'number'
-      ? studentAnswer.answer
-      : NaN;
-    const correctNum = typeof question.correctAnswer === 'string'
-      ? parseFloat(question.correctAnswer)
-      : typeof question.correctAnswer === 'number'
-      ? question.correctAnswer
-      : NaN;
-    
-    if (isNaN(studentNum) || isNaN(correctNum)) {
-      isCorrect = false;
-    } else {
-      // Allow small tolerance for floating point errors
-      isCorrect = Math.abs(studentNum - correctNum) < 0.001;
-    }
+    // For grid-in, use normalized comparison (handles numeric tolerance)
+    isCorrect = answersMatch(studentAnswer.answer, question.correctAnswer);
   }
   
   return {

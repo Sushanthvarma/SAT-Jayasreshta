@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth } from '@/lib/firebase-admin';
-import { getLeaderboard, getUserStats, getSocialComparison } from '@/lib/gamification/leaderboard';
+import { getLeaderboardData } from '@/lib/leaderboard';
+import { getUserStats, getSocialComparison } from '@/lib/gamification/leaderboard';
 
 export async function GET(req: NextRequest) {
   try {
@@ -19,8 +20,9 @@ export async function GET(req: NextRequest) {
     const includeStats = searchParams.get('stats') === 'true';
     const includeComparison = searchParams.get('comparison') === 'true';
 
-    // Fetch ALL students (no limit) for consistent leaderboard across all users
-    const leaderboard = await getLeaderboard(10000, userId); // Large limit to get all
+    // SINGLE SOURCE OF TRUTH: Use getLeaderboardData for all leaderboard queries
+    // This ensures epic view and table view use identical data
+    const leaderboard = await getLeaderboardData(10000, userId); // Large limit to get all
     
     const response: any = {
       success: true,
