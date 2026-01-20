@@ -73,16 +73,19 @@ export default function UserMenu() {
           )}
         </div>
         
-        {/* User Info - Better Typography - Hidden on very small screens */}
-        <div className="hidden md:block text-left min-w-0 flex-1">
-          <p className="text-sm font-bold text-gray-900 leading-tight truncate">{displayName}</p>
+        {/* User Info - Mobile Friendly - Show name on all screens */}
+        <div className="text-left min-w-0 flex-1">
+          <p className="text-xs sm:text-sm font-semibold text-gray-900 leading-tight truncate max-w-[120px] sm:max-w-none">
+            {displayName}
+          </p>
           {streak > 0 ? (
-            <p className="text-xs text-orange-600 font-semibold mt-0.5 flex items-center gap-1">
+            <p className="text-[10px] sm:text-xs text-orange-600 font-semibold mt-0.5 flex items-center gap-1">
               <span>🔥</span>
-              <span>{streak} day streak</span>
+              <span className="hidden sm:inline">{streak} day streak</span>
+              <span className="sm:hidden">{streak}d</span>
             </p>
           ) : (
-            <p className="text-xs text-gray-500 font-medium mt-0.5">Student</p>
+            <p className="text-[10px] sm:text-xs text-gray-500 font-medium mt-0.5 hidden sm:block">Student</p>
           )}
         </div>
         

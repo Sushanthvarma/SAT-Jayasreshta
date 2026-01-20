@@ -242,8 +242,8 @@ export default function Header() {
           <div className="flex items-center gap-2 sm:gap-4">
             {user ? (
               <>
-                {/* Desktop User Menu */}
-                <div className="hidden sm:block">
+                {/* User Menu - Always visible, responsive */}
+                <div className="flex-shrink-0">
                   <UserMenu />
                 </div>
                 

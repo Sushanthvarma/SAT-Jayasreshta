@@ -135,14 +135,14 @@ export default function ProgressPage() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       <Header />
 
-      <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Progress & Analytics</h1>
           <p className="text-lg text-gray-600">Comprehensive insights into your learning journey</p>
         </div>
 
         {/* Tab Navigation */}
-        <div className="mb-6 flex flex-wrap gap-2 border-b border-gray-200">
+        <div className="mb-4 sm:mb-6 flex flex-wrap gap-2 border-b border-gray-200 overflow-x-auto pb-2">
           {(['overview', 'trends', 'insights', 'recommendations'] as const).map((tab) => (
             <button
               key={tab}

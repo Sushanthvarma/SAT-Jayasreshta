@@ -37,13 +37,14 @@
   <!-- SAT Text -->
   <text 
     x="24" 
-    y="29" 
+    y="26" 
     font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" 
-    font-size="14" 
-    font-weight="800" 
+    font-size="12" 
+    font-weight="600" 
     fill="white" 
     text-anchor="middle"
-    letter-spacing="0.5"
+    letter-spacing="0.2"
+    dominant-baseline="middle"
   >SAT</text>
   
   <!-- Small Achievement Star (top center) -->

@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
-import { Timestamp } from 'firebase-admin/firestore';
+import { Timestamp, FieldValue } from 'firebase-admin/firestore';
 import { getTestByIdAdmin } from '@/lib/firestore/tests-server';
 import { TestAttempt } from '@/lib/types/test';
 
@@ -197,6 +197,28 @@ export async function POST(
     });
     
     console.log(`✅ Test attempt created: ${attemptRef.id}`);
+    
+    // CRITICAL: Update user progress to track current test
+    try {
+      const userRef = adminDb.collection('users').doc(userId);
+      const userDoc = await userRef.get();
+      
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        const progress = userData?.progress || {};
+        
+        // Update currentTestId atomically
+        await userRef.update({
+          'progress.currentTestId': testId,
+          'lastActive': FieldValue.serverTimestamp(),
+        });
+        
+        console.log(`✅ User progress updated: currentTestId = ${testId}`);
+      }
+    } catch (progressError: any) {
+      // Non-critical - log but don't fail test start
+      console.warn('⚠️ Failed to update user progress (non-critical):', progressError.message);
+    }
     
     return NextResponse.json({
       success: true,

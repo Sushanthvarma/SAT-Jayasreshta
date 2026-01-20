@@ -35,6 +35,26 @@ img, video, iframe {
   display: block;
 }
 
+/* Mobile-first responsive utilities */
+@media (max-width: 640px) {
+  /* Ensure text doesn't overflow on mobile */
+  h1, h2, h3, h4, h5, h6, p {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Prevent horizontal scroll */
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Touch-friendly tap targets */
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
 /* Touch Target Minimum Size */
 button, a, [role="button"] {
   min-height: 44px;
