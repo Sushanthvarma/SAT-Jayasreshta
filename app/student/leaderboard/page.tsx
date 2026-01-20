@@ -1,20 +1,26 @@
 'use client';
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { getAuthInstance } from '@/lib/firebase';
 import { getIdToken } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import Header from '@/components/layout/Header';
-import { LeaderboardEntry, UserStats, SocialComparison } from '@/lib/types/gamification';
+import { UserStats, SocialComparison } from '@/lib/types/gamification';
 import { LeaderboardEpic } from '@/components/leaderboard/LeaderboardEpic';
 import { LeaderboardTable } from '@/components/leaderboard/LeaderboardTable';
+import { 
+  subscribeToGlobalLeaderboard, 
+  calculateUserRank, 
+  getTopUsers,
+  type LeaderboardUser 
+} from '@/lib/firebase/leaderboard';
 
 export default function LeaderboardPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [globalLeaderboard, setGlobalLeaderboard] = useState<LeaderboardUser[]>([]);
   const [stats, setStats] = useState<UserStats | null>(null);
   const [comparison, setComparison] = useState<SocialComparison | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,109 +32,101 @@ export default function LeaderboardPage() {
     }
   }, [user, authLoading, router]);
 
+  // CRITICAL: Subscribe to GLOBAL leaderboard - same for ALL users
   useEffect(() => {
-    if (user) {
-      fetchLeaderboard();
-      
-      // PRODUCTION-GRADE: Set up periodic refresh to keep leaderboard in sync
-      // Refresh every 30 seconds to catch real-time updates
-      const refreshInterval = setInterval(() => {
-        fetchLeaderboard();
-      }, 30000); // 30 seconds
-      
-      return () => clearInterval(refreshInterval);
-    }
-  }, [user]);
-
-  const fetchLeaderboard = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const auth = getAuthInstance();
-      const idToken = await getIdToken(auth.currentUser!);
-      
-      const response = await fetch('/api/leaderboard?limit=100&stats=true&comparison=true', {
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-        },
+    if (!user) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    console.log('🌍 [LEADERBOARD] Subscribing to global leaderboard...');
+    
+    // Subscribe to real-time global leaderboard
+    const unsubscribe = subscribeToGlobalLeaderboard((users) => {
+      console.log('🌍 [LEADERBOARD] Global data received:', {
+        totalUsers: users.length,
+        top3: users.slice(0, 3).map(u => ({ 
+          name: u.displayName, 
+          xp: u.stats.totalXP 
+        }))
       });
-
-      if (!response.ok) {
-        throw new Error(`API returned ${response.status}`);
-      }
-
-      const data = await response.json();
       
-      if (data.success) {
-        setLeaderboard(data.leaderboard || []);
-        setStats(data.stats || null);
-        setComparison(data.comparison || null);
-        
-        if (!data.leaderboard || data.leaderboard.length === 0) {
-          toast('No leaderboard data yet. Complete tests to earn XP and appear on the leaderboard!', { 
-            icon: 'ℹ️',
-            duration: 5000 
-          });
-        }
-      } else {
-        const errorMsg = data.error || 'Failed to load leaderboard';
-        console.error('Leaderboard API error:', errorMsg);
-        setError(errorMsg);
-        toast.error(errorMsg);
-      }
-    } catch (error: any) {
-      console.error('Error fetching leaderboard:', error);
-      const errorMsg = error.message || 'Failed to load leaderboard. Please try again.';
-      setError(errorMsg);
-      toast.error(errorMsg);
-    } finally {
+      setGlobalLeaderboard(users);
       setLoading(false);
-    }
+      
+      if (users.length === 0) {
+        toast('No leaderboard data yet. Complete tests to earn XP and appear on the leaderboard!', { 
+          icon: 'ℹ️',
+          duration: 5000 
+        });
+      }
+    }, 100);
+    
+    // Fetch user stats and comparison (still via API for now)
+    const fetchUserStats = async () => {
+      try {
+        const auth = getAuthInstance();
+        const idToken = await getIdToken(auth.currentUser!);
+        
+        const response = await fetch('/api/leaderboard?limit=1&stats=true&comparison=true', {
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setStats(data.stats || null);
+            setComparison(data.comparison || null);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user stats:', error);
+      }
+    };
+    
+    fetchUserStats();
+    
+    return () => {
+      console.log('🌍 [LEADERBOARD] Unsubscribing from global leaderboard');
+      unsubscribe();
+    };
   }, [user]);
 
-  // PRODUCTION-GRADE: Use single source of truth for leaderboard data
-  // API already returns sorted data, but ensure consistency with defensive sorting
-  // Sort by rank first, then by XP descending for same rank (consistent with server)
-  // IMPORTANT: All hooks must be called before any conditional returns (Rules of Hooks)
-  const sortedLeaderboard = useMemo(() => {
-    if (!leaderboard || leaderboard.length === 0) return [];
-    return [...leaderboard].sort((a, b) => {
-      if (a.rank !== b.rank) {
-        return a.rank - b.rank; // Lower rank number = better
-      }
-      return b.xp - a.xp; // Higher XP first for same rank
-    });
-  }, [leaderboard]);
+  // CRITICAL: Calculate user's rank from GLOBAL leaderboard data
+  // This ensures all users see the same rankings
+  const userRank = useMemo(() => {
+    if (!user || !globalLeaderboard.length) return -1;
+    return calculateUserRank(globalLeaderboard, user.uid);
+  }, [globalLeaderboard, user]);
   
-  // PRODUCTION-GRADE: Extract top 3 from the same sorted data source
-  // CRITICAL FIX: Get top 3 by XP (not by rank) to ensure consistency
-  // This ensures epic view and table view use IDENTICAL data
-  const { topThree, rank1, rank2, rank3 } = useMemo(() => {
-    if (!sortedLeaderboard || sortedLeaderboard.length === 0) {
-      return { rank1: undefined, rank2: undefined, rank3: undefined, topThree: [] };
-    }
-    
-    // Get top 3 entries by XP (already sorted by rank, then XP)
-    // This ensures we get the actual top 3 users, not just first user of each rank
-    const top3ByXP = sortedLeaderboard.slice(0, 3);
-    
-    // Extract by position (0=1st, 1=2nd, 2=3rd)
-    const r1 = top3ByXP[0];
-    const r2 = top3ByXP[1];
-    const r3 = top3ByXP[2];
-    
-    return {
-      rank1: r1,
-      rank2: r2,
-      rank3: r3,
-      topThree: [r1, r2, r3].filter(Boolean) as LeaderboardEntry[]
-    };
-  }, [sortedLeaderboard]);
+  // Get top 3 for podium - SAME for ALL users
+  const topThree = useMemo(() => {
+    return getTopUsers(globalLeaderboard, 3);
+  }, [globalLeaderboard]);
   
-  const currentUserEntry = useMemo(() => {
-    if (!sortedLeaderboard || sortedLeaderboard.length === 0) return undefined;
-    return sortedLeaderboard.find(entry => entry.isCurrentUser);
-  }, [sortedLeaderboard]);
+  // Get current user's data from global leaderboard
+  const currentUserData = useMemo(() => {
+    if (!user) return null;
+    return globalLeaderboard.find(u => u.uid === user.uid) || null;
+  }, [globalLeaderboard, user]);
+  
+  // Convert LeaderboardUser[] to LeaderboardEntry[] format for components
+  const leaderboardEntries = useMemo(() => {
+    return globalLeaderboard.map((user, index) => ({
+      userId: user.uid,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+      rank: index + 1, // Rank = position in sorted list
+      xp: user.stats.totalXP,
+      level: user.stats.level,
+      streak: user.stats.currentStreak,
+      testsCompleted: user.stats.testsCompleted,
+      averageScore: 0, // Not available in real-time data
+      isCurrentUser: user.uid === user?.uid,
+    }));
+  }, [globalLeaderboard, user]);
 
   // Conditional returns AFTER all hooks
   if (authLoading || loading) {
@@ -151,28 +149,17 @@ export default function LeaderboardPage() {
       <Header />
 
       <div className="mx-auto max-w-7xl px-4 py-8">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Leaderboard</h1>
-            <p className="text-lg text-gray-600">See how you rank among all students</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Leaderboard</h1>
+            <p className="text-base sm:text-lg text-gray-600">See how you rank among all students</p>
           </div>
-          <button
-            onClick={fetchLeaderboard}
-            disabled={loading}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 min-h-[44px] flex items-center gap-2"
-          >
-            {loading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Loading...
-              </>
-            ) : (
-              <>
-                <span>🔄</span>
-                Refresh
-              </>
-            )}
-          </button>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <span className="inline-flex items-center gap-1">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              Live Updates
+            </span>
+          </div>
         </div>
 
         {/* Error Display */}
@@ -183,27 +170,22 @@ export default function LeaderboardPage() {
               <div className="flex-1">
                 <p className="text-red-800 font-semibold">Error loading leaderboard</p>
                 <p className="text-red-600 text-sm mt-1">{error}</p>
+                <p className="text-red-500 text-xs mt-2">Real-time updates will retry automatically</p>
               </div>
-              <button
-                onClick={fetchLeaderboard}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors min-h-[36px]"
-              >
-                Retry
-              </button>
             </div>
           </div>
         )}
 
-        {/* Social Comparison Card */}
-        {comparison && stats && (
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-8 text-white mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Social Comparison Card - Shows user's PERSONAL rank in GLOBAL leaderboard */}
+        {currentUserData && (
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-6 sm:p-8 text-white mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
               <div className="text-center">
-                <div className="text-5xl font-bold mb-2">
-                  {stats.rank && stats.rank > 0 ? `#${stats.rank}` : '—'}
+                <div className="text-3xl sm:text-5xl font-bold mb-2">
+                  {userRank > 0 ? `#${userRank}` : '—'}
                 </div>
-                <div className="text-sm opacity-90">Your Rank</div>
-                {comparison.rankChange !== 0 && (
+                <div className="text-xs sm:text-sm opacity-90">Your Rank</div>
+                {comparison && comparison.rankChange !== 0 && (
                   <div className={`text-xs mt-1 font-semibold ${
                     comparison.rankChange > 0 ? 'text-green-200' : 'text-red-200'
                   }`}>
@@ -212,35 +194,37 @@ export default function LeaderboardPage() {
                 )}
               </div>
               <div className="text-center">
-                <div className="text-5xl font-bold mb-2">
-                  {stats.percentile !== undefined && stats.percentile !== null ? `${Math.round(stats.percentile)}%` : '—'}
+                <div className="text-3xl sm:text-5xl font-bold mb-2">
+                  {globalLeaderboard.length > 0 && userRank > 0 
+                    ? `${Math.round((1 - userRank / globalLeaderboard.length) * 100)}%` 
+                    : '—'}
                 </div>
-                <div className="text-sm opacity-90">Better Than</div>
+                <div className="text-xs sm:text-sm opacity-90">Better Than</div>
               </div>
               <div className="text-center">
-                <div className="text-5xl font-bold mb-2">
-                  {stats.averageScore !== undefined && stats.averageScore !== null ? `${stats.averageScore}%` : '—'}
+                <div className="text-3xl sm:text-5xl font-bold mb-2">
+                  {stats?.averageScore !== undefined && stats.averageScore !== null ? `${stats.averageScore}%` : '—'}
                 </div>
-                <div className="text-sm opacity-90">Your Average</div>
+                <div className="text-xs sm:text-sm opacity-90">Your Average</div>
               </div>
               <div className="text-center">
-                <div className="text-5xl font-bold mb-2">
-                  {comparison.averageScore !== undefined && comparison.averageScore !== null ? `${comparison.averageScore}%` : '—'}
+                <div className="text-3xl sm:text-5xl font-bold mb-2">
+                  {comparison?.averageScore !== undefined && comparison.averageScore !== null ? `${comparison.averageScore}%` : '—'}
                 </div>
-                <div className="text-sm opacity-90">Platform Average</div>
+                <div className="text-xs sm:text-sm opacity-90">Platform Average</div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Top 3 Podium - Uses single source of truth */}
+        {/* Top 3 Podium - IDENTICAL for ALL users */}
         {topThree.length >= 3 && (
-          <LeaderboardEpic topUsers={topThree} />
+          <LeaderboardEpic topUsers={topThree} currentUserId={user?.uid} />
         )}
 
-        {/* Full Leaderboard Table - Uses single source of truth */}
+        {/* Full Leaderboard Table - IDENTICAL for ALL users */}
         <LeaderboardTable 
-          users={sortedLeaderboard} 
+          users={globalLeaderboard} 
           currentUserId={user?.uid}
         />
       </div>
