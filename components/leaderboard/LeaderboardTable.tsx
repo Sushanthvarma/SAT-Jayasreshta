@@ -38,7 +38,7 @@ export function LeaderboardTable({ users, currentUserId }: LeaderboardTableProps
   }
   
   return (
-    <Card variant="bordered" padding="none" className="overflow-hidden">
+    <Card variant="bordered" padding="none" className="overflow-hidden mt-12 sm:mt-16 lg:mt-20 relative z-10">
       <div className="p-4 sm:p-6 border-b border-gray-200 bg-gray-50">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Full Rankings</h2>
         <p className="text-xs sm:text-sm text-gray-600 mt-1">

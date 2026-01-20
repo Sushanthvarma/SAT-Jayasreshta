@@ -219,14 +219,18 @@ export default function LeaderboardPage() {
 
         {/* Top 3 Podium - IDENTICAL for ALL users */}
         {topThree.length >= 3 && (
-          <LeaderboardEpic topUsers={topThree} currentUserId={user?.uid} />
+          <div className="mb-12 sm:mb-16 lg:mb-20 relative z-0">
+            <LeaderboardEpic topUsers={topThree} currentUserId={user?.uid} />
+          </div>
         )}
 
         {/* Full Leaderboard Table - IDENTICAL for ALL users */}
-        <LeaderboardTable 
-          users={globalLeaderboard} 
-          currentUserId={user?.uid}
-        />
+        <div className="mt-8 sm:mt-12 lg:mt-16 relative z-10">
+          <LeaderboardTable 
+            users={globalLeaderboard} 
+            currentUserId={user?.uid}
+          />
+        </div>
       </div>
     </div>
   );

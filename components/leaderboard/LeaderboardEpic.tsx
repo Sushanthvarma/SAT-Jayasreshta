@@ -22,17 +22,17 @@ export function LeaderboardEpic({ topUsers, currentUserId }: LeaderboardEpicProp
   // Podium visual ordering: 2nd (left), 1st (center), 3rd (right)
   const podiumOrder = [second, first, third];
   const rankEmojis = ['🥈', '👑', '🥉'];
-  const heights = ['h-48', 'h-56', 'h-40']; // Podium heights
+  const heights = ['min-h-[12rem]', 'min-h-[14rem]', 'min-h-[10rem]']; // Podium heights - use min-h instead of fixed h
   const rankLabels = ['2nd', '1st', '3rd'];
   
   return (
-    <div className="mb-8">
-      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 text-center">
+    <div className="mb-12 sm:mb-16 lg:mb-20">
+      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 text-center">
         Top Performers
       </h2>
       
       {/* Mobile: Vertical Stack */}
-      <div className="block md:hidden space-y-4">
+      <div className="block md:hidden space-y-4 mb-6">
         {[first, second, third].map((user, idx) => {
           if (!user) return null;
           const rank = idx + 1;
@@ -86,7 +86,7 @@ export function LeaderboardEpic({ topUsers, currentUserId }: LeaderboardEpicProp
       </div>
       
       {/* Desktop: Podium Layout */}
-      <div className="hidden md:flex items-end justify-center gap-4 lg:gap-6 transition-all duration-300">
+      <div className="hidden md:flex items-end justify-center gap-4 lg:gap-6 transition-all duration-300 mb-8">
         {podiumOrder.map((user, idx) => {
           if (!user) return null;
           
@@ -106,6 +106,8 @@ export function LeaderboardEpic({ topUsers, currentUserId }: LeaderboardEpicProp
                 ${isCurrentUser ? 'ring-4 ring-blue-500' : ''}
                 flex-1 max-w-xs
                 transition-transform duration-300 hover:scale-105
+                overflow-visible
+                relative
               `}
             >
               {/* Rank Badge */}

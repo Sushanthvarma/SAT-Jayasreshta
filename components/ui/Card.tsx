@@ -44,6 +44,11 @@ export function Card({
     <div
       className={`${baseClasses} ${variantClasses[variant]} ${paddingClasses[padding]} ${hoverClasses} ${clickClasses} ${className}`}
       onClick={onClick}
+      style={{ 
+        // Ensure cards don't overflow their containers
+        maxWidth: '100%',
+        boxSizing: 'border-box'
+      }}
     >
       {children}
     </div>
