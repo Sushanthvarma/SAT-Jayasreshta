@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { signInWithPopup, signOut } from 'firebase/auth';
 import { getAuthInstance, getGoogleProviderInstance } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
+import Image from 'next/image';
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { user, userData, loading } = useAuth();
@@ -35,7 +36,16 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4 py-8">
         <div className="text-center">
-          <div className="mb-6 text-6xl">📚</div>
+          <div className="mb-6 flex justify-center">
+            <Image 
+              src="/logo.svg" 
+              alt="SAT Practice Platform" 
+              width={80}
+              height={80}
+              priority
+              className="mx-auto"
+            />
+          </div>
           <h1 className="text-5xl font-bold text-gray-900 mb-3">
             SAT Practice Platform
           </h1>
@@ -79,7 +89,14 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="text-3xl">📚</div>
+              <Image 
+                src="/logo.svg" 
+                alt="SAT Practice Platform" 
+                width={48}
+                height={48}
+                priority
+                className="flex-shrink-0"
+              />
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">SAT Practice</h2>
                 {userData && (

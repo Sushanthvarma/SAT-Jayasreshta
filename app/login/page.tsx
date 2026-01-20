@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 import Branding from '@/components/Branding';
 
@@ -47,8 +48,15 @@ export default function LoginPage() {
           {/* Welcome Card */}
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-6">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl shadow-lg mb-6">
-                <span className="text-4xl">📚</span>
+              <div className="mb-6 flex justify-center">
+                <Image 
+                  src="/logo.svg" 
+                  alt="SAT Practice Platform" 
+                  width={80}
+                  height={80}
+                  priority
+                  className="mx-auto"
+                />
               </div>
               <h1 className="text-4xl font-bold text-gray-900 mb-3">
                 Welcome to SAT Practice

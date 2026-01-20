@@ -3,9 +3,19 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import Footer from '@/components/layout/Footer';
 
-export const metadata = {
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
   title: 'SAT Practice Platform | By Sushanth Varma',
   description: 'Master the SAT with comprehensive practice tests, detailed analytics, and personalized learning paths. Educational excellence for students worldwide.',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/logo.svg', sizes: '180x180', type: 'image/svg+xml' },
+    ],
+  },
 };
 
 export const viewport = {

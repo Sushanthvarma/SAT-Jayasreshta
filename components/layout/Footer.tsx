@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Footer() {
   return (
@@ -10,9 +11,13 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="text-center md:text-left">
             <div className="flex items-center gap-3 mb-3 justify-center md:justify-start">
-              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg shadow-md">
-                <span className="text-xl font-bold text-white">SAT</span>
-              </div>
+              <Image 
+                src="/logo.svg" 
+                alt="SAT Practice Platform" 
+                width={32}
+                height={32}
+                className="flex-shrink-0"
+              />
               <div>
                 <h3 className="text-lg font-bold text-gray-900">SAT Practice Platform</h3>
                 <p className="text-xs text-gray-500">By Sushanth Varma</p>

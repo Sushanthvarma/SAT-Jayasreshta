@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Test } from '@/lib/types/test';
 import { getPublishedTests } from '@/lib/firestore/tests-client';
 import { getUserTestAttempts } from '@/lib/firestore/tests-client';
@@ -909,7 +910,15 @@ export default function StudentDashboard() {
                 </div>
               ) : !selectedGrade ? (
                 <div className="bg-white rounded-xl shadow-md border border-gray-100 p-12 text-center">
-                  <div className="text-6xl mb-4">🎓</div>
+                  <div className="mb-4 flex justify-center">
+                    <Image 
+                      src="/logo.svg" 
+                      alt="SAT Practice Platform" 
+                      width={64}
+                      height={64}
+                      className="mx-auto opacity-50"
+                    />
+                  </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">Select Your Grade</h3>
                   <p className="text-gray-600 mb-4">Please select your grade to see available practice tests</p>
                   <button
@@ -941,7 +950,15 @@ export default function StudentDashboard() {
                 </div>
               ) : tests.length === 0 && allGradeTests.length > 0 ? (
                 <div className="bg-white rounded-xl shadow-md border border-gray-100 p-12 text-center">
-                  <div className="text-6xl mb-4">🎉</div>
+                  <div className="mb-4 flex justify-center">
+                    <Image 
+                      src="/logo.svg" 
+                      alt="SAT Practice Platform" 
+                      width={64}
+                      height={64}
+                      className="mx-auto opacity-50"
+                    />
+                  </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     All Tests Completed!
                   </h3>
@@ -958,7 +975,15 @@ export default function StudentDashboard() {
                 </div>
               ) : tests.length === 0 ? (
                 <div className="bg-white rounded-xl shadow-md border border-gray-100 p-12 text-center">
-                  <div className="text-6xl mb-4">📚</div>
+                  <div className="mb-4 flex justify-center">
+                    <Image 
+                      src="/logo.svg" 
+                      alt="SAT Practice Platform" 
+                      width={64}
+                      height={64}
+                      className="mx-auto opacity-50"
+                    />
+                  </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     No {selectedGrade.charAt(0).toUpperCase() + selectedGrade.slice(1)} Grade Tests Available
                   </h3>

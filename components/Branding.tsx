@@ -1,19 +1,23 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Branding() {
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl shadow-lg">
-        <span className="text-2xl font-bold text-white">SAT</span>
-      </div>
+    <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">
+      <Image 
+        src="/logo.svg" 
+        alt="SAT Practice Platform" 
+        width={40}
+        height={40}
+        priority
+        className="flex-shrink-0 sm:w-12 sm:h-12"
+      />
       <div className="flex flex-col">
-        <Link href="/" className="text-xl font-bold text-gray-900 hover:text-indigo-600 transition-colors">
-          SAT Practice Platform
-        </Link>
-        <p className="text-xs text-gray-500 font-medium">By Sushanth Varma</p>
+        <h1 className="font-bold text-gray-900 text-base sm:text-lg leading-tight">SAT Practice Platform</h1>
+        <p className="text-xs text-gray-500 hidden sm:block">By Sushanth Varma</p>
       </div>
-    </div>
+    </Link>
   );
 }
