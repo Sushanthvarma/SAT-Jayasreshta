@@ -354,12 +354,24 @@ export default function StudentDashboard() {
     // Sort tests by ID (alphabetical order) to ensure consistent sequential order
     const sortedTests = [...finalFilteredTests].sort((a, b) => a.id.localeCompare(b.id));
 
-    // Find completed test IDs
+    // CRITICAL: Get completed test IDs from user progress (single source of truth)
+    // Also check attempts as fallback for legacy data
     const completedTestIds = new Set(
       attempts
         .filter(a => a.status === 'submitted')
         .map(a => a.testId)
     );
+    
+    // Also check userData.progress.completedTestIds if available (from Firebase)
+    // Note: userData may not have progress field yet, so we check attempts as primary source
+    const userProgress = (userData as any)?.progress;
+    if (userProgress?.completedTestIds && Array.isArray(userProgress.completedTestIds)) {
+      userProgress.completedTestIds.forEach((testId: string) => {
+        completedTestIds.add(testId);
+      });
+    }
+    
+    // TODO: Also check userData.progress.completedTestIds when available from AuthContext
 
     // Show only ONE test - the next pending test based on filters
     const nextPendingTest = sortedTests.find(test => !completedTestIds.has(test.id));
@@ -910,7 +922,10 @@ export default function StudentDashboard() {
                 <div className="max-w-2xl mx-auto">
                   {tests.map((test) => {
                     const existingAttempt = attempts.find(a => a.testId === test.id && (a.status === 'in-progress' || a.status === 'paused'));
-                    const isCompleted = attempts.some(a => a.testId === test.id && a.status === 'submitted');
+                    // CRITICAL: Check both attempts and user progress for completion status (single source of truth)
+                    const userProgress = (userData as any)?.progress;
+                    const isCompleted = attempts.some(a => a.testId === test.id && a.status === 'submitted') ||
+                                       (userProgress?.completedTestIds || []).includes(test.id);
                     
                     return (
                       <div key={test.id} className="transform hover:scale-105 transition-all duration-300">

@@ -336,6 +336,22 @@ export async function POST(
       
       const userData = userDoc.data()!;
       
+      // CRITICAL: Get next test to unlock (must be done before transaction writes)
+      // This is a read operation, so it's safe in transaction context
+      const { getNextTestInSequence } = await import('@/lib/testAvailability');
+      const userGrade = userData.grade || '12th Grade';
+      let nextTestId: string | null = null;
+      
+      try {
+        nextTestId = await getNextTestInSequence(testId, userGrade);
+        if (nextTestId) {
+          console.log(`✅ Next test to unlock: ${nextTestId}`);
+        }
+      } catch (error: any) {
+        console.warn('⚠️ Could not determine next test (non-critical):', error.message);
+        // Continue without unlocking - not critical for submission
+      }
+      
       // Get daily goal document (must read before writes)
       const today = new Date().toISOString().split('T')[0];
       const dailyGoalRef = adminDb.collection('dailyGoals').doc(`${userId}_${today}`);
@@ -431,6 +447,7 @@ export async function POST(
       });
       
       // Update user document atomically using FieldValue.increment for counters
+      // CRITICAL: Track completed test IDs and unlock next test
       const userUpdates: any = {
         totalTestsCompleted: FieldValue.increment(1), // Atomic increment
         lastTestDate: Timestamp.now(),
@@ -442,6 +459,29 @@ export async function POST(
         averageScore: newAverageScore,
         updatedAt: FieldValue.serverTimestamp(),
       };
+      
+      // CRITICAL: Initialize progress object if it doesn't exist
+      if (!userData.progress) {
+        userUpdates.progress = {
+          completedTestIds: [testId],
+          unlockedTestIds: nextTestId ? [nextTestId] : [],
+          currentTestId: null
+        };
+      } else {
+        // CRITICAL: Track completed test IDs
+        userUpdates['progress.completedTestIds'] = FieldValue.arrayUnion(testId);
+        // CRITICAL: Clear current test (test is now completed)
+        userUpdates['progress.currentTestId'] = FieldValue.delete();
+        
+        // CRITICAL: Unlock next test if available
+        if (nextTestId) {
+          const unlockedTestIds = userData.progress.unlockedTestIds || [];
+          if (!unlockedTestIds.includes(nextTestId)) {
+            userUpdates['progress.unlockedTestIds'] = FieldValue.arrayUnion(nextTestId);
+            console.log(`✅ Will unlock next test: ${nextTestId}`);
+          }
+        }
+      }
       
       if (earnedBadges.length > 0) {
         userUpdates.badges = FieldValue.arrayUnion(...earnedBadges);
@@ -470,7 +510,18 @@ export async function POST(
         console.warn('⚠️ Failed to log XP gain (non-critical):', logError);
       }
       
-      return {
+      // CRITICAL: Update analytics aggregation (non-critical, can fail without affecting submission)
+      try {
+        const { updateAnalyticsAggregation } = await import('@/lib/analytics/aggregator');
+        // Run in background - don't wait for it
+        updateAnalyticsAggregation().catch((error) => {
+          console.warn('⚠️ Failed to update analytics aggregation (non-critical):', error);
+        });
+      } catch (analyticsError) {
+        console.warn('⚠️ Failed to trigger analytics update (non-critical):', analyticsError);
+      }
+      
+      const returnData: any = {
         resultId: resultRef.id,
         xpGained,
         leveledUp,
@@ -478,6 +529,13 @@ export async function POST(
         newTotalXP,
         newLevel,
       };
+      
+      // Add next test info if unlocked
+      if (nextTestId) {
+        returnData.nextTestUnlocked = nextTestId;
+      }
+      
+      return returnData;
     });
     
     console.log(`✅ Transaction completed successfully`);
@@ -485,6 +543,9 @@ export async function POST(
     console.log(`   XP Gained: ${result.xpGained}`);
     console.log(`   Leveled Up: ${result.leveledUp}`);
     console.log(`   New Badges: ${result.newBadges.length}`);
+    if (result.nextTestUnlocked) {
+      console.log(`   Next Test Unlocked: ${result.nextTestUnlocked}`);
+    }
     
     return NextResponse.json({
       success: true,
@@ -498,11 +559,14 @@ export async function POST(
         newBadges: result.newBadges,
         newTotalXP: result.newTotalXP,
         newLevel: result.newLevel,
+        nextTestUnlocked: result.nextTestUnlocked || null,
       },
       message: result.leveledUp 
         ? `Congratulations! You leveled up to level ${result.newLevel}!`
         : result.newBadges.length > 0
         ? `Great job! You earned ${result.newBadges.length} new badge(s)!`
+        : result.nextTestUnlocked
+        ? `Test completed! Next test unlocked.`
         : 'Test submitted successfully!',
     });
   } catch (error: any) {

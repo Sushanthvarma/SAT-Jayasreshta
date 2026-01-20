@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { Timestamp } from 'firebase-admin/firestore';
+import { getAnalyticsSummary } from '@/lib/analytics/aggregator';
 
 export async function GET(req: NextRequest) {
   try {
@@ -40,11 +41,14 @@ export async function GET(req: NextRequest) {
       );
     }
     
-    // Get all tests
+    // CRITICAL: Use unified analytics aggregator (single source of truth)
+    const analyticsSummary = await getAnalyticsSummary();
+    
+    // Get all tests for additional metadata
     const testsSnapshot = await adminDb.collection('tests').get();
     const tests = testsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
     
-    // Get all test results
+    // Get all test results for detailed analysis
     const resultsSnapshot = await adminDb.collection('testResults').get();
     const results = resultsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     
