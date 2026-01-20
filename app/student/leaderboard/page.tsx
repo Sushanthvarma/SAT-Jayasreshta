@@ -84,24 +84,10 @@ export default function LeaderboardPage() {
     }
   }, [user]);
 
-  if (authLoading || loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-        <div className="text-center">
-          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
-          <p className="text-lg font-semibold text-gray-700">Loading leaderboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
-
   // PRODUCTION-GRADE: Use single source of truth for leaderboard data
   // API already returns sorted data, but ensure consistency with defensive sorting
   // Sort by rank first, then by XP descending for same rank (consistent with server)
+  // IMPORTANT: All hooks must be called before any conditional returns (Rules of Hooks)
   const sortedLeaderboard = useMemo(() => {
     if (!leaderboard || leaderboard.length === 0) return [];
     return [...leaderboard].sort((a, b) => {
@@ -133,6 +119,22 @@ export default function LeaderboardPage() {
     if (!sortedLeaderboard || sortedLeaderboard.length === 0) return undefined;
     return sortedLeaderboard.find(entry => entry.isCurrentUser);
   }, [sortedLeaderboard]);
+
+  // Conditional returns AFTER all hooks
+  if (authLoading || loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="text-center">
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
+          <p className="text-lg font-semibold text-gray-700">Loading leaderboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
