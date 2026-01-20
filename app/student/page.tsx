@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Test } from '@/lib/types/test';
@@ -43,6 +43,7 @@ export default function StudentDashboard() {
   const [savingGrade, setSavingGrade] = useState(false);
   const gradeInitialized = useRef(false); // Track if we've already processed initial grade
   const [allGradeTests, setAllGradeTests] = useState<Test[]>([]); // Store all tests for the grade
+  const [filteringTests, setFilteringTests] = useState(false); // Loading state for grade filtering
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -269,61 +270,74 @@ export default function StudentDashboard() {
     }
   }, [userData, selectedGrade]); // Include selectedGrade to check if it's already set
 
-  // Filter tests by grade, difficulty, and subject
-  useEffect(() => {
-    if (!selectedGrade) {
-      setTests([]);
-      setAllGradeTests([]);
-      return;
+  // PRODUCTION-GRADE: Optimized test filtering with immediate feedback
+  // Use useMemo for performance and immediate updates
+  const filteredTests = React.useMemo(() => {
+    if (!selectedGrade || allTests.length === 0) {
+      return [];
     }
     
     // Filter tests by grade (supports 4th, 9th, 10th, 11th, 12th, etc.)
-    let filteredTests = allTests.filter(test => {
+    const gradeFiltered = allTests.filter(test => {
       // Check if test ID starts with grade (e.g., "4th-...", "9th-...")
       const matchesGrade = test.id.toLowerCase().startsWith(selectedGrade.toLowerCase() + '-') ||
         test.tags?.some(tag => tag.toLowerCase() === selectedGrade.toLowerCase());
       
-      if (!matchesGrade) return false;
-      
-      // Filter by difficulty
-      if (selectedDifficulty !== 'all') {
-        // Map user-friendly difficulty to test difficulty
-        const difficultyMap: Record<string, string[]> = {
-          'easy': ['beginner'],
-          'medium': ['intermediate'],
-          'hard': ['advanced', 'expert'],
-        };
-        const testDifficulties = difficultyMap[selectedDifficulty] || [selectedDifficulty];
-        if (!testDifficulties.includes(test.difficulty)) {
-          return false;
-        }
-      }
-      
-      // Filter by subject - check if test has a section with matching subject
-      if (selectedSubject !== 'all') {
+      return matchesGrade;
+    });
+
+    return gradeFiltered;
+  }, [selectedGrade, allTests]);
+
+  // Filter by difficulty and subject
+  const finalFilteredTests = React.useMemo(() => {
+    let tests = filteredTests;
+    
+    // Filter by difficulty
+    if (selectedDifficulty !== 'all') {
+      const difficultyMap: Record<string, string[]> = {
+        'easy': ['beginner'],
+        'medium': ['intermediate'],
+        'hard': ['advanced', 'expert'],
+      };
+      const testDifficulties = difficultyMap[selectedDifficulty] || [selectedDifficulty];
+      tests = tests.filter(test => testDifficulties.includes(test.difficulty));
+    }
+    
+    // Filter by subject
+    if (selectedSubject !== 'all') {
+      tests = tests.filter(test => {
         const hasMatchingSubject = test.sections?.some(section => {
-          // Normalize subject names for comparison
           const sectionSubject = section.subject?.toLowerCase();
           const filterSubject = selectedSubject.toLowerCase();
           
-          // Handle math subjects (both calculator and no-calculator match "math")
           if (filterSubject === 'math') {
             return sectionSubject === 'math-calculator' || sectionSubject === 'math-no-calculator';
           }
           return sectionSubject === filterSubject;
         });
-        
-        if (!hasMatchingSubject) return false;
-      }
-      
-      return true;
-    });
+        return hasMatchingSubject;
+      });
+    }
+    
+    return tests;
+  }, [filteredTests, selectedDifficulty, selectedSubject]);
 
-    // Store all grade tests for reference
-    setAllGradeTests(filteredTests);
+  // PRODUCTION-GRADE: Immediate test updates when filters change
+  // Use synchronous updates for instant feedback
+  useEffect(() => {
+    if (!selectedGrade) {
+      setTests([]);
+      setAllGradeTests([]);
+      setFilteringTests(false);
+      return;
+    }
+
+    // Store all grade tests for reference immediately
+    setAllGradeTests(finalFilteredTests);
 
     // Sort tests by ID (alphabetical order) to ensure consistent sequential order
-    const sortedTests = [...filteredTests].sort((a, b) => a.id.localeCompare(b.id));
+    const sortedTests = [...finalFilteredTests].sort((a, b) => a.id.localeCompare(b.id));
 
     // Find completed test IDs
     const completedTestIds = new Set(
@@ -333,13 +347,12 @@ export default function StudentDashboard() {
     );
 
     // Show only ONE test - the next pending test based on filters
-    // If filters are applied, find next pending from filtered results
-    // Otherwise, find next pending from all grade tests
     const nextPendingTest = sortedTests.find(test => !completedTestIds.has(test.id));
 
     // Show only the next pending test, or empty array if all completed
     setTests(nextPendingTest ? [nextPendingTest] : []);
-  }, [selectedGrade, selectedDifficulty, selectedSubject, allTests, attempts]);
+    setFilteringTests(false);
+  }, [selectedGrade, finalFilteredTests, attempts]);
 
   // Save grade preference to user profile
   const handleGradeSelect = async (grade: string) => {
@@ -405,7 +418,14 @@ export default function StudentDashboard() {
       const data = await response.json();
       if (data.success) {
         playSound('success');
-        // Set grade locally immediately
+        // PRODUCTION-GRADE: Clear tests immediately for instant feedback
+        // This ensures old tests disappear immediately when grade changes
+        setTests([]);
+        setAllGradeTests([]);
+        setFilteringTests(true);
+        
+        // Set grade locally immediately - this will trigger filtering via useMemo
+        // The filtering will happen synchronously in the useMemo hooks
         const formattedGrade = grade.charAt(0).toUpperCase() + grade.slice(1);
         setSelectedGrade(grade);
         setShowGradeModal(false);
@@ -796,6 +816,13 @@ export default function StudentDashboard() {
                   <div className="text-center">
                     <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent mb-4"></div>
                     <p className="text-gray-600">Loading tests...</p>
+                  </div>
+                </div>
+              ) : filteringTests ? (
+                <div className="flex justify-center py-16">
+                  <div className="text-center">
+                    <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent mb-4"></div>
+                    <p className="text-gray-600">Loading {selectedGrade ? `${selectedGrade.charAt(0).toUpperCase() + selectedGrade.slice(1)} Grade` : ''} tests...</p>
                   </div>
                 </div>
               ) : !selectedGrade ? (
