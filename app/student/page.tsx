@@ -305,35 +305,82 @@ export default function StudentDashboard() {
   }, [selectedGrade, allTests]);
 
   // Filter by difficulty and subject
+  // CRITICAL: Use normalized difficulty values for consistent filtering
   const finalFilteredTests = React.useMemo(() => {
     let tests = filteredTests;
     
-    // Filter by difficulty
+    // Filter by difficulty - CRITICAL: Normalize test difficulty values
     if (selectedDifficulty !== 'all') {
-      const difficultyMap: Record<string, string[]> = {
-        'easy': ['beginner'],
-        'medium': ['intermediate'],
-        'hard': ['advanced', 'expert'],
+      // Dynamic import to avoid build issues
+      let normalizeDifficulty: (val: string | undefined | null) => string;
+      let DIFFICULTY_LEVELS: { EASY: string; MEDIUM: string; HARD: string };
+      
+      try {
+        const testManagement = require('@/lib/firebase/testManagement');
+        normalizeDifficulty = testManagement.normalizeDifficulty;
+        DIFFICULTY_LEVELS = testManagement.DIFFICULTY_LEVELS;
+      } catch (e) {
+        // Fallback if module not available
+        normalizeDifficulty = (val: string | undefined | null) => {
+          if (!val) return 'Medium';
+          const lower = val.toLowerCase();
+          if (lower === 'easy' || lower === 'beginner' || lower === 'basic') return 'Easy';
+          if (lower === 'medium' || lower === 'intermediate' || lower === 'average') return 'Medium';
+          if (lower === 'hard' || lower === 'advanced' || lower === 'expert' || lower === 'difficult') return 'Hard';
+          return 'Medium';
+        };
+        DIFFICULTY_LEVELS = { EASY: 'Easy', MEDIUM: 'Medium', HARD: 'Hard' };
+      }
+      
+      // Map filter value to standard difficulty
+      const filterDifficultyMap: Record<string, string> = {
+        'easy': DIFFICULTY_LEVELS.EASY,
+        'medium': DIFFICULTY_LEVELS.MEDIUM,
+        'hard': DIFFICULTY_LEVELS.HARD,
       };
-      const testDifficulties = difficultyMap[selectedDifficulty] || [selectedDifficulty];
-      tests = tests.filter(test => testDifficulties.includes(test.difficulty));
+      
+      const targetDifficulty = filterDifficultyMap[selectedDifficulty];
+      
+      if (targetDifficulty) {
+        tests = tests.filter(test => {
+          // Normalize test's difficulty value to standard
+          const normalizedTestDifficulty = normalizeDifficulty(test.difficulty);
+          const matches = normalizedTestDifficulty === targetDifficulty;
+          
+          if (!matches && selectedDifficulty !== 'all') {
+            console.log(`🔍 Filter: Test "${test.title}" excluded - difficulty "${test.difficulty}" (normalized: "${normalizedTestDifficulty}") !== filter "${targetDifficulty}"`);
+          }
+          
+          return matches;
+        });
+      }
     }
     
-    // Filter by subject
+    // Filter by subject - CRITICAL: Handle various subject formats
     if (selectedSubject !== 'all') {
       tests = tests.filter(test => {
         const hasMatchingSubject = test.sections?.some(section => {
-          const sectionSubject = section.subject?.toLowerCase();
+          const sectionSubject = section.subject?.toLowerCase() || '';
           const filterSubject = selectedSubject.toLowerCase();
           
-          if (filterSubject === 'math') {
-            return sectionSubject === 'math-calculator' || sectionSubject === 'math-no-calculator';
+          // Handle math variations
+          if (filterSubject === 'math' || filterSubject === 'math-calculator' || filterSubject === 'math-no-calculator') {
+            return sectionSubject.includes('math');
           }
-          return sectionSubject === filterSubject;
+          
+          // Direct match
+          return sectionSubject === filterSubject || sectionSubject.includes(filterSubject);
         });
+        
+        if (!hasMatchingSubject && selectedSubject !== 'all') {
+          console.log(`🔍 Filter: Test "${test.title}" excluded - subject doesn't match "${selectedSubject}"`);
+        }
+        
         return hasMatchingSubject;
       });
     }
+    
+    console.log(`✅ Filters applied: ${tests.length} of ${filteredTests.length} tests match (difficulty: ${selectedDifficulty}, subject: ${selectedSubject})`);
     
     return tests;
   }, [filteredTests, selectedDifficulty, selectedSubject]);
@@ -641,22 +688,28 @@ export default function StudentDashboard() {
                 <div className="flex items-center gap-2">
                   <span className="text-xs sm:text-sm font-semibold text-gray-700 whitespace-nowrap">Difficulty:</span>
                   <div className="flex flex-wrap gap-2">
-                    {['all', 'easy', 'medium', 'hard'].map((difficulty) => (
-                      <button
-                        key={difficulty}
-                        onClick={() => {
-                          playSound('click');
-                          setSelectedDifficulty(difficulty);
-                        }}
-                        className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm transition-all min-h-[36px] ${
-                          selectedDifficulty === difficulty
-                            ? 'bg-indigo-600 text-white shadow-md'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95'
-                        }`}
-                      >
-                        {difficulty === 'all' ? 'All' : difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-                      </button>
-                    ))}
+                    {['all', 'easy', 'medium', 'hard'].map((difficulty) => {
+                      const displayLabel = difficulty === 'all' 
+                        ? 'All' 
+                        : difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+                      
+                      return (
+                        <button
+                          key={difficulty}
+                          onClick={() => {
+                            playSound('click');
+                            setSelectedDifficulty(difficulty);
+                          }}
+                          className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm transition-all min-h-[36px] ${
+                            selectedDifficulty === difficulty
+                              ? 'bg-indigo-600 text-white shadow-md'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95'
+                          }`}
+                        >
+                          {displayLabel}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
                 
@@ -832,7 +885,9 @@ export default function StudentDashboard() {
                     <p className="text-sm text-gray-600 mt-1">
                       {tests.length > 0 
                         ? `Showing ${tests.length} test${tests.length !== 1 ? 's' : ''}${selectedDifficulty !== 'all' || selectedSubject !== 'all' ? ' (filtered)' : ''}`
-                        : 'No tests match your filters'}
+                        : allGradeTests.length === 0 
+                          ? 'No tests available for this grade'
+                          : `No tests match your filters (${allGradeTests.length} test${allGradeTests.length !== 1 ? 's' : ''} available)`}
                     </p>
                   )}
                 </div>
