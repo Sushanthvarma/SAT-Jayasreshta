@@ -13,7 +13,7 @@ import { playSound } from '@/lib/audio';
 import { scoreQuestion } from '@/lib/scoring/calculator';
 
 export default function ResultsPage({ params }: { params: Promise<{ attemptId: string }> | { attemptId: string } }) {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, refreshProfile } = useAuth();
   const router = useRouter();
   const [result, setResult] = useState<TestResult | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -103,6 +103,18 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
           });
           
           setStudentAnswers(answersWithCorrectness);
+          
+          // PRODUCTION-GRADE: Refresh profile to update streak immediately
+          // Single source of truth - AuthContext userData
+          if (refreshProfile) {
+            // Small delay to ensure Firestore write is committed
+            setTimeout(() => {
+              refreshProfile().catch(error => {
+                console.error('Error refreshing profile after viewing results:', error);
+              });
+            }, 500);
+          }
+          
           // Play success sound when results load
           playSound('success', 0.4);
         } else {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { getAuthInstance } from '@/lib/firebase';
@@ -102,7 +102,8 @@ export default function LeaderboardPage() {
   // PRODUCTION-GRADE: Use single source of truth for leaderboard data
   // API already returns sorted data, but ensure consistency with defensive sorting
   // Sort by rank first, then by XP descending for same rank (consistent with server)
-  const sortedLeaderboard = React.useMemo(() => {
+  const sortedLeaderboard = useMemo(() => {
+    if (!leaderboard || leaderboard.length === 0) return [];
     return [...leaderboard].sort((a, b) => {
       if (a.rank !== b.rank) {
         return a.rank - b.rank; // Lower rank number = better
@@ -113,7 +114,10 @@ export default function LeaderboardPage() {
   
   // PRODUCTION-GRADE: Extract top 3 from the same sorted data source
   // This ensures epic view and table view use identical data
-  const { topThree, rank1, rank2, rank3 } = React.useMemo(() => {
+  const { topThree, rank1, rank2, rank3 } = useMemo(() => {
+    if (!sortedLeaderboard || sortedLeaderboard.length === 0) {
+      return { rank1: undefined, rank2: undefined, rank3: undefined, topThree: [] };
+    }
     const r1 = sortedLeaderboard.find(e => e.rank === 1);
     const r2 = sortedLeaderboard.find(e => e.rank === 2);
     const r3 = sortedLeaderboard.find(e => e.rank === 3);
@@ -125,7 +129,8 @@ export default function LeaderboardPage() {
     };
   }, [sortedLeaderboard]);
   
-  const currentUserEntry = React.useMemo(() => {
+  const currentUserEntry = useMemo(() => {
+    if (!sortedLeaderboard || sortedLeaderboard.length === 0) return undefined;
     return sortedLeaderboard.find(entry => entry.isCurrentUser);
   }, [sortedLeaderboard]);
 

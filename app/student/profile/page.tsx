@@ -179,7 +179,11 @@ export default function ProfilePage() {
     return null;
   }
 
-  const grades = ['9th Grade', '10th Grade', '11th Grade', '12th Grade', 'Graduated'];
+  // PRODUCTION-GRADE: Include all grades from 4th to 12th for consistency
+  const grades = [
+    '4th Grade', '5th Grade', '6th Grade', '7th Grade', '8th Grade',
+    '9th Grade', '10th Grade', '11th Grade', '12th Grade', 'Graduated'
+  ];
   const subjects = ['Math', 'Reading', 'Writing', 'Science', 'History', 'English', 'Literature'];
   const studyTimes = ['morning', 'afternoon', 'evening', 'night'] as const;
 

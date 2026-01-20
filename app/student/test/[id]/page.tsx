@@ -14,7 +14,7 @@ import ReviewModal from '@/components/test/ReviewModal';
 import { playSound } from '@/lib/audio';
 
 export default function TestTakingPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, refreshProfile } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const attemptIdParam = searchParams.get('attempt');
@@ -411,6 +411,15 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
         console.log(`✅ Test submitted successfully! Result ID: ${data.result?.id}`);
         console.log(`   Attempt ID: ${attempt.id}`);
         console.log(`   Result attemptId: ${data.result?.attemptId}`);
+        
+        // PRODUCTION-GRADE: Refresh user profile immediately to update streak
+        // This ensures streak updates are visible right away (single source of truth)
+        if (refreshProfile) {
+          // Refresh in background - don't wait for it
+          refreshProfile().catch(error => {
+            console.error('Error refreshing profile after test submission:', error);
+          });
+        }
         
         // Use attemptId from result, or fall back to result ID, or attempt ID
         const resultAttemptId = data.result?.attemptId || data.result?.id || attempt.id;

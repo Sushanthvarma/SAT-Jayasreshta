@@ -51,6 +51,21 @@ export default function StudentDashboard() {
     }
   }, [user, authLoading, router]);
 
+  // PRODUCTION-GRADE: Auto-refresh profile periodically to keep streak and stats updated
+  // This ensures single source of truth (AuthContext) stays in sync
+  useEffect(() => {
+    if (user && refreshProfile) {
+      // Refresh every 30 seconds to catch streak updates
+      const refreshInterval = setInterval(() => {
+        refreshProfile().catch(error => {
+          console.error('Error auto-refreshing profile:', error);
+        });
+      }, 30000); // 30 seconds
+      
+      return () => clearInterval(refreshInterval);
+    }
+  }, [user, refreshProfile]);
+
   // Fetch available tests
   useEffect(() => {
     if (user) {
