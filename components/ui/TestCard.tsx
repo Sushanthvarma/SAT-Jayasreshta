@@ -16,7 +16,7 @@ export default function TestCard({ test, existingAttempt, isCompleted }: TestCar
       <div className="p-4 sm:p-6">
         <div className="flex items-start justify-between mb-3 sm:mb-4">
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
               {test.title}
             </h3>
             <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 leading-relaxed">{test.description}</p>

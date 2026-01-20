@@ -9,13 +9,13 @@ export default function Branding() {
       <Image 
         src="/logo.svg" 
         alt="SAT Practice Platform" 
-        width={48}
-        height={48}
+        width={52}
+        height={52}
         priority
         className="flex-shrink-0"
       />
       <div className="flex flex-col justify-center gap-0">
-        <h1 className="font-bold text-gray-900 text-base leading-tight">
+        <h1 className="font-semibold text-gray-900 text-base leading-tight">
           SAT Practice Platform
         </h1>
         <p className="text-[11px] text-gray-500 leading-tight hidden sm:block">

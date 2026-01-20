@@ -193,14 +193,14 @@ export default function ProfilePage() {
 
       <div className="mx-auto max-w-4xl px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">My Profile</h1>
+          <h1 className="text-4xl font-semibold text-gray-900 mb-2">My Profile</h1>
           <p className="text-lg text-gray-600">Manage your personal information and preferences</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Photo Section */}
           <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Profile Photo</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Profile Photo</h2>
             <div className="flex items-center gap-6">
               <div className="relative">
                 {profile.photoURL ? (

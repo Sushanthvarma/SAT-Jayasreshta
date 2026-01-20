@@ -137,7 +137,7 @@ export default function ProgressPage() {
 
       <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Progress & Analytics</h1>
+          <h1 className="text-4xl font-semibold text-gray-900 mb-2">Progress & Analytics</h1>
           <p className="text-lg text-gray-600">Comprehensive insights into your learning journey</p>
         </div>
 
@@ -210,7 +210,7 @@ export default function ProgressPage() {
             {/* Subject Performance */}
             {insights && (
               <div className="mb-8">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">Subject Performance</h2>
+                <h2 className="text-3xl font-semibold text-gray-900 mb-6">Subject Performance</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {(['reading', 'writing', 'math'] as const).map((subject) => {
                     const stats = insights.subjects[subject];

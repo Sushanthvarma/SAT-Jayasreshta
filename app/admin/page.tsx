@@ -194,7 +194,7 @@ export default function AdminDashboard() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">Admin Analytics Dashboard</h1>
+              <h1 className="text-4xl font-semibold text-gray-900 mb-2">Admin Analytics Dashboard</h1>
               <p className="text-lg text-gray-600">Comprehensive insights into platform usage and user engagement</p>
             </div>
             <Link

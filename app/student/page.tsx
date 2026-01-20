@@ -637,7 +637,7 @@ export default function StudentDashboard() {
               
               {/* Welcome Text */}
               <div className="flex-1 min-w-0">
-                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 truncate">
                   Welcome back, {userData?.displayName?.split(' ')[0] || user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || 'Student'}! 👋
                 </h1>
                 <p className="text-xs sm:text-sm text-gray-600">
@@ -853,25 +853,25 @@ export default function StudentDashboard() {
           <>
             {/* Quick Stats - Compact Row */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-4 text-center">
-                <div className="text-xl sm:text-2xl font-bold text-indigo-600">{completedTests}</div>
-                <div className="text-xs text-gray-600 mt-1">Completed</div>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-5 text-center">
+                <div className="text-xl sm:text-2xl font-semibold text-indigo-600 mb-1.5">{completedTests}</div>
+                <div className="text-xs text-gray-600">Completed</div>
               </div>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-4 text-center">
-                <div className="text-xl sm:text-2xl font-bold text-yellow-600">{inProgressTests}</div>
-                <div className="text-xs text-gray-600 mt-1">In Progress</div>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-5 text-center">
+                <div className="text-xl sm:text-2xl font-semibold text-yellow-600 mb-1.5">{inProgressTests}</div>
+                <div className="text-xs text-gray-600">In Progress</div>
               </div>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-4 text-center">
-                <div className="text-xl sm:text-2xl font-bold text-orange-600">{userData?.streak || 0}</div>
-                <div className="text-xs text-gray-600 mt-1">Day Streak</div>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-5 text-center">
+                <div className="text-xl sm:text-2xl font-semibold text-orange-600 mb-1.5">{userData?.streak || 0}</div>
+                <div className="text-xs text-gray-600">Day Streak</div>
               </div>
               <Link 
                 href="/student/badges" 
                 onClick={() => playSound('click')}
-                className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-4 text-center hover:shadow-md active:scale-95 transition-all min-h-[44px] flex flex-col items-center justify-center"
+                className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-5 text-center hover:shadow-md active:scale-95 transition-all min-h-[44px] flex flex-col items-center justify-center"
               >
-                <div className="text-xl sm:text-2xl font-bold text-purple-600">{userData?.badges?.length || 0}</div>
-                <div className="text-xs text-gray-600 mt-1">Badges</div>
+                <div className="text-xl sm:text-2xl font-semibold text-purple-600 mb-1.5">{userData?.badges?.length || 0}</div>
+                <div className="text-xs text-gray-600">Badges</div>
               </Link>
             </div>
 
@@ -879,7 +879,7 @@ export default function StudentDashboard() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">
+                  <h2 className="text-xl font-semibold text-gray-900">
                     {selectedGrade ? `${selectedGrade.charAt(0).toUpperCase() + selectedGrade.slice(1)} Grade Tests` : 'Practice Tests'}
                   </h2>
                   {selectedGrade && (

@@ -46,7 +46,7 @@ export default function BadgesPage() {
 
       <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Your Achievements</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900 mb-2">Your Achievements</h1>
           <p className="text-sm sm:text-base lg:text-lg text-gray-600">
             {earnedBadges.length} badge{earnedBadges.length !== 1 ? 's' : ''} earned
           </p>
@@ -55,7 +55,7 @@ export default function BadgesPage() {
         {earnedBadges.length === 0 ? (
           <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 sm:p-8 lg:p-12 text-center">
             <div className="text-5xl sm:text-6xl lg:text-7xl mb-4 sm:mb-6">🏆</div>
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">No Badges Yet</h3>
+            <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2 sm:mb-3">No Badges Yet</h3>
             <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">Complete tests and maintain streaks to earn badges!</p>
             <Link
               href="/student"

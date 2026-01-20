@@ -179,7 +179,7 @@ export default function ResultsPage({ params }: { params: Promise<{ attemptId: s
         {/* Overall Score Card */}
         <div className={`mb-6 sm:mb-8 rounded-2xl p-6 sm:p-8 lg:p-10 shadow-xl border-4 ${getScoreBgColor(result.percentage)}`}>
           <div className="text-center">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Your Test Results</h2>
+            <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-4 sm:mb-6">Your Test Results</h2>
             <div className="mb-4 sm:mb-6">
               <div className={`text-5xl sm:text-6xl lg:text-8xl font-bold mb-3 sm:mb-4 ${getScoreColor(result.percentage)}`}>
                 {Math.round(result.percentage)}%

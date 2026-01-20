@@ -58,7 +58,7 @@ export default function LoginPage() {
                   className="mx-auto"
                 />
               </div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-3">
+              <h1 className="text-4xl font-semibold text-gray-900 mb-3">
                 Welcome to SAT Practice
               </h1>
               <p className="text-lg text-gray-600 leading-relaxed">

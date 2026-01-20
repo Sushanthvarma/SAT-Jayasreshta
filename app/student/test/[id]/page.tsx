@@ -562,7 +562,7 @@ export default function TestTakingPage({ params }: { params: Promise<{ id: strin
         <div className="mx-auto max-w-7xl px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
             <div className="flex-1 min-w-0">
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">{test.title}</h1>
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 truncate">{test.title}</h1>
               <p className="text-xs sm:text-sm text-gray-600 mt-1">
                 Section {currentSection} of {test.sections.length} • {test.sections[currentSection - 1]?.name}
               </p>
